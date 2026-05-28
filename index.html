@@ -749,6 +749,176 @@
     // ========== 模块数据 ==========
     const modules = [
         {
+            id: "ff_cam",
+            name: "内容寻址存储器 (CAM / 寄存器型)",
+            icon: "🔍",
+            language: "Verilog",
+            brief: "打破“按地址读数据”的传统架构。支持单周期全阵列并行比对，输入数据 Key 瞬间反查出其对应的存储地址，网络路由与 Cache 匹配利器。",
+            fullDescription: "内容寻址存储器 (CAM) 是一种特殊的存储结构，其核心价值在于实现“硬件级高速反查”。本模块使用触发器阵列（Flip-Flop）构建，相比于传统的 SRAM 方案，它在每个存储槽位都级联了独立的硬件比较器。当外部提供检索键值 (skey) 时，所有槽位在单周期内并行发起比对，并通过独热码转换器 (onehot2bin) 瞬时输出匹配的地址。模块还贴心地设计了 FLOP_IN 与 FLOP_OUT 参数，可自由开启输入输出流水线打拍，以平衡片上网络 (NoC) 的时序切片。",
+            code: `module idh_ff_cam #(
+    parameter DATA_WIDTH  = 24,                  // 存储数据的位宽
+    parameter ARRAY_DEPTH = 9,                   // CAM 槽位深度
+    parameter ADDR_WIDTH  = $clog2(ARRAY_DEPTH), // 地址总线位宽
+    parameter FLOP_IN     = 0,                   // 是否对输入信号进行流水打拍 (1:开启)
+    parameter FLOP_OUT    = 0,                   // 是否对输出信号进行流水打拍 (1:开启)
+    parameter END_OF_LIST = 0
+)(
+    input  wire                   i_clk,
+    input  wire                   i_rst_n,
+
+    // 传统写通道 (配置/写入条目)
+    input  wire                   i_wen,
+    input  wire [ADDR_WIDTH-1:0]  i_waddr,
+    input  wire [DATA_WIDTH-1:0]  i_wdata,
+
+    // 传统读通道 (点对点读取检视)
+    input  wire                   i_ren,
+    input  wire [ADDR_WIDTH-1:0]  i_raddr,
+    output reg  [DATA_WIDTH-1:0]  o_rdata,
+
+    // 条目擦除通道
+    input  wire                   i_cen,
+    input  wire [ADDR_WIDTH-1:0]  i_caddr,
+
+    // CAM 核心检索反查通道
+    input  wire                   i_sen,         // 检索使能 (Search Enable)
+    input  wire [DATA_WIDTH-1:0]  i_skey,        // 待查找的数据键值 (Search Key)
+    output reg  [ADDR_WIDTH-1:0]  o_saddr        // 反查出的对应硬件地址 (Search Address)
+);
+
+    // 寄存器数组，高 1 位为 Valid 标志位，低 DATA_WIDTH 位为实际数据 [Valid, Data]
+    reg [DATA_WIDTH:0] ff_array [0:ARRAY_DEPTH-1];
+
+    // 内部流水线影子信号
+    reg wen, ren, cen, sen;
+    reg [ADDR_WIDTH-1:0] waddr, raddr, caddr;
+    reg [DATA_WIDTH-1:0] wdata, rdata, skey;
+
+    wire [ARRAY_DEPTH-1:0] wen_bitmap;
+    wire [ARRAY_DEPTH-1:0] ren_bitmap;
+    wire [ARRAY_DEPTH-1:0] cen_bitmap;
+    wire [ARRAY_DEPTH-1:0] cmp_bitmap;
+    wire [ADDR_WIDTH-1:0]  saddr;
+
+    // ==========================================
+    // 1. 输入端时序切片控制 (Input Flop)
+    // ==========================================
+    generate
+    if (FLOP_IN == 1) begin : GEN_FLOP_IN
+        always @(posedge i_clk or negedge i_rst_n) begin
+            if (!i_rst_n) begin
+                wen <= 1'b0; ren <= 1'b0; cen <= 1'b0; sen <= 1'b0;
+            end else begin
+                wen <= i_wen; ren <= i_ren; cen <= i_cen; sen <= i_sen;
+            end
+        end
+
+        always @(posedge i_clk) begin
+            if (i_wen) begin
+                waddr <= i_waddr;
+                wdata <= i_wdata;
+            end
+        end
+
+        always @(posedge i_clk) begin
+            if (i_ren) raddr <= i_raddr;
+        end
+
+        always @(posedge i_clk) begin
+            if (i_cen) caddr <= i_caddr;
+        end
+
+        always @(posedge i_clk) begin
+            if (i_sen) skey <= i_skey;
+        end
+    end else begin : GEN_NON_FLOP_IN
+        always @(*) begin
+            wen   = i_wen;   waddr = i_waddr; wdata = i_wdata;
+            ren   = i_ren;   raddr = i_raddr;
+            cen   = i_cen;   caddr = i_caddr;
+            sen   = i_sen;   skey  = i_skey;
+        end
+    end
+    endgenerate
+
+    // ==========================================
+    // 2. 寻址译码产生独热码位图 (Decoder)
+    // ==========================================
+    // 核心修正：wen_bitmap 的控制基准应当是写使能信号 wen，而非读使能 ren
+    assign wen_bitmap = wen ? ({{(ARRAY_DEPTH-1){1'b0}}, 1'b1} << waddr) : 0;
+    assign ren_bitmap = ren ? ({{(ARRAY_DEPTH-1){1'b0}}, 1'b1} << raddr) : 0;
+    assign cen_bitmap = cen ? ({{(ARRAY_DEPTH-1){1'b0}}, 1'b1} << caddr) : 0;
+
+    // ==========================================
+    // 3. 存储阵列写控制与擦除逻辑
+    // ==========================================
+    generate
+    for (genvar i = 0; i < ARRAY_DEPTH; i = i + 1) begin : GEN_FF_ARRAY
+        always @(posedge i_clk or negedge i_rst_n) begin
+            if (!i_rst_n) begin
+                ff_array[i] <= {1'b0, {DATA_WIDTH{1'b0}}}; // 复位时 Valid 自动清零
+            end else if (wen_bitmap[i]) begin
+                ff_array[i] <= {1'b1, wdata};              // 写入数据并拉高 Valid
+            end else if (cen_bitmap[i]) begin
+                ff_array[i] <= {1'b0, {DATA_WIDTH{1'b0}}}; // 擦除条目
+            end
+        end
+    end
+    endgenerate
+
+    // ==========================================
+    // 4. 点对点传统读取通路
+    // ==========================================
+    always @(*) begin
+        integer k;
+        rdata = {DATA_WIDTH{1'b0}};
+        for (k = 0; k < ARRAY_DEPTH; k = k + 1) begin
+            if (ren_bitmap[k])
+                rdata = ff_array[k][0 +: DATA_WIDTH];
+        end
+    end
+
+    // ==========================================
+    // 5. CAM 核心并行比较器
+    // ==========================================
+    generate
+    for (genvar i = 0; i < ARRAY_DEPTH; i = i + 1) begin : GEN_CONTENT_CMP
+        // 只有当条目有效(Valid==1)且数据完全一致时，对应的比较结果位图才拉高
+        assign cmp_bitmap[i] = ff_array[i][DATA_WIDTH] && (ff_array[i][0 +: DATA_WIDTH] == skey);
+    end
+    endgenerate
+
+    // 调用独热码转二进制模块，输出最终匹配的地址
+    idh_onehot2bin #(.BITMAP_WIDTH(ARRAY_DEPTH)) u_onehot2bin (
+        .i_bitmap(cmp_bitmap),
+        .o_bin   (saddr)
+    );
+
+    // ==========================================
+    // 6. 输出端时序切片控制 (Output Flop)
+    // ==========================================
+    generate
+    if (FLOP_OUT == 1) begin : GEN_FLOP_OUT
+        always @(posedge i_clk) begin
+            if (ren) o_rdata <= rdata;
+        end
+        always @(posedge i_clk) begin
+            if (sen) o_saddr <= saddr;
+        end
+    end else begin : GEN_NON_FLOP_OUT
+        always @(*) begin
+            o_rdata = rdata;
+            o_saddr = saddr; // 如果未命中或 sen 未开启，保持转换器的计算输出
+        end
+    end
+    endgenerate
+
+endmodule`,
+            usage: `1. 通过修改 DATA_WIDTH 和 ARRAY_DEPTH 来自由调整 CAM 的检索表项规模。\n2. 写入条目：开启 i_wen，指定 i_waddr 与 i_wdata，该数据便被硬件记录，并将该条目的 Valid 标志置为 1。\n3. 反向检索：在 i_sen 为高时，在 i_skey 线上输入你想要查找的数据。模块将以硬件并行的速度，在当拍（或 FLOP 后下一拍）通过 o_saddr 直接输出对应的存储地址索引。\n4. 注意事项：该模块需要搭配基础组件 idh_onehot2bin 配合编译。若多路同时命中，o_saddr 的表现将取决于转换器的内部编码优先级设定。`,
+            hasCustomWave: false,
+            waveform: "当检索使能 i_sen 拉高时，内部所有有效存储寄存器的比较器在同周期开始运转。一旦 i_skey 与某个寄存器内的值匹配成功，cmp_bitmap 对应位置 1，经过优先编码器转换后，o_saddr 瞬间呈现出命中槽位的数字索引。"
+        },
+        {
             id: "free_ptr_mng",
             name: "高性能空闲指针管理器 (Free Pointer Manager)",
             icon: "🧬",
