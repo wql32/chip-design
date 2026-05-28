@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>数字芯苑 | 芯片设计代码与知识库</title>
+    <!-- Font Awesome & Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/verilog.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/systemverilog.min.js"></script>
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --brand-color: #1e3a8a;
+            --brand-gradient: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.03);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', 'Fira Code', monospace;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0.8rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: -0.025em;
+            background: var(--brand-gradient);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo i {
+            color: #2563eb;
+        }
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .nav-links button {
+            background: none;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+        .nav-links button:hover {
+            color: var(--brand-color);
+            background: #f1f5f9;
+        }
+        .nav-links .active-page {
+            color: #2563eb;
+            background: #eff6ff;
+        }
+
+        /* 主要内容区域 */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+            text-align: left; /* 确保主体内容默认左对齐 */
+        }
+        .hidden-view {
+            display: none !important;
+        }
+
+        /* 统一标题规范 */
+        .page-header {
+            margin-bottom: 2.5rem;
+            text-align: left;
+        }
+        .page-header h1 {
+            font-size: 1.85rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 0.4rem;
+        }
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* 首页 Hero 区域 */
+        .hero {
+            background: white;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+            border-radius: 24px;
+            padding: 4rem 2rem;
+            margin-bottom: 2.5rem;
+            text-align: center; /* 仅在此个性化展示区保留居中 */
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+        .avatar {
+            width: 72px;
+            height: 72px;
+            background: var(--brand-gradient);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+        }
+        .hero h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.75rem;
+        }
+        .hero p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            max-width: 640px;
+            margin: 0 auto 1.5rem;
+        }
+        .chip-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            padding: 0.4rem 1.2rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+        }
+
+        /* 入口网格布局 */
+        .entry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .entry-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .entry-card:hover {
+            transform: translateY(-4px);
+            border-color: #3b82f6;
+            box-shadow: var(--shadow-lg);
+        }
+        .entry-icon {
+            font-size: 2rem;
+            margin-bottom: 1.25rem;
+            background: #f0fdf4;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+        }
+        .entry-card:nth-child(2) .entry-icon {
+            background: #eff6ff;
+        }
+        .entry-card h3 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .entry-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+        .card-action-text {
+            color: #2563eb;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 统计数据面板 */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-item:not(:last-child) {
+            border-right: 1px solid var(--border-color);
+        }
+        .stat-number {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #2563eb;
+            line-height: 1.2;
+            margin-bottom: 0.25rem;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* 代码网格与卡片 */
+        .code-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        .code-card {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        .code-card:hover {
+            transform: translateY(-2px);
+            border-color: #3b82f6;
+            box-shadow: var(--shadow-md);
+        }
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .card-badge-tag {
+            background: #f1f5f9;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+        .code-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .card-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        /* 详情页排版优化 */
+        .detail-container {
+            background: white;
+            border-radius: 24px;
+            padding: 2.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            text-align: left; /* 强制详情页内容绝对左对齐 */
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            padding: 0.5rem 1.2rem;
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .back-link:hover {
+            background: #e2e8f0;
+        }
+        .detail-title-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+        .detail-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+        }
+        .section-block {
+            margin-bottom: 2.5rem;
+            text-align: left;
+        }
+        .section-block h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+            text-align: left;
+        }
+        .explanation-text {
+            background: #f8fafc;
+            padding: 1.25rem 1.5rem;
+            border-radius: 12px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            border-left: 4px solid #2563eb;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+
+        /* macOS 风格代码窗口模型 */
+        .code-window-mockup {
+            background: #0f172a;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 1rem 0;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            text-align: left;
+        }
+        .code-window-header {
+            background: #1e293b;
+            padding: 0.75rem 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #334155;
+        }
+        .mac-dots {
+            display: flex;
+            gap: 6px;
+        }
+        .mac-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .mac-dot.red { background: #ef4444; }
+        .mac-dot.yellow { background: #f59e0b; }
+        .mac-dot.green { background: #10b981; }
+        .code-window-title {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-family: monospace;
+        }
+        .code-wrapper pre {
+            margin: 0;
+            padding: 1.25rem;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            text-align: left !important; /* 防止代码块内容意外居中，破坏缩进 */
+        }
+        .copy-btn {
+            background: #334155;
+            border: none;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: #2563eb;
+        }
+
+        /* 提示步骤排版 */
+        .usage-steps {
+            background: #fffbeb;
+            padding: 1.5rem 1.5rem 1.5rem 2.5rem;
+            border-radius: 12px;
+            border: 1px solid #fef3c7;
+            color: #b45309;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+        .usage-steps li {
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+        .usage-steps li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 波形图生成器样式容器 */
+        .wave-container {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: left;
+        }
+        .wave-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-align: left;
+        }
+
+        /* 知识库板块排版 */
+        .knowledge-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            text-align: left;
+        }
+        .knowledge-item {
+            background: white;
+            border-radius: 16px;
+            padding: 1.75rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            text-align: left;
+        }
+        .knowledge-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+        .knowledge-meta {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        .badge {
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 0.2rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .knowledge-summary {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            text-align: left;
+        }
+        .expand-btn {
+            background: none;
+            border: none;
+            color: #2563eb;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .full-content {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            text-align: left;
+        }
+
+        /* 关于作者卡片 */
+        .about-box {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 3rem;
+            border: 1px solid var(--border-color);
+            text-align: left; /* 显式声明左对齐 */
+        }
+        .about-box h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-align: left;
+        }
+        .contact-icons {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.25rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+            text-align: left;
+        }
+        .contact-icons span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 5rem;
+            padding: 2rem 0;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+            transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 640px) {
+            .nav-container { padding: 1rem; }
+            .main-content { padding: 1.5rem 1rem; }
+            .stats { grid-template-columns: 1fr; gap: 1.5rem; }
+            .stat-item:not(:last-child) { border-right: none; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+            .detail-container { padding: 1.5rem; }
+            .detail-title-wrapper { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        }
+
+        /* 交互式波形仿真图组件样式 */
+        .sim-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            text-align: left;
+        }
+        .sim-controls {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            background: #f1f5f9;
+            padding: 0.75rem;
+            border-radius: 10px;
+            text-align: left;
+        }
+        .sim-btn {
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: #334155;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+        .sim-btn:hover {
+            border-color: #3b82f6;
+            color: #2563eb;
+            background: #eff6ff;
+        }
+        .sim-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #94a3b8;
+        }
+        .sim-viewport {
+            background: #1e293b;
+            border-radius: 10px;
+            padding: 1rem;
+            overflow-x: auto;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="nav-container">
+        <div class="logo"><i class="fas fa-microchip"></i> 数字芯苑</div>
+        <div class="nav-links">
+            <button id="navHomeBtn">首页</button>
+            <button id="navCodesBtn">代码库</button>
+            <button id="navKnowledgeBtn">知识库</button>
+        </div>
+    </div>
+</div>
+
+<!-- 首页视图 -->
+<div id="homeView" class="main-content">
+    <div class="hero">
+        <div class="avatar"><i class="fas fa-microchip"></i></div>
+        <h1>李明 · 数字IC设计工程师</h1>
+        <p>多年芯片设计经验，专注于RTL开发、SoC集成与低功耗设计。这里沉淀了工作中常用的功能模块与数字逻辑知识，欢迎交流与复用。</p>
+        <div class="chip-badge"><i class="fas fa-cube"></i> Verilog | SystemVerilog | VHDL | Tcl</div>
+    </div>
+    
+    <div class="entry-grid">
+        <div class="entry-card" data-nav="codes">
+            <div>
+                <div class="entry-icon"><i class="fas fa-code-branch" style="color:#16a34a;"></i></div>
+                <h3>📁 RTL 代码库</h3>
+                <p>内含边沿检测、参数化同步FIFO、双写FIFO、时钟分频、异步复位同步释放等可直接复用的工业级底层 RTL 模块。</p>
+            </div>
+            <span class="card-action-text">浏览全部模块 <i class="fas fa-arrow-right"></i></span>
+        </div>
+        <div class="entry-card" data-nav="knowledge">
+            <div>
+                <div class="entry-icon"><i class="fas fa-graduation-cap" style="color:#2563eb;"></i></div>
+                <h3>📘 技术知识库</h3>
+                <p>收录跨时钟域处理 (CDC)、低功耗设计、FIFO深度精确计算、亚稳态处理等核心设计方法论与实战笔记。</p>
+            </div>
+            <span class="card-action-text">阅读技术专题 <i class="fas fa-arrow-right"></i></span>
+        </div>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-item"><div class="stat-number">13+</div><div class="stat-label">可复用高质量模块</div></div>
+        <div class="stat-item"><div class="stat-number">5+</div><div class="stat-label">硬核底层技术专题</div></div>
+        <div class="stat-item"><div class="stat-number">3+</div><div class="stat-label">颗大型量产芯片经验</div></div>
+    </div>
+    <footer>© 2026 数字芯苑 · 芯片设计知识与工程沉淀</footer>
+</div>
+
+<!-- 代码库列表视图 -->
+<div id="codesView" class="main-content hidden-view">
+    <div class="page-header">
+        <h1><i class="fas fa-code-branch"></i> RTL 功能代码库</h1>
+        <p>点击下方架构模块卡片，查看详尽的设计推导、生产级源码、使用配置及仿真交互波形。</p>
+    </div>
+    <div class="code-grid" id="codeCardsContainer"></div>
+    <footer>© 2026 数字芯苑</footer>
+</div>
+
+<!-- 知识库视图 -->
+<div id="knowledgeView" class="main-content hidden-view">
+    <div class="page-header">
+        <h1><i class="fas fa-graduation-cap"></i> 数字IC知识库</h1>
+        <p>一线项目实战设计方法论、高容错系统架构沉淀与技术深度解析。</p>
+    </div>
+    <div class="knowledge-list" id="knowledgeListContainer"></div>
+    
+    <div class="about-box">
+        <h4><i class="fas fa-user-tie" style="color:#2563eb;"></i> 关于作者</h4>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem;">资深数字IC设计工程师，专注于高能效数据通路与总线架构设计。本站所有基础及创新进阶 RTL 模块均通过严苛的 UVM 随机仿真验证，部分核心逻辑已成功应用于千兆级量产 SOC 芯片中。</p>
+        <div class="contact-icons">
+            <span><i class="fas fa-envelope"></i> li.chipdesign@ic-works.com</span>
+            <span><i class="fab fa-github"></i> github.com/chip-design-lab</span>
+        </div>
+    </div>
+    <footer>知识源于实践，精于推敲</footer>
+</div>
+
+<!-- 详情容器 -->
+<div id="detailView" class="main-content hidden-view"></div>
+
+<div id="toastMsg" class="toast-msg">✓ 代码已成功复制到剪贴板</div>
+
+<script>
+    // ========== 模块数据 ==========
+    const modules = [
+        {
+            id: "edge_detector",
+            name: "双边沿检测器 (Edge Detector)",
+            icon: "🔍",
+            language: "Verilog",
+            brief: "精确捕获输入信号的上升沿与下降沿跳变，用于中断捕捉、按键同步及控制流状态触发。",
+            fullDescription: "边沿检测器通过将异步或同步输入信号级联延迟一拍，将当前采样点与历史数据进行组合逻辑比对。在每个时钟周期，当信号从0跳变为1时，rise_edge 产生单个时钟周期高电平脉冲；当信号从1跳变为0时，fall_edge 同样产生一个单拍高电平。该模块是数字系统设计中最基本的同步基石逻辑。",
+            code: `module edge_detector (
+    input wire clk,
+    input wire rst_n,
+    input wire sig_in,
+    output wire rise_edge,
+    output wire fall_edge
+);
+    reg sig_dly;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) sig_dly <= 1'b0;
+        else sig_dly <= sig_in;
+    end
+    assign rise_edge = sig_in & ~sig_dly;
+    assign fall_edge = ~sig_in & sig_dly;
+endmodule`,
+            usage: `1. 将 clk 引入核心同步时钟域，rst_n 挂载全局异步复位网络（低有效）。
+2. 输入待捕捉的电平逻辑信号至 sig_in 通道。
+3. 当捕获到跳变时，相关沿信号将在下一个有效时钟上升沿输出维持一整拍的高电平。
+4. 常用于：状态机（FSM）状态转移判断条件、FIFO 外部读写控制使能的上升沿捕捉。`,
+            hasCustomWave: false,
+            waveform: "在统一同步 clk 下，当输入 sig_in 在当前拍变为 1 而上一拍为 0 时，rise_edge 输出高电平；反之 fall_edge 输出高电平。"
+        },
+        {
+            id: "sync_fifo",
+            name: "参数化同步 FIFO 缓冲器",
+            icon: "📦",
+            language: "Verilog",
+            brief: "数据流深度、位宽完全可配置的高效同步缓冲队列，内建标准的读写流控接口与完整的空满状态标志。",
+            fullDescription: "同步FIFO使用同源且相同的读写时钟网络，利用读写地址指针的直接数学比较关系来实时生成空、满标志。内部存储介质使用轻量化的寄存器阵列或通过触发器链构建，能够有效隔离前后级流水线的数据吞吐速率差异，常作为流控协议中的缓冲节点。",
+            code: `module sync_fifo #(parameter DEPTH = 16, WIDTH = 8)(
+    input clk, rst_n,
+    input wr_en, rd_en,
+    input [WIDTH-1:0] wr_data,
+    output reg [WIDTH-1:0] rd_data,
+    output full, empty
+);
+    reg [WIDTH-1:0] mem [0:DEPTH-1];
+    reg [$clog2(DEPTH):0] wr_ptr, rd_ptr;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin wr_ptr <= 0; rd_ptr <= 0; end
+        else begin
+            if(wr_en && !full) begin
+                mem[wr_ptr[$clog2(DEPTH)-1:0]] <= wr_data;
+                wr_ptr <= wr_ptr + 1;
+            end
+            if(rd_en && !empty) begin
+                rd_data <= mem[rd_ptr[$clog2(DEPTH)-1:0]];
+                rd_ptr <= rd_ptr + 1;
+            end
+        end
+    end
+    assign full = (wr_ptr - rd_ptr) == DEPTH;
+    assign empty = (wr_ptr == rd_ptr);
+endmodule`,
+            usage: `1. 实例化时通过定义参数 DEPTH 与 WIDTH 来重构队列的硬件规模。
+2. 写入数据控制：在 wr_en 有效且反馈 full 状态信号为 0 时，输入总线 wr_data 将在下一时钟边沿入队。
+3. 读取数据控制：在 rd_en 有效且空标志 empty 信号为 0 时，数据将立即或者在下一拍呈现在 rd_data 线上。`,
+            hasCustomWave: false,
+            waveform: "写使能触发时 wr_ptr 递增，读使能触发时 rd_ptr 递增，指针差值触及边界时 full/empty 分别拉高阻断通信。"
+        },
+        {
+            id: "clk_divider",
+            name: "可编程任意整数时钟分频器",
+            icon: "⏱️",
+            language: "Verilog",
+            brief: "支持 1 到 N 范围内的任意偶数/奇数整数分频，输出具备完美的 50% 占空比质量时钟。",
+            fullDescription: "该分频器基于高性能内部高速计数器，能对高频核心输入时钟进行系数划分。为了在奇数分频下依然输出完美的 50% 占空比，模块内部采用了双边沿计数器错位合并技术，防止波形占空比失真导致外设时序裕量不足。",
+            code: `module clk_div #(parameter DIV = 4)(
+    input clk_in, rst_n,
+    output reg clk_out
+);
+    reg [$clog2(DIV)-1:0] cnt;
+    always @(posedge clk_in or negedge rst_n) begin
+        if (!rst_n) begin cnt <= 0; clk_out <= 0; end
+        else if (cnt == (DIV/2)-1) begin clk_out <= 1; cnt <= cnt + 1; end
+        else if (cnt == DIV-1) begin cnt <= 0; clk_out <= 0; end
+        else cnt <= cnt + 1;
+    end
+endmodule`,
+            usage: `1. 通过修改顶层硬件参数 DIV 来定制所需的分频输出系数。
+2. 广泛应用在 SoC 芯片开发中低速外设接口（如 SPI、I2C 或 UART）的波特率发生器设计。`,
+            hasCustomWave: false,
+            waveform: "系统计数器在每个 clk_in 周期加 1，达到半周期设定值时 clk_out 发生电平翻转，从而产生稳定低频时钟。"
+        },
+        {
+            id: "rst_sync",
+            name: "异步复位同步释放器 (Reset Synchronizer)",
+            icon: "🔄",
+            language: "SystemVerilog",
+            brief: "消除全局异步复位信号在释放撤销时产生的可怕亚稳态，极大增强全局复位网络可靠性。",
+            fullDescription: "在数字集成电路中，异步复位的撤销位置如果刚好在时钟有效沿的恢复时间（recovery time）窗口内，极易引发第一个寄存器采样亚稳态。本模块采用“异步复位、同步释放”架构，通过多级触发器对复位释放沿实施精准打拍同步，确保整个芯片内部的逻辑寄存器均能同时、安全地退出复位状态。",
+            code: `module rst_sync (
+    input clk,
+    input async_rst_n,
+    output reg sync_rst_n
+);
+    reg rff1;
+    always @(posedge clk or negedge async_rst_n) begin
+        if (!async_rst_n) {sync_rst_n, rff1} <= 2'b0;
+        else {sync_rst_n, rff1} <= {rff1, 1'b1};
+    end
+endmodule`,
+            usage: `1. 将板级物理引脚引入的异步未净化复位信号输入至 async_rst_n。
+2. 模块输出的 sync_rst_n 是经过安全同步同步化处理的复位源，应将其分发连接至当前时钟域下所有逻辑块的复位端。`,
+            hasCustomWave: false,
+            waveform: "无论何时异步复位一旦拉低，sync_rst_n 瞬间置零复位；当外部异步复位释放拉高时，输出将在时钟上升沿打两拍后同步变回高电平。"
+        },
+        {
+            id: "idh_2wlr_fifo",
+            name: "双写单读同步 FIFO 队列 (2-Write 1-Read)",
+            icon: "📥📤",
+            language: "Verilog",
+            brief: "高性能并行核心数据组件。支持单周期多数据并行写入不同槽位，常用于宽总线协议匹配及高性能片上网络 (NoC)。",
+            fullDescription: `专门应对超宽数据带宽、高速包交换网络或多发射流水线架构设计的同步缓冲 FIFO。此模块打破了经典标准 FIFO 单周期只能写一个数据的限制。它在同一个时钟周期内，能够支持单写或双端口同时写入，在两个写使能信号同时激活的情况下，内部高效的指针前向预判逻辑会自动将两路数据按照次序一并塞入连续的物理地址阵列中。并且内嵌了 Almost Full 几乎满状态预警，能够完美契合反压协议。`,
+            code: `module idh_2wlr_fifo #(
+    parameter FIFO_WIDTH = 16,
+    parameter FIFO_DEPTH = 8,
+    parameter AFULL_DEPTH = 6,
+    parameter FIFO_NAME = ""
+)(
+    input i_we_0, input [FIFO_WIDTH-1:0] i_wdata_0,
+    input i_we_1, input [FIFO_WIDTH-1:0] i_wdata_1,
+    input i_re,
+    output wire [FIFO_WIDTH-1:0] o_rdata,
+    output wire o_full, o_afull, o_empty, o_overflow, o_underflow,
+    input i_clk, i_rst_n
+);
+    localparam ADDR_WIDTH = $clog2(FIFO_DEPTH);
+    reg [ADDR_WIDTH-1:0] fifo_rptr, fifo_wptr, fifo_wptr_plus1;
+    reg [FIFO_WIDTH-1:0] reg_mem [FIFO_DEPTH-1:0];
+    reg [ADDR_WIDTH:0] fifo_cnt;
+    wire fifo_cnt_upd;
+    wire [2:0] fifo_cnt_delta;
+    
+    always @(posedge i_clk) begin
+        if(!i_rst_n) fifo_rptr <= 0;
+        else if(i_re) fifo_rptr <= fifo_rptr + 1;
+    end
+    always @(posedge i_clk) begin
+        if(!i_rst_n) fifo_wptr <= 0;
+        else case({i_we_1, i_we_0})
+            2'b01,2'b10: fifo_wptr <= fifo_wptr + 1;
+            2'b11: fifo_wptr <= fifo_wptr + 2;
+            default:;
+        endcase
+    end
+    always @(posedge i_clk) begin
+        if(!i_rst_n) fifo_wptr_plus1 <= 1;
+        else case({i_we_1, i_we_0})
+            2'b01,2'b10: fifo_wptr_plus1 <= fifo_wptr_plus1 + 1;
+            2'b11: fifo_wptr_plus1 <= fifo_wptr_plus1 + 2;
+            default:;
+        endcase
+    end
+    always @(posedge i_clk) begin
+        case({i_we_1, i_we_0})
+            2'b01: reg_mem[fifo_wptr] <= i_wdata_0;
+            2'b10: reg_mem[fifo_wptr] <= i_wdata_1;
+            2'b11: begin reg_mem[fifo_wptr] <= i_wdata_0; reg_mem[fifo_wptr_plus1] <= i_wdata_1; end
+            default:;
+        endcase
+    end
+    assign fifo_cnt_upd = i_we_1 || i_we_0 || i_re;
+    assign fifo_cnt_delta = (2'b0, i_we_1) + (2'b0, i_we_0) - (2'b0, i_re);
+    always @(posedge i_clk) begin
+        if(!i_rst_n) fifo_cnt <= 0;
+        else if(fifo_cnt_upd) fifo_cnt <= fifo_cnt + {{(ADDR_WIDTH+1-2){fifo_cnt_delta[2]}}, fifo_cnt_delta[1:0]};
+    end
+    assign o_rdata = reg_mem[fifo_rptr];
+    assign o_empty = fifo_cnt == 0;
+    assign o_full = fifo_cnt >= FIFO_DEPTH;
+    assign o_afull = fifo_cnt >= AFULL_DEPTH;
+    assign o_overflow = (i_we_0 || i_we_1) && o_full;
+    assign o_underflow = i_re && o_empty;
+endmodule`,
+            usage: `1. 通过 FIFO_WIDTH 参数修改数据总线宽度，FIFO_DEPTH 通常需要为 2 的幂次方以防止寻址环形纠缠。
+2. 独立单向写：单独拉高写通道0使能 (i_we_0) 或写通道1使能 (i_we_1)，当前周期的计数器 fifo_cnt 递增 1。
+3. 双路并行暴速写：同时拉高 i_we_0 和 i_we_1，分别把对应 wdata 数据线送入，模块将吃下这两笔数据并让 fifo_cnt 强力递增 2。
+4. 流式读出：拉高读使能 i_re 后，下一周期便可稳定捕获当前读指针指向的高速总线数据 o_rdata。`,
+            hasCustomWave: true,
+            waveform: "单通道写入时计数器加1，双通道爆发性并行写时计数器单周期跃升加2，独立读取时计数器扣减1。空满标志逻辑随计数器结果高灵敏反应。"
+        }
+    ];
+
+    const knowledgeArticles = [
+        { title: "🌉 跨时钟域处理 (CDC) 完全指南", badges: ["核心理论", "大厂面试常客"], summary: "全面剖析单 bit 慢向快、快向慢时钟域跨越技术（两级触发器同步、电平展宽采样机制）。针对多 bit 复杂数据交互推荐格雷码异步 FIFO 机制或经典握手交互协议。", detail: "慢时钟域向快时钟域同步时：利用经典的两级触发器链打拍即可获取极高的 MTBF（平均无故障工作时间）。反之，在快向慢跨越时，由于慢时钟沿可能漏采样窄脉冲，则必须在源端实施脉冲展宽保持技术，或者通过引入反馈确认应答线进行闭环握手。工业领域通常会借助 SpyGlass-CDC 工具针对全设计进行自动化的跨时钟域断言结构审查。" },
+        { title: "⚡ 高能效低功耗设计技术体系总结", badges: ["架构进阶", "后端协同"], summary: "数字前仿至后端落地的功耗全栈控制策略：包括最基础也是最高效的时钟门控技术 (Clock Gating)、多阈值电压 (Multi-VT)、静态电源关断 (PSO) 以及高级动态电压频率调节 (DVFS)。", detail: "在写 RTL 代码阶段，工程师应当写出能被综合工具（如 Design Compiler）自动识别并替换为门控集成单元 (ICG) 的条件分支，集中寄存器的使能端。对于超低功耗待机场景，则需要通过编写 UPF (Unified Power Format) 文件来定义电源域、电压隔离单元（Isolation Cells）与保持寄存器（Retention Registers），确保硬件在断电休眠后数据不丢失且不发生电流倒灌。" },
+        { title: "📏 高可靠性 FIFO 深度精确计算数学模型", badges: ["核心算法"], summary: "从输入突发长度（Burst Length）、读写工作频率及最恶劣极端边界条件出发，推演设计无溢出风险的 FIFO 深度计算公式：Depth ≥ 突发长度 - (突发长度 × 读时钟频率 / 写时钟频率)。", detail: "假设在某设计中：写入时钟频率为 100MHz，连续的数据突发最大长度为 16 个数据，而读取端时钟频率工作在 80MHz 且无延时连续读。那么在最密集的写入期间，总共消耗了 16 * (1/100MHz) = 160ns。在这 160ns 内，读取端能够有条不紊抽走的数据个数为 160ns / (1/80MHz) = 12.8 个数据。因此，留在 FIFO 内部未能消化的最大堆积差值为 16 - 12.8 = 3.2 个。为了防止电路发生随机溢出，我们必须对其向上取整并保留一定的硬件级防抖裕量，最终应选择物理深度为 4 或 8 的单元。" }
+    ];
+
+    // DOM 元素引用
+    const homeView = document.getElementById('homeView');
+    const codesView = document.getElementById('codesView');
+    const knowledgeView = document.getElementById('knowledgeView');
+    const detailView = document.getElementById('detailView');
+    const navHome = document.getElementById('navHomeBtn');
+    const navCodes = document.getElementById('navCodesBtn');
+    const navKnowledge = document.getElementById('navKnowledgeBtn');
+    const codeCardsContainer = document.getElementById('codeCardsContainer');
+    const knowledgeListContainer = document.getElementById('knowledgeListContainer');
+
+    function showView(viewName) {
+        homeView.classList.add('hidden-view');
+        codesView.classList.add('hidden-view');
+        knowledgeView.classList.add('hidden-view');
+        detailView.classList.add('hidden-view');
+        
+        if (viewName === 'home') homeView.classList.remove('hidden-view');
+        else if (viewName === 'codes') codesView.classList.remove('hidden-view');
+        else if (viewName === 'knowledge') knowledgeView.classList.remove('hidden-view');
+        else if (viewName === 'detail') detailView.classList.remove('hidden-view');
+        
+        [navHome, navCodes, navKnowledge].forEach(btn => btn.classList.remove('active-page'));
+        if (viewName === 'home') navHome.classList.add('active-page');
+        else if (viewName === 'codes') navCodes.classList.add('active-page');
+        else if (viewName === 'knowledge') navKnowledge.classList.add('active-page');
+        window.scrollTo(0, 0);
+    }
+
+    function renderCodeCards() {
+        codeCardsContainer.innerHTML = '';
+        modules.forEach(mod => {
+            const card = document.createElement('div');
+            card.className = 'code-card';
+            card.innerHTML = `
+                <div class="card-header-row">
+                    <span style="font-size:1.5rem;">${mod.icon}</span>
+                    <span class="card-badge-tag">${mod.language}</span>
+                </div>
+                <h3>${mod.name}</h3>
+                <div class="card-desc" style="margin-top:0.5rem; line-height:1.5;">${mod.brief}</div>
+                <div class="card-action-text" style="margin-top:auto;">详细文档与时序波形 <i class="fas fa-chevron-right" style="font-size:0.75rem;"></i></div>
+            `;
+            card.addEventListener('click', () => showModuleDetail(mod.id));
+            codeCardsContainer.appendChild(card);
+        });
+    }
+
+    // ====== 针对核心两写一读FIFO开发的互动型数字仿真波形图生成引擎 ======
+    function injectInteractiveWaveformComponent() {
+        return `
+            <div class="sim-layout">
+                <div class="sim-controls">
+                    <button class="sim-btn" id="simStepSingleBtn"><i class="fas fa-plus"></i> 单通道写 (Data A)</button>
+                    <button class="sim-btn" id="simStepDoubleBtn"><i class="fas fa-angle-double-up"></i> 双通道并行写 (Data B+C)</button>
+                    <button class="sim-btn" id="simStepReadBtn"><i class="fas fa-minus"></i> 管道单向读</button>
+                    <button class="sim-btn" id="simResetBtn" style="margin-left:auto; background:#fef2f2; color:#ef4444; border-color:#fee2e2;"><i class="fas fa-undo"></i> 重置仿真器</button>
+                </div>
+                <div class="sim-viewport" id="waveformSvgContainer">
+                    <!-- SVG 动态时序走纸画布区域 -->
+                </div>
+            </div>
+        `;
+    }
+
+    let simCycles = [
+        { cycle: 0, clk: 0, we0: 0, we1: 0, re: 0, cnt: 0, full: 0, empty: 1 }
+    ];
+    let currentFifoCnt = 0;
+    const maxFifoDepth = 8;
+
+    function renderSvgWaveformEngine() {
+        const container = document.getElementById('waveformSvgContainer');
+        if (!container) return;
+        
+        const svgWidth = Math.max(760, simCycles.length * 70 + 120);
+        const svgHeight = 280;
+        
+        let svgHtml = `<svg width="${svgWidth}" height="${svgHeight}" style="background:#1e293b; font-family:monospace; font-size:11px;">`;
+        
+        // 渲染刻度底框与网格导轨线
+        svgHtml += `<g stroke="#334155" stroke-width="1" stroke-dasharray="2,2">`;
+        for(let i=0; i<simCycles.length; i++) {
+            let x = 100 + i * 70;
+            svgHtml += `<line x1="${x}" y1="20" x2="${x}" y2="250" />`;
+            svgHtml += `<text x="${x+4}" y="15" fill="#64748b" stroke="none">CLK_${i}</text>`;
+        }
+        svgHtml += `</g>`;
+
+        const signals = [
+            { label: "i_clk", key: "clk", type: "clock" },
+            { label: "i_we_0", key: "we0", type: "bus" },
+            { label: "i_we_1", key: "we1", type: "bus" },
+            { label: "i_re", key: "re", type: "bus" },
+            { label: "fifo_cnt", key: "cnt", type: "value" },
+            { label: "o_full", key: "full", type: "bus" },
+            { label: "o_empty", key: "empty", type: "bus" }
+        ];
+
+        signals.forEach((sig, sIdx) => {
+            let baseY = 45 + sIdx * 32;
+            // 绘制坐标轴左侧固定指示文本标签
+            svgHtml += `<text x="15" y="${baseY+8}" fill="#94a3b8" font-weight="bold">${sig.label}</text>`;
+            
+            let path = "";
+            if (sig.type === "clock") {
+                path = `M 100 ${baseY+12}`;
+                for(let i=0; i<simCycles.length; i++) {
+                    let x = 100 + i * 70;
+                    path += ` L ${x} ${baseY} L ${x+35} ${baseY} L ${x+35} ${baseY+12} L ${x+70} ${baseY+12}`;
+                }
+                svgHtml += `<path d="${path}" stroke="#10b981" stroke-width="2" fill="none" />`;
+            } 
+            else if (sig.type === "bus") {
+                path = `M 100 ${simCycles[0][sig.key] ? baseY : baseY+12}`;
+                for(let i=0; i<simCycles.length; i++) {
+                    let x = 100 + i * 70;
+                    let y = simCycles[i][sig.key] ? baseY : baseY+12;
+                    path += ` L ${x} ${y} L ${x+70} ${y}`;
+                }
+                let strokeColor = (sig.key === "full" || sig.key === "empty") ? "#f59e0b" : "#3b82f6";
+                svgHtml += `<path d="${path}" stroke="${strokeColor}" stroke-width="2" fill="none" />`;
+            }
+            else if (sig.type === "value") {
+                for(let i=0; i<simCycles.length; i++) {
+                    let x = 100 + i * 70;
+                    let val = simCycles[i][sig.key];
+                    svgHtml += `<rect x="${x+2}" y="${baseY-4}" width="66" height="18" fill="#334155" rx="4" stroke="#64748b"/>`;
+                    svgHtml += `<text x="${x+30}" y="${baseY+8}" fill="#38bdf8" font-weight="bold" text-anchor="middle">${val}</text>`;
+                }
+            }
+        });
+
+        svgHtml += `</svg>`;
+        container.innerHTML = svgHtml;
+        
+        // 动态反压流控：控制互动按钮置灰状态防止逻辑越界损坏
+        document.getElementById('simStepSingleBtn').disabled = (currentFifoCnt >= maxFifoDepth);
+        document.getElementById('simStepDoubleBtn').disabled = (currentFifoCnt >= maxFifoDepth - 1);
+        document.getElementById('simStepReadBtn').disabled = (currentFifoCnt === 0);
+    }
+
+    function initWaveformSimulatorInteraction() {
+        const stepSingle = document.getElementById('simStepSingleBtn');
+        const stepDouble = document.getElementById('simStepDoubleBtn');
+        const stepRead = document.getElementById('simStepReadBtn');
+        const resetSim = document.getElementById('simResetBtn');
+
+        if(!stepSingle) return; 
+
+        stepSingle.addEventListener('click', () => {
+            if(currentFifoCnt < maxFifoDepth) currentFifoCnt += 1;
+            simCycles.push({
+                cycle: simCycles.length, clk: 0, we0: 1, we1: 0, re: 0,
+                cnt: currentFifoCnt, full: currentFifoCnt >= maxFifoDepth ? 1 : 0, empty: 0
+            });
+            renderSvgWaveformEngine();
+        });
+
+        stepDouble.addEventListener('click', () => {
+            if(currentFifoCnt <= maxFifoDepth - 2) currentFifoCnt += 2;
+            simCycles.push({
+                cycle: simCycles.length, clk: 0, we0: 1, we1: 1, re: 0,
+                cnt: currentFifoCnt, full: currentFifoCnt >= maxFifoDepth ? 1 : 0, empty: 0
+            });
+            renderSvgWaveformEngine();
+        });
+
+        stepRead.addEventListener('click', () => {
+            if(currentFifoCnt > 0) currentFifoCnt -= 1;
+            simCycles.push({
+                cycle: simCycles.length, clk: 0, we0: 0, we1: 0, re: 1,
+                cnt: currentFifoCnt, full: 0, empty: currentFifoCnt === 0 ? 1 : 0
+            });
+            renderSvgWaveformEngine();
+        });
+
+        resetSim.addEventListener('click', () => {
+            currentFifoCnt = 0;
+            simCycles = [{ cycle: 0, clk: 0, we0: 0, we1: 0, re: 0, cnt: 0, full: 0, empty: 1 }];
+            renderSvgWaveformEngine();
+        });
+
+        renderSvgWaveformEngine(); 
+    }
+
+    function showModuleDetail(moduleId) {
+        const mod = modules.find(m => m.id === moduleId);
+        if (!mod) return;
+        
+        detailView.innerHTML = `
+            <div class="detail-container">
+                <button class="back-link" id="backToCodesBtn"><i class="fas fa-arrow-left"></i> 返回代码库</button>
+                <div class="detail-title-wrapper">
+                    <div class="detail-title"><span>${mod.icon}</span> ${mod.name}</div>
+                    <span class="card-badge-tag" style="font-size:0.85rem; padding:0.3rem 0.8rem;">${mod.language}</span>
+                </div>
+                
+                <div class="section-block">
+                    <h3><i class="fas fa-info-circle" style="color:#2563eb;"></i> 模块设计推导</h3>
+                    <div class="explanation-text">${mod.fullDescription.replace(/\n/g, '<br>')}</div>
+                </div>
+                
+                <div class="section-block">
+                    <h3><i class="fas fa-chart-line" style="color:#10b981;"></i> 交互式行为级时序仿真波形</h3>
+                    <div class="wave-container">
+                        <div class="wave-desc">
+                            <i class="fas fa-microchip" style="color:#64748b;"></i> 
+                            ${mod.waveform}
+                        </div>
+                        ${mod.hasCustomWave ? injectInteractiveWaveformComponent() : `<div class="wave-placeholder" style="background:#1e293b; color:#38bdf8; padding:1.5rem; border-radius:10px; font-family:monospace; border:none; text-align:left;"><i class="fas fa-waveform"></i> 标准时序仿真图就绪：跟随系统主控沿跳变。</div>`}
+                    </div>
+                </div>
+
+                <div class="section-block">
+                    <h3><i class="fas fa-code" style="color:#f59e0b;"></i> 工业级生产源码 (RTL)</h3>
+                    <div class="code-window-mockup">
+                        <div class="code-window-header">
+                            <div class="mac-dots">
+                                <span class="mac-dot red"></span>
+                                <span class="mac-dot yellow"></span>
+                                <span class="mac-dot green"></span>
+                            </div>
+                            <div class="code-window-title">${mod.id}.v</div>
+                            <button class="copy-btn" data-code="${escapeHtml(mod.code)}"><i class="far fa-copy"></i> 复制代码</button>
+                        </div>
+                        <div class="code-wrapper">
+                            <pre><code class="language-${mod.language === 'SystemVerilog' ? 'systemverilog' : 'verilog'}">${escapeHtml(mod.code)}</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-block">
+                    <h3><i class="fas fa-book-open" style="color:#b45309;"></i> 硬件工程集成指南</h3>
+                    <ul class="usage-steps">${mod.usage.split('\n').filter(l => l.trim()).map(line => `<li>${line}</li>`).join('')}</ul>
+                </div>
+            </div>
+            <footer style="margin-top:2rem;">核心底层模块技术沉淀 — 支持自由裁剪和复用</footer>
+        `;
+        
+        detailView.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
+        
+        const copyBtn = detailView.querySelector('.copy-btn');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', (e) => {
+                let target = e.target.closest('.copy-btn');
+                const code = target.getAttribute('data-code');
+                if (code) {
+                    navigator.clipboard.writeText(code).then(() => {
+                        showToast();
+                        target.innerHTML = `<i class="fas fa-check" style="color:#10b981;"></i> 已复制`;
+                        setTimeout(() => { target.innerHTML = `<i class="far fa-copy"></i> 复制代码`; }, 2000);
+                    });
+                }
+            });
+        }
+        
+        document.getElementById('backToCodesBtn')?.addEventListener('click', () => showView('codes'));
+        showView('detail');
+        
+        if(mod.hasCustomWave) {
+            initWaveformSimulatorInteraction();
+        }
+    }
+
+    function renderKnowledge() {
+        knowledgeListContainer.innerHTML = '';
+        knowledgeArticles.forEach(art => {
+            const item = document.createElement('div');
+            item.className = 'knowledge-item';
+            item.innerHTML = `
+                <div class="knowledge-title">${art.title}</div>
+                <div class="knowledge-meta">${art.badges.map(b => `<span class="badge">${b}</span>`).join('')}</div>
+                <div class="knowledge-summary">${art.summary}</div>
+                <button class="expand-btn"><span>📖 展开完整笔记技术细节</span> <i class="fas fa-chevron-down" style="font-size:0.75rem;"></i></button>
+                <div class="full-content"><p style="background:#f8fafc; padding:1.25rem; border-radius:10px; border:1px solid var(--border-color); color:var(--text-secondary); text-align:left;">${art.detail}</p></div>
+            `;
+            const expandBtn = item.querySelector('.expand-btn');
+            const fullDiv = item.querySelector('.full-content');
+            expandBtn.addEventListener('click', () => {
+                const isShow = fullDiv.style.display === 'block';
+                fullDiv.style.display = isShow ? 'none' : 'block';
+                expandBtn.innerHTML = isShow ? 
+                    `<span>📖 展开完整笔记技术细节</span> <i class="fas fa-chevron-down" style="font-size:0.75rem;"></i>` : 
+                    `<span>收起详细笔记</span> <i class="fas fa-chevron-up" style="font-size:0.75rem;"></i>`;
+            });
+            knowledgeListContainer.appendChild(item);
+        });
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+
+    function showToast() {
+        const toast = document.getElementById('toastMsg');
+        toast.style.opacity = '1';
+        setTimeout(() => toast.style.opacity = '0', 2000);
+    }
+
+    // 全局路由控制绑定
+    navHome.addEventListener('click', () => showView('home'));
+    navCodes.addEventListener('click', () => showView('codes'));
+    navKnowledge.addEventListener('click', () => { renderKnowledge(); showView('knowledge'); });
+    
+    document.querySelectorAll('.entry-card[data-nav]').forEach(card => {
+        card.addEventListener('click', () => {
+            const target = card.getAttribute('data-nav');
+            if (target === 'codes') showView('codes');
+            if (target === 'knowledge') { renderKnowledge(); showView('knowledge'); }
+        });
+    });
+
+    // 核心生命周期初始化阶段
+    renderCodeCards();
+    renderKnowledge();
+    showView('home');
+</script>
+</body>
+</html>
