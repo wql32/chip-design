@@ -749,6 +749,146 @@
     // ========== 模块数据 ==========
     const modules = [
         {
+            id: "free_ptr_mng",
+            name: "高性能空闲指针管理器 (Free Pointer Manager)",
+            icon: "🧬",
+            language: "Verilog",
+            brief: "采用 384-bit 高速硬件 Bitmap 阵列，内建两级预分配 Ping-Pong Cache，实现单周期零延迟的资源指针分配与回收。",
+            fullDescription: "空闲指针管理器常用于高性能网络交换芯片、SoC 内存管理单元 (MMU) 或描述符队列中。该设计不使用传统耗时巨大的堆栈检索，而是采用 384 位的硬件 Bitmap（位图）来实时维护指针池。为了彻底消除大容量位图在前向查找时产生的长组合逻辑时延 (Timing Tail)，模块内嵌了独创的两级前向预分配缓存 (Ping-Pong Cache)，确保外部发起分配请求时，能够无等待、单周期瞬时给出可用指针。",
+            code: `module idh_free_ptr_mng #(
+    parameter PTR_NUM   = 384,                  // 纳管的空闲指针总数
+    parameter PTR_WIDTH = $clog2(PTR_NUM),      // 指针总线的硬件位宽
+    parameter END_OF_LIST = 1
+) (
+    input wire                   i_clk,
+    input wire                   i_rst_n,
+    // 分配控制接口
+    input wire                   i_alc_req,     // 外部核心发起的指针分配请求
+    output wire [PTR_WIDTH-1:0]  o_alc_ptr,     // 瞬间输出的可用空闲指针
+    output wire                  o_alc_vld,     // 预分配缓存有效标志 (高电平可分配)
+    // 回收控制接口
+    input wire                   i_rls_req,     // 外部发起的指针释放回收请求
+    input wire [PTR_WIDTH-1:0]   i_rls_ptr,     // 待回收的指针编号
+    // 状态统计接口
+    output wire [PTR_WIDTH:0]    o_ptr_num      // 当前池中可用的空闲指针总数
+);
+
+    reg [PTR_NUM-1:0]   ptr_bitmap;             // 位图寄存器：1-空闲，0-已占用
+    reg [PTR_WIDTH:0]   ptr_num;                // 内部空闲指针计数器
+    reg [1:0]           cache_num;              // 缓存区指针数量统计
+    
+    wire [PTR_NUM-1:0]  alc_req;
+    wire [PTR_NUM-1:0]  rls_req;
+    wire [PTR_WIDTH-1:0] pre_alc_req;
+    reg  [PTR_WIDTH-1:0] pre_alc_ptr;
+    
+    reg  [1:0]           free_ptr_vld;          // 两级 Cache 有效标志
+    reg  [PTR_WIDTH-1:0] free_ptr[1:0];         // 预分配指针 Ping-Pong 寄存器
+    reg                  free_ptr_wr_pp;        // 缓存写入侧乒乓指针
+    reg                  free_ptr_rd_pp;        // 缓存读取侧乒乓指针
+    
+    wire                 num_upd;
+    wire [1:0]           rls_sub_alc_num;
+
+    // 独热码位图映射逻辑
+    assign alc_req = ({{(PTR_NUM-1){1'b0}}, pre_alc_req} << pre_alc_ptr);
+    assign rls_req = ({{(PTR_NUM-1){1'b0}}, i_rls_req} << i_rls_ptr);
+
+    // 硬件位图阵列维护逻辑
+    generate
+        for(genvar i = 0; i < PTR_NUM; i = i + 1) begin: BITMAP
+            always @(posedge i_clk or negedge i_rst_n) begin
+                if(!i_rst_n) begin
+                    ptr_bitmap[i] <= 1'b1; // 复位时默认所有指针均可用
+                end else if(alc_req[i]) begin
+                    ptr_bitmap[i] <= 1'b0; // 被预分配捕获后清零
+                end else if(rls_req[i]) begin
+                    ptr_bitmap[i] <= 1'b1; // 外部释放后重新置 1
+                end
+            end
+        end
+    endgenerate
+
+    // 前向组合逻辑扫描：寻找当前池中最低位的空闲指针
+    integer i;
+    always @(*) begin
+        pre_alc_ptr = {PTR_WIDTH{1'b0}};
+        for(i = PTR_NUM - 1; i >= 0; i = i - 1) begin: PRE_ALC_SCAN
+            if(ptr_bitmap[i]) begin
+                pre_alc_ptr = i;
+            end
+        end
+    end
+
+    // 当底层池里有货且 Cache 未满时，触发前向预加载提取
+    assign pre_alc_req = (|ptr_num) && (~(&free_ptr_vld));
+
+    // 乒乓预分配 Cache 状态机
+    always @(posedge i_clk or negedge i_rst_n) begin
+        if(!i_rst_n) begin
+            free_ptr_vld <= 2'b00;
+        end else begin
+            case({pre_alc_req, i_alc_req})
+                2'b01: free_ptr_vld[free_ptr_rd_pp] <= 1'b0;
+                2'b10: free_ptr_vld[free_ptr_wr_pp] <= 1'b1;
+                2'b11: begin
+                    if(free_ptr_rd_pp == free_ptr_wr_pp) begin
+                        free_ptr_vld <= free_ptr_vld; // 避免同槽位读写冲突
+                    end else begin
+                        free_ptr_vld[free_ptr_rd_pp] <= 1'b0;
+                        free_ptr_vld[free_ptr_wr_pp] <= 1'b1;
+                    end
+                end
+                default: ;
+            endcase
+        end
+    end
+
+    // 预加载指针存入 Cache 寄存器
+    always @(posedge i_clk) begin
+        if(pre_alc_req) begin
+            free_ptr[free_ptr_wr_pp] <= pre_alc_ptr;
+        end
+    end
+
+    // 缓存区读写乒乓指针更新
+    always @(posedge i_clk or negedge i_rst_n) begin
+        if(!i_rst_n)             free_ptr_wr_pp <= 1'b0;
+        else if(pre_alc_req)     free_ptr_wr_pp <= ~free_ptr_wr_pp;
+    end
+
+    always @(posedge i_clk or negedge i_rst_n) begin
+        if(!i_rst_n)             free_ptr_rd_pp <= 1'b0;
+        else if(i_alc_req)       free_ptr_rd_pp <= ~free_ptr_rd_pp;
+    end
+
+    // 资源总量动态计数控制
+    assign num_upd = pre_alc_req || i_rls_req;
+    assign rls_sub_alc_num = {1'b0, i_rls_req} - {1'b0, pre_alc_req};
+
+    always @(posedge i_clk or negedge i_rst_n) begin
+        if(!i_rst_n) begin
+            ptr_num <= PTR_NUM;
+        end else if(num_upd) begin
+            ptr_num <= ptr_num + {{PTR_WIDTH{rls_sub_alc_num[1]}}, rls_sub_alc_num[0]};
+        end
+    end
+
+    always @(*) begin
+        cache_num = {1'b0, free_ptr_vld[1]} + {1'b0, free_ptr_vld[0]};
+    end
+
+    // 输出接口映射
+    assign o_alc_vld = free_ptr_vld[free_ptr_rd_pp];
+    assign o_alc_ptr = free_ptr[free_ptr_rd_pp];
+    assign o_ptr_num = ptr_num + {{(PTR_WIDTH){1'b0}}, cache_num};
+
+endmodule`,
+            usage: `1. 模块复位（i_rst_n拉低）后，384位全局位图自动充满，o_ptr_num 输出最大值。\n2. 分配逻辑：当 o_alc_vld 为高时，表示 Cache 内已有就绪指针，此时拉高 i_alc_req 即可在当拍无延时直接锁存 o_alc_ptr 进行使用。\n3. 回收逻辑：当某些外部缓存使用完毕后，拉高 i_rls_req 并在 i_rls_ptr 线送入对应的指针号，位图对应 Bit 将在下一拍自动回充恢复空闲。`,
+            hasCustomWave: false,
+            waveform: "在系统复位后，系统自发执行 pre_alc_req 将两枚空闲指针搬运至乒乓缓存区。外部触发分配请求后，有效指针单周期被无延迟带走，内部写指针随即向位图池中补充新指针。"
+        },
+        {
             id: "edge_detector",
             name: "双边沿检测器 (Edge Detector)",
             icon: "🔍",
