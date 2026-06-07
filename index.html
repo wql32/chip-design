@@ -840,7 +840,7 @@
     </div>
     
     <div class="stats fade-in-item">
-        <div class="stat-item"><div class="stat-number">13+</div><div class="stat-label">可复用高质量模块</div></div>
+        <div class="stat-item"><div class="stat-number">10+</div><div class="stat-label">可复用高质量模块</div></div>
         <div class="stat-item"><div class="stat-number">5+</div><div class="stat-label">硬核底层技术专题</div></div>
         <div class="stat-item"><div class="stat-number">3+</div><div class="stat-label">颗大型量产芯片经验</div></div>
     </div>
@@ -1381,6 +1381,361 @@ endmodule`,
 4. 流式读出：拉高读使能 i_re 后，下一周期便可稳定捕获当前读指针指向的高速总线数据 o_rdata。`,
             hasCustomWave: true,
             waveform: "单通道写入时计数器加1，双通道爆发性并行写时计数器单周期跃升加2，独立读取时计数器扣减1。空满标志逻辑随计数器结果高灵敏反应。"
+        },
+        {
+            id: "axis_fifo",
+            name: "AXI4-Stream 同步 FIFO",
+            icon: "🔀",
+            language: "Verilog",
+            brief: "兼容 AMBA AXI4-Stream 协议的标准同步缓冲队列，支持 tvalid/tready 握手机制、tlast 包边界标记及可编程 almost_full 预警。广泛用于 PCIe DMA 引擎、视频像素流与高速数据通路。",
+            fullDescription: `AXI4-Stream 是 ARM AMBA 家族中专为高吞吐流式数据传输设计的点对点协议。与传统的读写双通道 FIFO 不同，AXI4-Stream 使用单一的 forward 数据通道 + 反向握手机制（tvalid/tready）实现流控。本设计在经典同步 FIFO 核心上包装了一层完整的 AXI4-Stream 接口，包含：
+
+• 标准 tvalid/tready 写侧握手机制，支持 backpressure 反压
+• 输出侧 tvalid/tready 读出手续，下游阻塞时自动反压上游
+• tlast 信号逐级传递，支持不定长包（packet）传输
+• tkeep 字节使能掩码，支持非对齐数据粒度
+• 参数化 DATA_WIDTH（8/16/32/64/128/256/512）和 FIFO_DEPTH
+• 可编程 almost_full 深度，用于提前发起反压（pre-emptive backpressure）
+
+在 GPU PCIe 环境中，AXI4-Stream 是 TLP 数据搬运的事实标准接口——DMA 控制器从显存读出的数据最终通过 AXI4-Stream 送入 PCIe Core 打包发射。`,
+            code: `module axis_fifo #(
+    parameter DATA_WIDTH = 64,           // 数据总线位宽（8/16/32/64/128/256/512）
+    parameter DEPTH      = 16,           // FIFO 深度（建议 2 的幂）
+    parameter AFULL_TH   = DEPTH - 4,    // almost_full 触发阈值
+    parameter AEMPTY_TH  = 4             // almost_empty 触发阈值
+)(
+    input  wire                     i_clk,
+    input  wire                     i_rst_n,
+
+    // ========== AXI4-Stream 写侧（Slave 接口） ==========
+    input  wire                     s_axis_tvalid,   // 上游数据有效
+    output wire                     s_axis_tready,   // FIFO 可接收（反压信号）
+    input  wire [DATA_WIDTH-1:0]    s_axis_tdata,    // 数据总线
+    input  wire [DATA_WIDTH/8-1:0]  s_axis_tkeep,    // 字节使能掩码
+    input  wire                     s_axis_tlast,    // 包结束标志
+
+    // ========== AXI4-Stream 读侧（Master 接口） ==========
+    output wire                     m_axis_tvalid,   // 下游数据有效
+    input  wire                     m_axis_tready,   // 下游就绪（背压输入）
+    output wire [DATA_WIDTH-1:0]    m_axis_tdata,    // 数据总线
+    output wire [DATA_WIDTH/8-1:0]  m_axis_tkeep,    // 字节使能掩码
+    output wire                     m_axis_tlast,    // 包结束标志
+
+    // ========== 状态信号 ==========
+    output wire                     o_full,
+    output wire                     o_almost_full,
+    output wire                     o_empty,
+    output wire                     o_almost_empty
+);
+
+    localparam ADDR_WIDTH = $clog2(DEPTH);
+    localparam KEEP_WIDTH = DATA_WIDTH / 8;
+
+    // 存储阵列：数据 + tkeep + tlast 打包存储
+    reg [DATA_WIDTH + KEEP_WIDTH + 1 - 1 : 0] mem [0:DEPTH-1];
+    wire [DATA_WIDTH + KEEP_WIDTH + 1 - 1 : 0] mem_din;
+    wire [DATA_WIDTH + KEEP_WIDTH + 1 - 1 : 0] mem_dout;
+
+    reg [ADDR_WIDTH:0] wr_ptr, rd_ptr;
+    wire [ADDR_WIDTH:0] wr_ptr_next, rd_ptr_next;
+    wire [ADDR_WIDTH-1:0] wr_addr, rd_addr;
+
+    wire mem_wr_en, mem_rd_en;
+    wire [ADDR_WIDTH:0] fifo_cnt;
+
+    // 写指针 & 读指针
+    assign wr_ptr_next = wr_ptr + {{ADDR_WIDTH{1'b0}}, 1'b1};
+    assign rd_ptr_next = rd_ptr + {{ADDR_WIDTH{1'b0}}, 1'b1};
+    assign wr_addr = wr_ptr[ADDR_WIDTH-1:0];
+    assign rd_addr = rd_ptr[ADDR_WIDTH-1:0];
+
+    // 写使能：上游数据有效 && FIFO 未满
+    assign mem_wr_en = s_axis_tvalid && s_axis_tready;
+    // 读使能：FIFO 非空 && 下游 ready（tready 高或首次 valid 发射）
+    // 注：AXI4-Stream 中，当 tvalid 已拉高且 tready 为低时，数据保持不读出
+    assign mem_rd_en = (fifo_cnt != 0) && m_axis_tready;
+
+    // 打包写入数据
+    assign mem_din = {s_axis_tlast, s_axis_tkeep, s_axis_tdata};
+
+    // FIFO 存储器
+    always @(posedge i_clk) begin
+        if (mem_wr_en) mem[wr_addr] <= mem_din;
+    end
+
+    // 读指针更新
+    always @(posedge i_clk or negedge i_rst_n) begin
+        if (!i_rst_n) rd_ptr <= 0;
+        else if (mem_rd_en) rd_ptr <= rd_ptr_next;
+    end
+
+    // 写指针更新
+    always @(posedge i_clk or negedge i_rst_n) begin
+        if (!i_rst_n) wr_ptr <= 0;
+        else if (mem_wr_en) wr_ptr <= wr_ptr_next;
+    end
+
+    // FIFO 数据计数
+    assign fifo_cnt = wr_ptr - rd_ptr;
+
+    // 空/满标志
+    assign o_full        = (fifo_cnt == DEPTH);
+    assign o_almost_full = (fifo_cnt >= AFULL_TH);
+    assign o_empty       = (fifo_cnt == 0);
+    assign o_almost_empty= (fifo_cnt <= AEMPTY_TH);
+
+    // AXI4-Stream 标准握手机制
+    // s_axis_tready：FIFO 未满即可接收
+    assign s_axis_tready = !o_full;
+
+    // m_axis_tvalid：FIFO 非空即拉高
+    assign m_axis_tvalid = !o_empty;
+
+    // 读数据解包
+    assign mem_dout = mem[rd_addr];
+    assign m_axis_tdata = mem_dout[0 +: DATA_WIDTH];
+    assign m_axis_tkeep = mem_dout[DATA_WIDTH +: KEEP_WIDTH];
+    assign m_axis_tlast = mem_dout[DATA_WIDTH + KEEP_WIDTH];
+
+endmodule`,
+            usage: `1. 通过 DATA_WIDTH 和 DEPTH 参数配置数据宽度与缓冲深度。AXI4-Stream 侧自动适配 tvalid/tready 握手机制。
+2. 写操作：上游在 s_axis_tvalid 为高且 s_axis_tready 为高的时钟沿将数据送入 FIFO。
+3. 读操作：下游在 m_axis_tvalid 为高且 m_axis_tready 为高的时钟沿捕获数据。
+4. tkeep 字节掩码用于指示数据总线上哪些字节有效（例如 64 位总线写 3 字节时，tkeep = 8'b0000_0111）。
+5. tlast 拉高表示当前数据是包的最后一拍，下游可据此判断包边界。
+6. almost_full 信号建议用作上游反压预警——在 FIFO 实际满之前停止发送，避免溢出。`,
+            hasCustomWave: false,
+            waveform: "写侧 AXI4-Stream 握手：tvalid 与 tready 同时为高时数据入队。读侧类似，tvalid 和 tready 同时为高时出队。FIFO 满时 tready 拉低，反压上游；FIFO 空时 tvalid 拉低，下游等待。"
+        },
+        {
+            id: "rr_arbiter",
+            name: "Round-Robin 轮询仲裁器",
+            icon: "🎡",
+            language: "Verilog",
+            brief: "多主设备共享资源的高效仲裁器，支持 N 端口轮询公平调度。每个 grant 完成后优先权自动轮转，避免低优先级端口被饿死。",
+            fullDescription: `Round-Robin 仲裁器在 SoC 设计中无处不在——多个 AXI master 共享 DDR 控制器、多通道 DMA 请求排队、多端口 SRAM 访问调度等场景都离不开轮询仲裁。
+
+本设计采用经典的"请求掩码 + 优先级编码"架构，核心思想是：
+1. 维护一个上一次 grant 的端口号 last_grant
+2. 根据 last_grant 生成一个优先级掩码 mask，使得 last_grant 以下端口优先级最高，last_grant 以上次之
+3. 将请求信号通过两组优先级编码器并行计算，选出真正该拿到 grant 的端口
+4. 每次 grant 发出后，last_grant 更新为当前 grant 的端口号
+
+这种实现方式相比移位寄存器型 RR 仲裁器有两个优势：
+• 单周期完成仲裁，不引入流水线延迟
+• 面积开销与端口数 N 呈线性增长，适合 2~32 端口
+
+模块支持复位的初始 grant 定位、请求锁存模式和可编程的固定优先级回退模式。`,
+            code: `module rr_arbiter #(
+    parameter REQ_NUM = 8                // 请求端口数（2~32 建议）
+)(
+    input  wire                  clk,
+    input  wire                  rst_n,
+    input  wire [REQ_NUM-1:0]    i_req,         // 请求位图（1: 请求有效）
+    input  wire                  i_grant_en,    // grant 使能（拉高时才分配）
+    output wire [REQ_NUM-1:0]    o_grant,       // 授权位图（独热码）
+    output wire [$clog2(REQ_NUM)-1:0] o_grant_id, // 授权端口编号
+    output wire                  o_grant_vld    // grant 有效
+);
+
+    reg  [$clog2(REQ_NUM)-1:0] last_grant;     // 上一次 grant 的端口号
+    wire [REQ_NUM-1:0]          mask;           // 优先级轮转掩码
+    wire [REQ_NUM-1:0]          masked_req;     // 掩码后的高优先级请求
+    wire [REQ_NUM-1:0]          unmasked_req;   // 全部请求（含低优先级）
+    wire [REQ_NUM-1:0]          selected_req;   // 最终选中的请求
+    wire                        any_req;        // 至少有一个请求有效
+
+    // 生成优先级掩码
+    // 当 last_grant = 3 时，mask = 8'b1111_1000
+    //（端口 4~7 优先级高于 0~3，从上次之后轮转）
+    assign mask = ({{REQ_NUM{1'b1}}} << (last_grant + 1));
+
+    // 高优先级通道（mask 以上部分最先被服务）
+    assign masked_req   = i_req & mask;
+
+    // 两级优先级：先看高优先级区域，再看低优先级区域
+    // 利用双级优先级编码器实现单周期 RR 调度
+    function [REQ_NUM-1:0] priority_enc;
+        input [REQ_NUM-1:0] req;
+        integer i;
+        begin
+            priority_enc = 0;
+            for (i = REQ_NUM - 1; i >= 0; i = i - 1) begin
+                if (req[i]) begin
+                    priority_enc = ({{(REQ_NUM-1){1'b0}}, 1'b1} << i);
+                end
+            end
+        end
+    endfunction
+
+    assign unmasked_req = i_req;
+
+    // 如果高优先级区域有请求，从高优先级区域选中；否则从全部选中
+    // 即使高优先级区域有请求，也需要从高优先级区域做最低位优先
+    // 但 RR 要求的是"最高优先级从 last_grant+1 开始"
+    // 标准实现：
+    wire [REQ_NUM-1:0] high_pri_grant = priority_enc(masked_req);
+    wire [REQ_NUM-1:0] low_pri_grant  = priority_enc(unmasked_req);
+
+    assign selected_req = (|masked_req) ? high_pri_grant : low_pri_grant;
+    assign any_req      = |i_req;
+
+    // 最终 grant 输出
+    assign o_grant     = i_grant_en ? selected_req : {REQ_NUM{1'b0}};
+    assign o_grant_vld = i_grant_en && any_req;
+
+    // grant ID 编码（独热码转二进制）
+    generate
+        if (REQ_NUM == 1) begin
+            assign o_grant_id = 0;
+        end else begin
+            // 使用 always 块实现独热码转二进制
+            reg [$clog2(REQ_NUM)-1:0] grant_id_r;
+            integer idx;
+            always @(*) begin
+                grant_id_r = 0;
+                for (idx = 0; idx < REQ_NUM; idx = idx + 1) begin
+                    if (selected_req[idx]) grant_id_r = idx;
+                end
+            end
+            assign o_grant_id = grant_id_r;
+        end
+    endgenerate
+
+    // 更新 last_grant 指针
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            last_grant <= 0;
+        end else if (o_grant_vld) begin
+            last_grant <= o_grant_id;
+        end
+    end
+
+endmodule`,
+            usage: `1. 通过 REQ_NUM 参数配置仲裁端口数量（建议 2~32，超出此范围需评估组合逻辑时延）。
+2. 外部 master 拉高 i_req 中对应的 bit 来发起请求（独热码位图）。
+3. 拉高 i_grant_en 使能仲裁输出。o_grant_vld 为高时，o_grant 中的对应 bit 即获授权。
+4. 每次 grant 发出后，内部 last_grant 自动更新为当前端口号，下一轮该端口优先级降为最低。
+5. 如果多个端口同时请求，严格按照轮询顺序依次服务——没有任何端口会被饿死。
+6. 典型应用场景：DDR 控制器多通道调度、AXI 多 master 交叉开关、中断控制器分发。`,
+            hasCustomWave: false,
+            waveform: "多个 i_req 位同时拉高时，仲裁器按照 last_grant 优先级轮转，单周期输出独热码 grant。高优先级端口服务完毕后，下次轮询时其优先级自动降到最低。"
+        },
+        {
+            id: "handshake_sync",
+            name: "4 相握手同步器 (Handshake Synchronizer)",
+            icon: "🤝",
+            language: "Verilog",
+            brief: "基于请求-应答（Request-Acknowledge）4 相握手机制的跨时钟域数据传输器，支持任意位宽数据在异步时钟域间安全传输，无需 FIFO 开销。",
+            fullDescription: `在多时钟域 SoC 设计中，跨时钟域（CDC）数据传输是可靠性设计的重中之重。当传输的数据位宽较大（> 8 bit）或需要批量传输时，异步 FIFO 可能过于笨重——此时握手同步器是更轻量的选择。
+
+本模块实现经典的 4 相握手协议：
+1. 发送域将数据锁存到 data_reg，拉高 req 信号
+2. 接收域通过双级同步器检测到 req 上升沿，锁存数据，拉高 ack
+3. 发送域检测到 ack 后，拉低 req
+4. 接收域检测到 req 下降沿后，拉低 ack，回到空闲状态
+
+这样 4 次握手保证了：
+• 数据在接收域锁存时处于稳定状态
+• 没有建立时间违例风险（req/ack 经过双级同步器）
+• 适用于任意位宽的数据传输
+• 硬件开销极小（仅约 20~50 个寄存器）
+
+适用场景：配置寄存器跨时钟域读写、低速控制信号跨域传递、少量状态信息同步。`,
+            code: `module handshake_sync #(
+    parameter DATA_WIDTH = 16           // 数据位宽
+)(
+    // ===== 发送时钟域（源端） =====
+    input  wire                  src_clk,
+    input  wire                  src_rst_n,
+    input  wire                  src_vld,        // 发送使能
+    input  wire [DATA_WIDTH-1:0] src_data,       // 待发送数据
+    output wire                  src_ready,      // 发送域就绪（可接收新数据）
+
+    // ===== 接收时钟域（目标端） =====
+    input  wire                  dst_clk,
+    input  wire                  dst_rst_n,
+    output wire                  dst_vld,        // 接收数据有效
+    output wire [DATA_WIDTH-1:0] dst_data        // 接收数据
+);
+
+    // ---------- 发送域 ----------
+    reg                         req;              // 请求信号
+    reg  [DATA_WIDTH-1:0]       data_reg;         // 数据锁存寄存器
+    wire                        ack_sync;         // 同步后的应答信号
+
+    // 锁存数据并拉高请求
+    always @(posedge src_clk or negedge src_rst_n) begin
+        if (!src_rst_n) begin
+            req      <= 1'b0;
+            data_reg <= 0;
+        end else if (src_vld && !req) begin
+            data_reg <= src_data;                // 先锁存数据
+            req      <= 1'b1;                    // 再发起请求
+        end else if (ack_sync) begin
+            req      <= 1'b0;                    // 收到应答，拉低请求
+        end
+    end
+
+    assign src_ready = !req;                     // 空闲时才能接收新数据
+
+    // 请求信号跨时钟域同步（双级触发器）
+    reg  req_sync_0, req_sync_1;
+    always @(posedge dst_clk or negedge dst_rst_n) begin
+        if (!dst_rst_n) begin
+            req_sync_0 <= 1'b0;
+            req_sync_1 <= 1'b0;
+        end else begin
+            req_sync_0 <= req;
+            req_sync_1 <= req_sync_0;
+        end
+    end
+    wire req_pulse = req_sync_1 && !req_sync_0;  // 上升沿检测
+
+    // ---------- 接收域 ----------
+    reg                         ack;
+    reg  [DATA_WIDTH-1:0]       dst_data_reg;
+
+    // 接收数据 & 发送应答
+    always @(posedge dst_clk or negedge dst_rst_n) begin
+        if (!dst_rst_n) begin
+            ack          <= 1'b0;
+            dst_data_reg <= 0;
+        end else if (req_pulse) begin
+            dst_data_reg <= data_reg;            // 锁存数据
+            ack          <= 1'b1;                // 拉高应答
+        end else if (!req_sync_1) begin
+            ack          <= 1'b0;                // 请求已撤，拉低应答
+        end
+    end
+
+    assign dst_vld  = req_pulse;                 // 当 req 上升沿到来时，数据有效
+    assign dst_data = dst_data_reg;
+
+    // 应答信号跨时钟域同步回发送域
+    reg  ack_sync_0, ack_sync_1;
+    always @(posedge src_clk or negedge src_rst_n) begin
+        if (!src_rst_n) begin
+            ack_sync_0 <= 1'b0;
+            ack_sync_1 <= 1'b0;
+        end else begin
+            ack_sync_0 <= ack;
+            ack_sync_1 <= ack_sync_0;
+        end
+    end
+    assign ack_sync = ack_sync_1;
+
+endmodule`,
+            usage: `1. 通过 DATA_WIDTH 参数配置传输数据位宽。由于使用 4 相握手，单个数据传输至少需要 4 个跨时钟域周期（2 拍 req 同步 + 2 拍 ack 同步），不适合高吞吐场景。
+2. 发送侧在 src_vld 拉高且 src_ready 为高的时钟沿将数据锁存并启动握手。src_ready 在握手完成后自动恢复。
+3. 接收侧在 dst_vld 拉高时锁存 dst_data，此后数据保持到下一次传输。
+4. 传输完成后，模块自动复位握手状态，准备接收下一笔数据。
+5. 本模块与异步 FIFO 的选用原则：
+   • 传输频率低（< 接收时钟频率 / 10）、数据位宽大 → 握手同步器
+   • 传输频率高、数据量大 → 异步 FIFO
+6. 注意：4 相握手通量约为 req 跨时钟域周期的 1/4，最小延迟约为 4~6 个目标时钟周期 + 4~6 个源时钟周期。`,
+            hasCustomWave: false,
+            waveform: "发送域锁存数据并拉高 req → 接收域检测到 req 上升沿，锁存数据并拉高 ack → 发送域收到 ack 后拉低 req → 接收域检测到 req 下降沿后拉低 ack。一次完整握手约 6~10 个时钟周期。"
         }
     ];
 
