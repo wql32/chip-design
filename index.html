@@ -470,14 +470,14 @@
         /* ===== 代码网格卡片 ===== */
         .code-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 1.3rem;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem;
         }
         .code-card {
             background: var(--bg-card);
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-sm);
             border: 1px solid var(--border);
-            padding: 1.5rem;
+            padding: 1rem 1.15rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             display: flex;
@@ -485,22 +485,25 @@
             text-align: left;
         }
         .code-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-3px);
             border-color: rgba(0, 229, 255, 0.15);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 229, 255, 0.04);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 16px rgba(0, 229, 255, 0.03);
             background: var(--bg-hover);
         }
         .card-header-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.7rem;
+            margin-bottom: 0.4rem;
+        }
+        .card-header-row span:first-child {
+            font-size: 1.15rem !important;
         }
         .card-badge-tag {
             background: rgba(0, 229, 255, 0.07);
-            padding: 0.15rem 0.6rem;
-            border-radius: 6px;
-            font-size: 0.65rem;
+            padding: 0.1rem 0.5rem;
+            border-radius: 5px;
+            font-size: 0.6rem;
             font-weight: 600;
             color: var(--cyan);
             font-family: var(--mono);
@@ -508,16 +511,17 @@
             border: 1px solid rgba(0, 229, 255, 0.1);
         }
         .code-card h3 {
-            font-size: 1.05rem;
+            font-size: 0.9rem;
             font-weight: 700;
             color: var(--text-primary);
+            margin-bottom: 0.15rem;
         }
         .card-desc {
             color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin: 0.5rem 0 1.2rem;
+            font-size: 0.78rem;
+            margin: 0 0 0.6rem;
             flex-grow: 1;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         /* ===== 详情页 ===== */
@@ -976,7 +980,7 @@
             name: "同步 FIFO（标准双端口）",
             icon: "📦",
             language: "Verilog",
-            brief: "标准双端口同步 FIFO，支持可编程 almost_full/almost_empty 标志。基于双指针 + SRAM 阵列，面积效率高。",
+            brief: "标准双端口同步 FIFO，支持可编程 almost_full/almost_empty 阈值预警。",
             fullDescription: `FIFO（First-In, First-Out）是数字芯片设计中最基础、最高频使用的缓冲结构。无论是跨时钟域数据缓存、AXI 总线 outstanding 交易管理、还是视频流 line buffer，FIFO 无处不在。
 
 本模块实现的是单时钟域标准同步 FIFO：
@@ -1061,7 +1065,7 @@ endmodule`,
             name: "异步 FIFO（格雷码）",
             icon: "🔄",
             language: "Verilog",
-            brief: "跨时钟域数据传输的核心组件，格雷码指针编码 + 双级同步器，保证亚稳态安全。",
+            brief: "跨时钟域 CDC 核心组件，格雷码指针 + 双级同步器，亚稳态安全。",
             fullDescription: `异步 FIFO 是多时钟域 SoC 设计的必备模块。当数据需要从一个时钟域安全地传输到另一个不相关的时钟域时，异步 FIFO 是最健壮的解决方案。
 
 核心设计原理：
@@ -1179,7 +1183,7 @@ endmodule`,
             name: "AXI4-Stream 同步 FIFO",
             icon: "🔀",
             language: "Verilog",
-            brief: "兼容 AXI4-Stream 协议的标准 FIFO，支持 tvalid/tready 握手、tkeep 字节掩码、tlast 包边界。",
+            brief: "兼容 AXI4-Stream 协议的 FIFO，tvalid/tready 握手 + tkeep/tlast。",
             fullDescription: `AXI4-Stream 是 ARM AMBA 总线体系中专门面向数据流传输的接口协议。与传统的 valid-ready 握手相比，AXI4-Stream 增加了 tkeep（字节使能）、tlast（包结束）、tid/tuser/tstrb 等丰富的数据流控制信号。
 
 本模块实现了最常用的 AXI4-Stream FIFO，核心特性：
@@ -1286,7 +1290,7 @@ endmodule`,
             name: "Round-Robin 轮询仲裁器",
             icon: "🎡",
             language: "Verilog",
-            brief: "多主设备共享资源的高效仲裁器，支持 N 端口轮询公平调度。每个 grant 完成后优先权自动轮转，避免低优先级端口被饿死。",
+            brief: "N 端口轮询仲裁器，单周期 grant 公平调度，防饿死。",
             fullDescription: `Round-Robin 仲裁器在 SoC 设计中无处不在——多个 AXI master 共享 DDR 控制器、多通道 DMA 请求排队、多端口 SRAM 访问调度等场景都离不开轮询仲裁。
 
 本设计采用经典的"请求掩码 + 优先级编码"架构，核心思想是：
@@ -1385,7 +1389,7 @@ endmodule`,
             name: "4 相握手同步器 (Handshake Synchronizer)",
             icon: "🤝",
             language: "Verilog",
-            brief: "基于请求-应答（Request-Acknowledge）4 相握手机制的跨时钟域数据传输器，支持任意位宽数据在异步时钟域间安全传输，无需 FIFO 开销。",
+            brief: "4 相握手 CDC 数据传输器，任意位宽，无需 FIFO 轻量方案。",
             fullDescription: `在多时钟域 SoC 设计中，跨时钟域（CDC）数据传输是可靠性设计的重中之重。当传输的数据位宽较大（> 8 bit）或需要批量传输时，异步 FIFO 可能过于笨重——此时握手同步器是更轻量的选择。
 
 本模块实现经典的 4 相握手协议：
@@ -1493,7 +1497,7 @@ endmodule`,
             name: "线性反馈移位寄存器 (LFSR)",
             icon: "🔢",
             language: "Verilog",
-            brief: "可配置多项式与位宽的伪随机数生成器，用于测试激励、CRC 加速、白噪声发生器等场景。",
+            brief: "参数化伪随机生成器，可配多项式与种子，PRBS/CRC 场景。",
             fullDescription: `线性反馈移位寄存器（Linear Feedback Shift Register, LFSR）是数字设计中经典的伪随机序列生成器。它的核心是一个移位寄存器加上线性反馈逻辑——从特定抽头位置取出值进行 XOR 运算后反馈到最低位。
 
 本模块特性：
@@ -1568,7 +1572,7 @@ endmodule`,
             name: "边沿检测器 (Edge Detector)",
             icon: "📐",
             language: "Verilog",
-            brief: "单周期脉冲宽度检测器，支持上升沿、下降沿、双沿检测模式。可配置同步级数消除亚稳态。",
+            brief: "边沿检测器，支持上升/下降/双沿 + 可配同步级数消亚稳态。",
             fullDescription: `边沿检测器是最基础但最常用的数字电路之一。无论是中断检测、按键消抖、信号边沿触发，还是协议解析中的跳变沿捕获，都离不开边沿检测。
 
 本模块实现的功能：
@@ -1634,7 +1638,7 @@ endmodule`,
             name: "时钟分频器 (Clock Divider)",
             icon: "⏱",
             language: "Verilog",
-            brief: "参数化整数时钟分频器（偶数分频 + 奇数分频 + 半整数分频），50% 占空比输出。",
+            brief: "整数/半整数时钟分频器，偶/奇分频，50% 占空比输出。",
             fullDescription: `在 SoC 设计中，经常需要从系统主时钟分频出多个子时钟。虽然现代设计倾向于使用 PLL/MMCM 生成时钟，但在低频或简单场景下，纯数字分频器仍然必不可少。
 
 本模块支持三种分频模式：
@@ -1708,7 +1712,7 @@ endmodule`,
             name: "双级同步器 (2-FF Synchronizer)",
             icon: "🔗",
             language: "Verilog",
-            brief: "单 bit 跨时钟域同步的标准双级触发器链，MTBF 优化的亚稳态防护电路。",
+            brief: "标准双级 FF 同步器，单 bit CDC，MTBF 优化亚稳态防护。",
             fullDescription: `双级触发器同步器（2-FF Synchronizer）是跨时钟域设计中最基础、使用最广泛的电路结构。当一个单 bit 信号从一个时钟域进入另一个不相关的时钟域时，必须经过同步器以防止亚稳态传播。
 
 工作原理：
@@ -1751,7 +1755,7 @@ endmodule`,
             name: "脉冲同步器 (Pulse Synchronizer)",
             icon: "⚡",
             language: "Verilog",
-            brief: "将快时钟域的单周期脉冲安全传递到慢时钟域。通过电平展宽 + 双级同步 + 边沿检测实现。",
+            brief: "快→慢时钟域脉冲同步器，电平展宽保证不丢脉冲。",
             fullDescription: `脉冲同步器是 CDC 设计中一个特殊但非常重要的组件。当 A 时钟域的一个单周期脉冲需要传递到 B 时钟域，且 B 时钟频率低于 A 时钟频率时，直接同步会丢失脉冲（B 时钟沿可能采样不到窄脉冲）。
 
 解决方案——电平展宽法：
