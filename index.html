@@ -930,7 +930,7 @@
         <!-- 统计 -->
         <div class="stats">
             <div class="stat-item">
-                <div class="stat-number">10+</div>
+                <div class="stat-number">11+</div>
                 <div class="stat-label"><i class="fas fa-microchip"></i> RTL 模块</div>
             </div>
             <div class="stat-item">
@@ -1809,6 +1809,131 @@ endmodule`,
 4. 注意：如果源域脉冲过密（脉冲间隔 < 同步延迟 + 边沿检测延迟），脉冲会合并丢失——确保脉冲间隔 > 2*STAGE 个目标时钟周期。`,
             hasCustomWave: false,
             waveform: "src_pulse 脉冲到来时翻转源域电平 → 电平经双级同步器进入目标域 → 边沿检测恢复 dst_pulse。每个输入脉冲对应一个输出脉冲（延迟 2~3 个目标时钟周期）。"
+        }
+        {
+            id: "axi_slice",
+            name: "AXI Channel Slice（双缓冲）",
+            icon: "📋",
+            language: "Verilog",
+            brief: "2 深度 AXI 通道寄存器切片，ping-pong 双缓冲架构。",
+            fullDescription: `本模块实现的是一个 2 深度 AXI 通道切片（Register Slice），用于在 AXI 数据通路上插入流水线级，打破关键路径上的组合逻辑延迟。
+
+核心架构——乒乓缓冲（Ping-Pong Buffer）：
+• 采用双寄存器（reg_a / reg_b）交替存储输入数据
+• front_step 指针在每次前端写入（front_hs）时翻转，指向下一个目标寄存器
+• end_step 指针在每次后端读出（end_hs）时翻转，指向下一个读出寄存器
+• 每个寄存器配独立 valid 位，追踪数据有效性
+
+设计亮点：
+• 参数 PAYLOAD_WIDTH 通用化，适配 AXI 各通道（AW/W/AR/R/B）的不同位宽
+• 参数 AR 选择异步复位（AR=1）或同步复位（AR=0），灵活适配不同时钟域策略
+• 双缓冲轮流工作，有效吞吐率接近 1 拍/cycle
+
+本代码在原始版本基础上修复了一个数据完整性 bug：
+• 原 front_ready = ~valid_a | ~valid_b（任一空闲就 ready），可能在前端 step 指向的寄存器仍有效时误放数据
+• 修复方案：front_ready = front_step ? ~valid_b : ~valid_a（只当目标寄存器空闲才 ready）
+• 同理 end_valid 也做了对应修复`,
+            code: `module axi_slice #(
+    parameter PAYLOAD_WIDTH = 32,
+    parameter AR            = 0        // 1: 异步复位, 0: 同步复位
+)(
+    input  wire                    front_valid,
+    input  wire [PAYLOAD_WIDTH-1:0] front_payload,
+    output wire                    front_ready,
+    input  wire                    end_ready,
+    output wire                    end_valid,
+    output wire [PAYLOAD_WIDTH-1:0] end_payload,
+    input  wire                    iclk,
+    input  wire                    iReset_n
+);
+
+    // ---- 双缓冲寄存器 ----
+    reg [PAYLOAD_WIDTH-1:0] reg_a;
+    reg [PAYLOAD_WIDTH-1:0] reg_b;
+    reg                     valid_a;
+    reg                     valid_b;
+
+    // ---- 乒乓指针 ----
+    reg front_step;   // 0→写 reg_a, 1→写 reg_b
+    reg end_step;     // 0→读 reg_a, 1→读 reg_b
+
+    wire front_hs;
+    wire end_hs;
+    wire enable_rega;
+    wire enable_regb;
+
+    assign front_hs = front_valid & front_ready;
+    assign end_hs   = end_valid   & end_ready;
+
+    // [BUGFIX] ready/valid 基于当前 target 判断，避免误写有效寄存器
+    assign front_ready = front_step ? ~valid_b : ~valid_a;
+    assign end_valid   = end_step   ?  valid_b :  valid_a;
+
+    assign enable_rega = front_hs & ~front_step;
+    assign enable_regb = front_hs &  front_step;
+
+    generate
+        if (AR == 1) begin : async_rst
+            always @(posedge iclk or negedge iReset_n) begin
+                if (!iReset_n) begin
+                    front_step <= 1'b0;
+                    end_step   <= 1'b0;
+                    reg_a      <= {PAYLOAD_WIDTH{1'b0}};
+                    reg_b      <= {PAYLOAD_WIDTH{1'b0}};
+                    valid_a    <= 1'b0;
+                    valid_b    <= 1'b0;
+                end else begin
+                    // 写指针轮转
+                    if (front_hs) front_step <= ~front_step;
+                    // 读指针轮转
+                    if (end_hs)   end_step   <= ~end_step;
+                    // 数据写入
+                    if (enable_rega) reg_a <= front_payload;
+                    if (enable_regb) reg_b <= front_payload;
+                    // valid 管理
+                    if (enable_rega)      valid_a <= 1'b1;
+                    else if (end_hs & ~end_step) valid_a <= 1'b0;
+                    if (enable_regb)      valid_b <= 1'b1;
+                    else if (end_hs &  end_step) valid_b <= 1'b0;
+                end
+            end
+        end else begin : sync_rst
+            always @(posedge iclk) begin
+                if (!iReset_n) begin
+                    front_step <= 1'b0;
+                    end_step   <= 1'b0;
+                    reg_a      <= {PAYLOAD_WIDTH{1'b0}};
+                    reg_b      <= {PAYLOAD_WIDTH{1'b0}};
+                    valid_a    <= 1'b0;
+                    valid_b    <= 1'b0;
+                end else begin
+                    if (front_hs) front_step <= ~front_step;
+                    if (end_hs)   end_step   <= ~end_step;
+                    if (enable_rega) reg_a <= front_payload;
+                    if (enable_regb) reg_b <= front_payload;
+                    if (enable_rega)      valid_a <= 1'b1;
+                    else if (end_hs & ~end_step) valid_a <= 1'b0;
+                    if (enable_regb)      valid_b <= 1'b1;
+                    else if (end_hs &  end_step) valid_b <= 1'b0;
+                end
+            end
+        end
+    endgenerate
+
+    // ---- 输出数据选择 ----
+    assign end_payload = end_step ? reg_b : reg_a;
+
+endmodule`,
+            usage: `1. PAYLOAD_WIDTH 参数配置数据位宽，适配 AXI4 各通道（AWADDR:32/64, WDATA:32/64/128/256/512, ARADDR:32/64, RDATA:32/64/128/256/512, B/RESP:2）。
+2. AR=1 使用异步复位（negedge iReset_n 在 sensitivity list 中），适合异步复位同步释放场景。
+3. AR=0 使用同步复位，适合纯同步设计。
+4. front 侧 front_valid 拉高且 front_ready 为高时数据写入缓冲。写入后 front_step 自动轮转。
+5. end 侧 end_ready 拉高且 end_valid 为高时数据读出。读出后 end_step 自动轮转。
+6. 当缓冲满（两个寄存器都有效）且写入指针和有效位错位时，front_ready 自动拉低反压上游。
+7. 典型应用：AXI 总线中间级插入、长走线流水线、多级仲裁器的 timing closure 修补。
+8. 注意：本模块为 2 深度——如果需要更深缓冲，建议用同步 FIFO 替代。`,
+            hasCustomWave: false,
+            waveform: "前端 front_hs 时数据交替写入 reg_a/reg_b，front_step 轮转。后端 end_hs 时交替读出，end_step 轮转。front_ready 基于 target 寄存器空闲状态提供精确反压。"
         }
     ];
 
