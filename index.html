@@ -1809,7 +1809,7 @@ endmodule`,
 4. 注意：如果源域脉冲过密（脉冲间隔 < 同步延迟 + 边沿检测延迟），脉冲会合并丢失——确保脉冲间隔 > 2*STAGE 个目标时钟周期。`,
             hasCustomWave: false,
             waveform: "src_pulse 脉冲到来时翻转源域电平 → 电平经双级同步器进入目标域 → 边沿检测恢复 dst_pulse。每个输入脉冲对应一个输出脉冲（延迟 2~3 个目标时钟周期）。"
-        }
+        },
         {
             id: "axi_slice",
             name: "AXI Channel Slice（双缓冲）",
