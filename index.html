@@ -11,108 +11,144 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/verilog.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/systemverilog.min.js"></script>
     <style>
+        /* ===== 暗色晶圆科技风 - CSS Variables ===== */
         :root {
-            --bg-main: #f0f2f5;
-            --bg-warm: #f5f6fa;
-            --text-primary: #0b1120;
-            --text-secondary: #3a4a5e;
-            --text-muted: #6b7a8f;
-            --brand-color: #0f2b5c;
-            --brand-light: #2563eb;
-            --brand-gradient: linear-gradient(145deg, #0f2b5c, #2563eb);
-            --accent: #d97706;
-            --border-color: #dce1e8;
-            --border-light: #e8ecf1;
-            --card-bg: #ffffff;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.03);
-            --shadow-lg: 0 12px 30px rgba(0,0,0,0.07), 0 4px 8px rgba(0,0,0,0.04);
-            --shadow-xl: 0 20px 50px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.04);
+            --bg-deep: #080c18;
+            --bg-surface: #0d1428;
+            --bg-elevated: #141e38;
+            --bg-card: #111a30;
+            --bg-hover: #182244;
+            --cyan: #00e5ff;
+            --green: #00c853;
+            --purple: #7c3aed;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #475569;
+            --border: #1e293b;
+            --border-light: #273548;
+            --glow-cyan: rgba(0, 229, 255, 0.12);
+            --glow-cyan-strong: rgba(0, 229, 255, 0.25);
+            --glow-green: rgba(0, 200, 83, 0.10);
+            --glow-purple: rgba(124, 58, 237, 0.15);
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 22px;
+            --radius-xl: 28px;
+            --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', Roboto, 'Helvetica Neue', sans-serif;
+            --mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        ::selection {
-            background: #2563eb;
-            color: white;
-        }
+        ::selection { background: var(--cyan); color: var(--bg-deep); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: #2a3a5c; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3a4a6c; }
 
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', Roboto, 'Helvetica Neue', sans-serif;
-            background: var(--bg-main);
-            background-image: radial-gradient(ellipse at 50% 0%, rgba(37, 99, 235, 0.03) 0%, transparent 70%);
+            font-family: var(--font);
+            background: var(--bg-deep);
+            background-image:
+                linear-gradient(rgba(0, 229, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 229, 255, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
             background-attachment: fixed;
             color: var(--text-primary);
             line-height: 1.7;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
         }
 
-        /* 导航栏 */
+        /* ===== 导航栏 ===== */
         .navbar {
             position: sticky;
             top: 0;
-            background: rgba(255, 255, 255, 0.80);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            background: rgba(8, 12, 24, 0.78);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
             z-index: 100;
-            border-bottom: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border);
+        }
+        .navbar::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.3), transparent);
         }
         .nav-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0.75rem 2rem;
+            padding: 0.7rem 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         .logo {
             font-weight: 800;
-            font-size: 1.2rem;
-            letter-spacing: -0.03em;
-            background: var(--brand-gradient);
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: white;
+            font-weight: 700;
+        }
+        .logo-text {
+            background: linear-gradient(135deg, #e2e8f0 30%, var(--cyan));
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
-        .logo i {
-            color: var(--brand-light);
-            font-size: 1.1rem;
+        .logo-sub {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.75rem;
+            margin-left: 2px;
         }
         .nav-links {
             display: flex;
-            gap: 0.25rem;
+            gap: 0.15rem;
         }
         .nav-links button {
             background: none;
             border: none;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             color: var(--text-muted);
             transition: all 0.25s ease;
-            padding: 0.5rem 1rem;
+            padding: 0.45rem 1rem;
             border-radius: 8px;
             position: relative;
+            font-family: var(--font);
         }
         .nav-links button:hover {
-            color: var(--text-primary);
-            background: rgba(0,0,0,0.04);
+            color: var(--text-secondary);
+            background: rgba(255,255,255,0.04);
         }
         .nav-links .active-page {
-            color: var(--brand-light);
-            background: rgba(37, 99, 235, 0.08);
+            color: var(--cyan);
+            background: rgba(0, 229, 255, 0.07);
         }
         .nav-links .active-page::after {
             content: '';
@@ -120,13 +156,14 @@
             bottom: 2px;
             left: 50%;
             transform: translateX(-50%);
-            width: 20px;
-            height: 3px;
-            background: var(--brand-light);
-            border-radius: 2px;
+            width: 18px;
+            height: 2px;
+            background: var(--cyan);
+            border-radius: 1px;
+            box-shadow: 0 0 8px var(--cyan);
         }
 
-        /* 主要内容区域 */
+        /* ===== 页面容器 ===== */
         .main-content {
             max-width: 1200px;
             margin: 0 auto;
@@ -134,11 +171,8 @@
             text-align: left;
             animation: fadeIn 0.4s ease;
         }
-        .hidden-view {
-            display: none !important;
-        }
+        .hidden-view { display: none !important; }
 
-        /* 入场动画 */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(12px); }
             to   { opacity: 1; transform: translateY(0); }
@@ -148,72 +182,106 @@
             to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); }
-            50% { box-shadow: 0 10px 25px -3px rgba(37, 99, 235, 0.35); }
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 229, 255, 0.35), 0 0 60px rgba(0, 229, 255, 0.1); }
         }
-        .fade-in-item {
-            animation: slideUp 0.5s ease both;
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
         }
-        .fade-in-item:nth-child(1) { animation-delay: 0.05s; }
-        .fade-in-item:nth-child(2) { animation-delay: 0.15s; }
-        .fade-in-item:nth-child(3) { animation-delay: 0.25s; }
-        .fade-in-item:nth-child(4) { animation-delay: 0.35s; }
-        .fade-in-item:nth-child(5) { animation-delay: 0.45s; }
-        .fade-in-item:nth-child(6) { animation-delay: 0.55s; }
-        .fade-in-item:nth-child(7) { animation-delay: 0.65s; }
-        .fade-in-item:nth-child(8) { animation-delay: 0.75s; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        @keyframes ledBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
 
-        /* 统一标题规范 */
+        .fade-in-item { animation: slideUp 0.5s ease both; }
+        .fade-in-item:nth-child(1) { animation-delay: 0.05s; }
+        .fade-in-item:nth-child(2) { animation-delay: 0.12s; }
+        .fade-in-item:nth-child(3) { animation-delay: 0.19s; }
+        .fade-in-item:nth-child(4) { animation-delay: 0.26s; }
+        .fade-in-item:nth-child(5) { animation-delay: 0.33s; }
+        .fade-in-item:nth-child(6) { animation-delay: 0.40s; }
+        .fade-in-item:nth-child(7) { animation-delay: 0.47s; }
+        .fade-in-item:nth-child(8) { animation-delay: 0.54s; }
+        .fade-in-item:nth-child(9) { animation-delay: 0.61s; }
+        .fade-in-item:nth-child(10) { animation-delay: 0.68s; }
+
+        /* ===== 页面标题 ===== */
         .page-header {
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             text-align: left;
         }
         .page-header h1 {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 800;
             letter-spacing: -0.03em;
             color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.3rem;
         }
         .page-header p {
             color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.6;
+            font-size: 0.9rem;
         }
 
-        /* 首页 Hero 区域 */
+        /* ===== HERO 区域 ===== */
         .hero {
-            background: linear-gradient(145deg, #f8faff, #ffffff);
-            background-image: radial-gradient(#dce1e8 0.8px, transparent 0.8px), linear-gradient(145deg, #f8faff, #ffffff);
-            background-size: 20px 20px, 100%;
-            border-radius: 28px;
+            background: linear-gradient(145deg, #0e162e, #0a1020);
+            border-radius: var(--radius-xl);
             padding: 4.5rem 2.5rem;
             margin-bottom: 2.5rem;
             text-align: center;
-            border: 1px solid var(--border-light);
-            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
             position: relative;
             overflow: hidden;
         }
+        /* 晶圆电路装饰线条 */
         .hero::before {
             content: '';
             position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(37, 99, 235, 0.04) 0%, transparent 70%);
+            top: -60%;
+            right: -15%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(0, 229, 255, 0.04) 0%, transparent 60%);
             border-radius: 50%;
             pointer-events: none;
         }
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.03) 0%, transparent 60%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        /* 电路走线装饰 */
+        .hero-traces {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            opacity: 0.15;
+        }
+        .hero-traces svg {
+            width: 100%;
+            height: 100%;
+        }
+
         .avatar {
-            width: 76px;
-            height: 76px;
-            background: var(--brand-gradient);
-            border-radius: 22px;
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            border-radius: 20px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -222,246 +290,277 @@
             margin-bottom: 1.5rem;
             animation: pulseGlow 3s ease-in-out infinite;
             position: relative;
+            z-index: 1;
+            border: 1px solid rgba(0, 229, 255, 0.2);
         }
         .hero h1 {
-            font-size: 2.5rem;
+            font-size: 2.3rem;
             font-weight: 800;
             letter-spacing: -0.03em;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.6rem;
             color: var(--text-primary);
+            position: relative;
+            z-index: 1;
+        }
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--cyan), #38bdf8);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
         }
         .hero p {
-            font-size: 1.05rem;
+            font-size: 1rem;
             color: var(--text-secondary);
-            max-width: 580px;
+            max-width: 560px;
             margin: 0 auto 1.5rem;
             line-height: 1.7;
+            position: relative;
+            z-index: 1;
         }
         .chip-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(37, 99, 235, 0.06);
-            color: var(--brand-light);
-            padding: 0.4rem 1.4rem;
+            background: rgba(0, 229, 255, 0.06);
+            color: var(--cyan);
+            padding: 0.35rem 1.3rem;
             border-radius: 9999px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            border: 1px solid rgba(37, 99, 235, 0.12);
+            border: 1px solid rgba(0, 229, 255, 0.12);
             backdrop-filter: blur(4px);
+            position: relative;
+            z-index: 1;
+        }
+        .chip-badge .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: ledBlink 2s ease-in-out infinite;
         }
 
-        /* 入口网格布局 */
+        /* ===== 入口网格卡片 ===== */
         .entry-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 1.5rem;
-            margin-bottom: 3rem;
+            margin-bottom: 2.5rem;
         }
         .entry-card {
-            background: var(--card-bg);
-            border-radius: 22px;
-            padding: 2.5rem 2rem;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 2.2rem 2rem;
             text-align: left;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid var(--border-light);
-            box-shadow: var(--shadow-sm);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             position: relative;
             overflow: hidden;
         }
-        .entry-card::after {
+        .entry-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--brand-gradient);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            inset: -1px;
+            border-radius: var(--radius-lg);
+            padding: 1px;
+            background: linear-gradient(135deg, transparent, transparent, transparent, transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            transition: all 0.5s ease;
+            pointer-events: none;
         }
-        .entry-card:hover::after {
-            opacity: 1;
+        .entry-card:hover::before {
+            background: linear-gradient(135deg, var(--cyan), var(--purple), transparent, transparent);
         }
         .entry-card:hover {
             transform: translateY(-6px);
-            border-color: transparent;
-            box-shadow: var(--shadow-xl);
+            border-color: rgba(0, 229, 255, 0.15);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(0, 229, 255, 0.05);
+            background: var(--bg-hover);
         }
         .entry-icon {
-            font-size: 1.6rem;
-            margin-bottom: 1.25rem;
-            background: #eef7ee;
-            width: 52px;
-            height: 52px;
+            font-size: 1.5rem;
+            margin-bottom: 1.2rem;
+            width: 48px;
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 16px;
+            border-radius: 14px;
             transition: transform 0.3s ease;
+            border: 1px solid var(--border-light);
         }
-        .entry-card:hover .entry-icon {
-            transform: scale(1.05);
+        .entry-card:nth-child(1) .entry-icon {
+            background: rgba(0, 229, 255, 0.08);
         }
         .entry-card:nth-child(2) .entry-icon {
-            background: #eef2ff;
+            background: rgba(124, 58, 237, 0.08);
+        }
+        .entry-card:hover .entry-icon {
+            transform: scale(1.08);
         }
         .entry-card h3 {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
+            color: var(--text-primary);
         }
         .entry-card p {
             color: var(--text-secondary);
-            font-size: 0.95rem;
-            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            margin-bottom: 1.2rem;
             flex-grow: 1;
-            line-height: 1.7;
+            line-height: 1.65;
         }
         .card-action-text {
-            color: var(--brand-light);
+            color: var(--cyan);
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
             gap: 4px;
             transition: gap 0.25s ease;
         }
         .entry-card:hover .card-action-text {
-            gap: 8px;
+            gap: 10px;
         }
 
-        /* 统计数据面板 */
+        /* ===== 统计面板 ===== */
         .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            background: white;
-            border-radius: 22px;
-            padding: 2rem;
-            border: 1px solid var(--border-light);
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 1.8rem;
+            border: 1px solid var(--border);
             text-align: center;
-            box-shadow: var(--shadow-sm);
-            transition: box-shadow 0.3s ease;
+            transition: border-color 0.3s ease;
+            margin-bottom: 2.5rem;
         }
         .stats:hover {
-            box-shadow: var(--shadow-md);
+            border-color: var(--border-light);
         }
         .stat-item:not(:last-child) {
-            border-right: 1px solid var(--border-color);
+            border-right: 1px solid var(--border);
         }
         .stat-number {
-            font-size: 2.25rem;
+            font-size: 2rem;
             font-weight: 800;
-            background: var(--brand-gradient);
+            background: linear-gradient(135deg, var(--cyan), #38bdf8);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
             line-height: 1.2;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.2rem;
+            font-family: var(--mono);
+            letter-spacing: 0.02em;
         }
         .stat-label {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
             font-weight: 600;
+            letter-spacing: 0.03em;
         }
 
-        /* 代码网格与卡片 */
+        /* ===== 代码网格卡片 ===== */
         .code-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.3rem;
         }
         .code-card {
-            background: white;
-            border-radius: 18px;
-            border: 1px solid var(--border-light);
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
             padding: 1.5rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             display: flex;
             flex-direction: column;
             text-align: left;
-            box-shadow: var(--shadow-sm);
         }
         .code-card:hover {
             transform: translateY(-4px);
-            border-color: transparent;
-            box-shadow: var(--shadow-lg);
+            border-color: rgba(0, 229, 255, 0.15);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 229, 255, 0.04);
+            background: var(--bg-hover);
         }
         .card-header-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.7rem;
         }
         .card-badge-tag {
-            background: #eef2ff;
-            padding: 0.2rem 0.7rem;
-            border-radius: 8px;
-            font-size: 0.7rem;
+            background: rgba(0, 229, 255, 0.07);
+            padding: 0.15rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.65rem;
             font-weight: 600;
-            color: var(--brand-light);
-            font-family: 'SF Mono', 'Fira Code', monospace;
+            color: var(--cyan);
+            font-family: var(--mono);
             letter-spacing: 0.02em;
-            border: 1px solid rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.1);
         }
         .code-card h3 {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
             color: var(--text-primary);
         }
         .card-desc {
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            margin: 0.5rem 0 1.2rem;
             flex-grow: 1;
-            line-height: 1.65;
+            line-height: 1.6;
         }
 
-        /* 详情页排版优化 */
+        /* ===== 详情页 ===== */
         .detail-container {
-            background: white;
-            border-radius: 26px;
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
             padding: 2.5rem;
-            border: 1px solid var(--border-light);
-            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
             text-align: left;
         }
         .back-link {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: #f1f4f9;
-            padding: 0.5rem 1.2rem;
+            background: var(--bg-elevated);
+            padding: 0.45rem 1.1rem;
             border-radius: 10px;
             color: var(--text-secondary);
             font-weight: 600;
-            font-size: 0.85rem;
-            margin-bottom: 2rem;
-            border: none;
+            font-size: 0.8rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-light);
             cursor: pointer;
             transition: all 0.2s ease;
+            font-family: var(--font);
         }
         .back-link:hover {
-            background: var(--brand-light);
-            color: white;
+            background: rgba(0, 229, 255, 0.08);
+            color: var(--cyan);
+            border-color: rgba(0, 229, 255, 0.15);
             transform: translateX(-2px);
         }
         .detail-title-wrapper {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 1.5rem;
-            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.2rem;
+            margin-bottom: 1.8rem;
             text-align: left;
         }
         .detail-title {
-            font-size: 1.75rem;
+            font-size: 1.6rem;
             font-weight: 800;
             letter-spacing: -0.025em;
             display: flex;
@@ -470,13 +569,13 @@
             text-align: left;
         }
         .section-block {
-            margin-bottom: 2.5rem;
+            margin-bottom: 2.2rem;
             text-align: left;
         }
         .section-block h3 {
-            font-size: 1.15rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -484,932 +583,624 @@
             text-align: left;
         }
         .explanation-text {
-            background: #f8faff;
-            padding: 1.5rem 1.75rem;
+            background: var(--bg-elevated);
+            padding: 1.3rem 1.5rem;
             border-radius: 14px;
             line-height: 1.8;
             color: var(--text-secondary);
-            border-left: 4px solid var(--brand-light);
-            font-size: 0.95rem;
+            border-left: 3px solid var(--cyan);
+            font-size: 0.9rem;
             text-align: left;
         }
 
-        /* macOS 风格代码窗口模型 */
+        /* ===== macOS 代码窗口 ===== */
         .code-window-mockup {
-            background: #0b1120;
+            background: #060b17;
             border-radius: 14px;
             overflow: hidden;
-            margin: 1rem 0;
-            box-shadow: var(--shadow-lg);
+            margin: 0.8rem 0;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.4);
             position: relative;
             text-align: left;
-            border: 1px solid #1a2332;
+            border: 1px solid var(--border);
         }
         .code-window-header {
-            background: #141d2e;
-            padding: 0.75rem 1.2rem;
+            background: #0c1322;
+            padding: 0.65rem 1.1rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid #1f2a3e;
+            border-bottom: 1px solid var(--border);
         }
-        .mac-dots {
-            display: flex;
-            gap: 7px;
-        }
+        .mac-dots { display: flex; gap: 7px; }
         .mac-dot {
             width: 11px;
             height: 11px;
             border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.04);
         }
-        .mac-dot.red { background: #ef4444; }
-        .mac-dot.yellow { background: #f59e0b; }
-        .mac-dot.green { background: #10b981; }
+        .mac-dot.red { background: var(--red); }
+        .mac-dot.yellow { background: var(--amber); }
+        .mac-dot.green { background: var(--green); }
         .code-window-title {
-            color: #5a6f8a;
-            font-size: 0.75rem;
-            font-family: 'SF Mono', 'Fira Code', monospace;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-family: var(--mono);
         }
         .code-wrapper pre {
             margin: 0;
-            padding: 1.25rem;
-            font-size: 0.85rem;
+            padding: 1.1rem;
+            font-size: 0.82rem;
             overflow-x: auto;
             text-align: left !important;
-            line-height: 1.55;
+            line-height: 1.5;
         }
         .copy-btn {
-            background: #1f2a3e;
-            border: none;
-            color: #8899b4;
-            padding: 6px 14px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-light);
+            color: var(--text-muted);
+            padding: 5px 12px;
             border-radius: 6px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            font-family: var(--font);
         }
         .copy-btn:hover {
-            background: var(--brand-light);
-            color: white;
+            background: rgba(0, 229, 255, 0.1);
+            color: var(--cyan);
+            border-color: rgba(0, 229, 255, 0.15);
         }
 
-        /* 提示步骤排版 */
+        /* ===== 使用步骤 ===== */
         .usage-steps {
-            background: #fffbeb;
-            padding: 1.5rem 1.5rem 1.5rem 2.5rem;
+            background: rgba(245, 158, 11, 0.04);
+            padding: 1.3rem 1.3rem 1.3rem 2.2rem;
             border-radius: 14px;
-            border: 1px solid #fef3c7;
-            color: #92400e;
-            font-size: 0.95rem;
+            border: 1px solid rgba(245, 158, 11, 0.08);
+            color: #fbbf24;
+            font-size: 0.9rem;
             text-align: left;
             line-height: 1.7;
         }
         .usage-steps li {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
             text-align: left;
+            color: var(--text-secondary);
         }
-        .usage-steps li:last-child {
-            margin-bottom: 0;
-        }
+        .usage-steps li:last-child { margin-bottom: 0; }
 
-        /* 波形图生成器样式容器 */
+        /* ===== 波形容器 ===== */
         .wave-container {
-            background: #f8faff;
-            border: 1px solid var(--border-light);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
             border-radius: 14px;
-            padding: 1.5rem;
+            padding: 1.3rem;
             text-align: left;
         }
         .wave-desc {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
             display: flex;
             align-items: center;
             gap: 6px;
             text-align: left;
             line-height: 1.6;
         }
+        /* SVG波形仿真器控制按钮 */
+        .sim-layout { text-align: left; }
+        .sim-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .sim-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-family: var(--font);
+        }
+        .sim-btn:hover:not(:disabled) {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border-color: var(--cyan);
+        }
+        .sim-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        .sim-viewport {
+            border-radius: 10px;
+            overflow: auto;
+            background: #060b17;
+            border: 1px solid var(--border);
+        }
 
-        /* 知识库板块排版 */
+        /* ===== 知识库 ===== */
         .knowledge-list {
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            gap: 1.1rem;
             text-align: left;
         }
         .knowledge-item {
-            background: white;
-            border-radius: 18px;
-            padding: 1.75rem;
-            border: 1px solid var(--border-light);
-            box-shadow: var(--shadow-sm);
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 1.5rem 1.8rem;
+            border: 1px solid var(--border);
             text-align: left;
-            transition: box-shadow 0.3s ease;
+            transition: all 0.3s ease;
         }
         .knowledge-item:hover {
-            box-shadow: var(--shadow-md);
+            border-color: var(--border-light);
         }
         .knowledge-title {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 0.5rem;
-            text-align: left;
+            margin-bottom: 0.4rem;
         }
         .knowledge-meta {
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            text-align: left;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 0.8rem;
         }
         .badge {
-            background: #eef2ff;
-            color: var(--brand-light);
-            padding: 0.2rem 0.75rem;
-            border-radius: 8px;
-            font-size: 0.72rem;
+            background: rgba(0, 229, 255, 0.06);
+            border: 1px solid rgba(0, 229, 255, 0.08);
+            color: var(--cyan);
+            font-size: 0.65rem;
             font-weight: 600;
-            border: 1px solid rgba(37, 99, 235, 0.1);
+            padding: 0.15rem 0.6rem;
+            border-radius: 6px;
         }
         .knowledge-summary {
             color: var(--text-secondary);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             line-height: 1.7;
-            text-align: left;
+            margin-bottom: 0.8rem;
         }
         .expand-btn {
             background: none;
-            border: none;
-            color: var(--brand-light);
+            border: 1px solid var(--border-light);
+            background: var(--bg-elevated);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
-            font-size: 0.9rem;
-            margin-top: 1rem;
+            transition: all 0.2s ease;
+            font-family: var(--font);
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            transition: gap 0.2s ease;
-            padding: 0.25rem 0;
+            gap: 6px;
         }
         .expand-btn:hover {
-            gap: 8px;
+            background: rgba(0, 229, 255, 0.06);
+            color: var(--cyan);
+            border-color: rgba(0, 229, 255, 0.1);
         }
         .full-content {
             display: none;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-primary);
-            font-size: 0.95rem;
-            line-height: 1.8;
-            text-align: left;
+            margin-top: 0.8rem;
         }
-
-        /* 关于作者卡片 */
-        .about-box {
-            background: white;
-            border-radius: 22px;
-            padding: 2rem;
-            margin-top: 3rem;
-            border: 1px solid var(--border-light);
+        .full-content p {
+            background: var(--bg-elevated);
+            padding: 1.1rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
             text-align: left;
-            box-shadow: var(--shadow-sm);
-        }
-        .about-box h4 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-align: left;
-        }
-        .contact-icons {
-            display: flex;
-            gap: 1.5rem;
-            margin-top: 1.25rem;
             font-size: 0.9rem;
-            color: var(--text-muted);
-            flex-wrap: wrap;
-            text-align: left;
-        }
-        .contact-icons span {
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            line-height: 1.7;
         }
 
-        footer {
-            text-align: center;
-            margin-top: 5rem;
-            padding: 2rem 0;
-            border-top: 1px solid var(--border-light);
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            font-weight: 500;
-            letter-spacing: 0.02em;
-        }
-
-        .toast-msg {
+        /* ===== Toast 提示 ===== */
+        .toast {
             position: fixed;
-            bottom: 24px;
+            bottom: 2rem;
             left: 50%;
             transform: translateX(-50%);
-            background: #0b1120;
-            color: white;
-            padding: 10px 24px;
-            border-radius: 9999px;
+            background: var(--bg-elevated);
+            color: var(--green);
+            padding: 0.6rem 1.5rem;
+            border-radius: 12px;
             font-size: 0.85rem;
             font-weight: 600;
-            z-index: 1000;
+            border: 1px solid rgba(0, 200, 83, 0.15);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
             opacity: 0;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
-            transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 200;
+            backdrop-filter: blur(12px);
         }
 
-        /* 响应式适配 */
-        @media (max-width: 640px) {
-            .nav-container { padding: 0.75rem 1rem; }
+        /* ===== Footer ===== */
+        .site-footer {
+            margin-top: 3rem;
+            padding: 2rem 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .site-footer i {
+            color: var(--cyan);
+            margin: 0 2px;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 768px) {
+            .nav-container { padding: 0.6rem 1rem; }
+            .logo-sub { display: none; }
             .main-content { padding: 1.5rem 1rem; }
-            .hero { padding: 3rem 1.5rem; border-radius: 20px; }
-            .hero h1 { font-size: 1.8rem; }
-            .stats { grid-template-columns: 1fr; gap: 1.5rem; }
-            .stat-item:not(:last-child) { border-right: none; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
-            .detail-container { padding: 1.5rem; border-radius: 20px; }
-            .detail-title-wrapper { flex-direction: column; align-items: flex-start; gap: 1rem; }
-            .detail-title { font-size: 1.3rem; }
-            .code-grid { grid-template-columns: 1fr; }
+            .hero { padding: 2.5rem 1.5rem; }
+            .hero h1 { font-size: 1.6rem; }
             .entry-grid { grid-template-columns: 1fr; }
-            .nav-links button { padding: 0.4rem 0.7rem; font-size: 0.85rem; }
-        }
-
-        /* 交互式波形仿真图组件样式 */
-        .sim-layout {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            text-align: left;
-        }
-        .sim-controls {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-            background: #edf0f5;
-            padding: 0.75rem;
-            border-radius: 12px;
-            text-align: left;
-        }
-        .sim-btn {
-            background: white;
-            border: 1px solid #d0d5dd;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            color: #334155;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-        .sim-btn:hover {
-            border-color: var(--brand-light);
-            color: var(--brand-light);
-            background: #eef2ff;
-        }
-        .sim-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            background: #f1f4f9;
-            border-color: #dce1e8;
-            color: #94a3b8;
-        }
-        .sim-viewport {
-            background: #0b1120;
-            border-radius: 12px;
-            padding: 1rem;
-            overflow-x: auto;
-            text-align: left;
-            border: 1px solid #1a2332;
+            .stats { grid-template-columns: 1fr; gap: 1rem; }
+            .stat-item:not(:last-child) { border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 0.8rem; }
+            .code-grid { grid-template-columns: 1fr; }
+            .detail-container { padding: 1.5rem; }
+            .detail-title { font-size: 1.2rem; }
+            .detail-title-wrapper { flex-direction: column; align-items: flex-start; gap: 8px; }
         }
     </style>
 </head>
 <body>
 
-<div class="navbar">
+<!-- ===== Toast ===== -->
+<div class="toast" id="toastMsg"><i class="fas fa-check-circle"></i> 代码已复制到剪贴板</div>
+
+<!-- ===== 导航栏 ===== -->
+<nav class="navbar">
     <div class="nav-container">
-        <div class="logo"><i class="fas fa-microchip"></i> 数字芯苑</div>
+        <div class="logo">
+            <div class="logo-icon">♢</div>
+            <span class="logo-text">数字芯苑</span>
+            <span class="logo-sub">· 芯片设计</span>
+        </div>
         <div class="nav-links">
-            <button id="navHomeBtn">首页</button>
-            <button id="navCodesBtn">代码库</button>
-            <button id="navKnowledgeBtn">知识库</button>
+            <button id="navHomeBtn" class="active-page"><i class="fas fa-microchip"></i> 首页</button>
+            <button id="navCodesBtn"><i class="fas fa-code"></i> 代码库</button>
+            <button id="navKnowledgeBtn"><i class="fas fa-book"></i> 知识库</button>
         </div>
     </div>
-</div>
+</nav>
 
-<!-- 首页视图 -->
-<div id="homeView" class="main-content">
-    <div class="hero">
-        <div class="avatar"><i class="fas fa-microchip"></i></div>
-        <h1>Ron · 数字IC设计工程师</h1>
-        <p>IC行业的老兵，专注于数字前端设计与高速接口开发。这里沉淀了工作中常用的RTL功能模块与数字逻辑知识，欢迎交流指正。</p>
-        <div class="chip-badge"><i class="fas fa-cube"></i> Verilog | SystemVerilog | VHDL | Tcl</div>
-    </div>
-    
-    <div class="entry-grid">
-        <div class="entry-card fade-in-item" data-nav="codes">
-            <div>
-                <div class="entry-icon"><i class="fas fa-code-branch" style="color:#16a34a;"></i></div>
+<!-- ===== 主内容区 ===== -->
+<main class="main-content">
+
+    <!-- ===== 首页 ===== -->
+    <div id="homeView">
+        <section class="hero">
+            <!-- 电路走线装饰 -->
+            <div class="hero-traces">
+                <svg viewBox="0 0 1200 500" preserveAspectRatio="none">
+                    <path d="M0,250 L200,250 L250,200 L350,200 L350,350 L450,350 L450,150 L550,150 L550,300 L700,300 L700,100 L900,100 L900,400 L1050,400 L1050,200 L1200,200" fill="none" stroke="rgba(0,229,255,0.12)" stroke-width="1.5"/>
+                    <path d="M0,380 L150,380 L150,300 L250,300 L250,180 L400,180 L400,420 L550,420 L550,120 L700,120 L700,450 L850,450 L850,80 L1000,80 L1000,350 L1200,350" fill="none" stroke="rgba(124,58,237,0.08)" stroke-width="1"/>
+                    <circle cx="350" cy="200" r="4" fill="rgba(0,229,255,0.15)"/>
+                    <circle cx="550" cy="150" r="4" fill="rgba(0,229,255,0.15)"/>
+                    <circle cx="900" cy="100" r="4" fill="rgba(0,229,255,0.15)"/>
+                    <circle cx="250" cy="300" r="4" fill="rgba(124,58,237,0.12)"/>
+                    <circle cx="700" cy="450" r="4" fill="rgba(124,58,237,0.12)"/>
+                </svg>
+            </div>
+
+            <div class="avatar"><i class="fas fa-microchip"></i></div>
+            <h1><span class="highlight">Ron</span> · 数字IC设计工程师</h1>
+            <p>7年前端设计经验 · 高速接口 · PCIe / Chiplet / D2D · 持续精进中</p>
+            <div class="chip-badge">
+                <span class="dot"></span>
+                <span><i class="fas fa-cube"></i> Verilog · SystemVerilog · UVM</span>
+            </div>
+        </section>
+
+        <!-- 入口卡片 -->
+        <div class="entry-grid">
+            <div class="entry-card" data-nav="codes">
+                <div class="entry-icon" style="color:var(--cyan);"><i class="fas fa-code"></i></div>
                 <h3>📁 RTL 代码库</h3>
-                <p>内含边沿检测、参数化同步FIFO、双写FIFO、时钟分频、异步复位同步释放等可直接复用的工业级底层 RTL 模块。</p>
+                <p>可综合的工业级 Verilog/SystemVerilog 模块集合 —— FIFO、仲裁器、同步器、CRC、PCIe 辅助逻辑等，每份代码配有完整时序波形与集成指南。</p>
+                <div class="card-action-text">浏览代码库 <i class="fas fa-arrow-right" style="font-size:0.75rem;"></i></div>
             </div>
-            <span class="card-action-text">浏览全部模块 <i class="fas fa-arrow-right"></i></span>
-        </div>
-        <div class="entry-card fade-in-item" data-nav="knowledge">
-            <div>
-                <div class="entry-icon"><i class="fas fa-graduation-cap" style="color:#2563eb;"></i></div>
+            <div class="entry-card" data-nav="knowledge">
+                <div class="entry-icon" style="color:var(--purple);"><i class="fas fa-brain"></i></div>
                 <h3>📘 技术知识库</h3>
-                <p>收录跨时钟域处理 (CDC)、低功耗设计、FIFO深度精确计算、亚稳态处理等核心设计方法论与实战笔记。</p>
+                <p>芯片设计核心理论总结 —— CDC 跨时钟域、低功耗设计、FIFO 深度计算、时序收敛方法论。持续更新，学以致用。</p>
+                <div class="card-action-text">浏览知识库 <i class="fas fa-arrow-right" style="font-size:0.75rem;"></i></div>
             </div>
-            <span class="card-action-text">阅读技术专题 <i class="fas fa-arrow-right"></i></span>
+        </div>
+
+        <!-- 统计 -->
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">10+</div>
+                <div class="stat-label"><i class="fas fa-microchip"></i> RTL 模块</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">3</div>
+                <div class="stat-label"><i class="fas fa-book"></i> 技术笔记</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">7</div>
+                <div class="stat-label"><i class="fas fa-calendar-alt"></i> 年设计经验</div>
+            </div>
         </div>
     </div>
-    
-    <div class="stats fade-in-item">
-        <div class="stat-item"><div class="stat-number">10+</div><div class="stat-label">可复用高质量模块</div></div>
-        <div class="stat-item"><div class="stat-number">5+</div><div class="stat-label">硬核底层技术专题</div></div>
-        <div class="stat-item"><div class="stat-number">3+</div><div class="stat-label">颗大型量产芯片经验</div></div>
-    </div>
-    <footer>© 2026 数字芯苑 · 芯片设计知识与工程沉淀</footer>
-</div>
 
-<!-- 代码库列表视图 -->
-<div id="codesView" class="main-content hidden-view">
-    <div class="page-header">
-        <h1><i class="fas fa-code-branch"></i> RTL 功能代码库</h1>
-        <p>点击下方架构模块卡片，查看详尽的设计推导、生产级源码、使用配置及仿真交互波形。</p>
-    </div>
-    <div class="code-grid" id="codeCardsContainer"></div>
-    <footer>© 2026 数字芯苑</footer>
-</div>
-
-<!-- 知识库视图 -->
-<div id="knowledgeView" class="main-content hidden-view">
-    <div class="page-header">
-        <h1><i class="fas fa-graduation-cap"></i> 数字IC知识库</h1>
-        <p>一线项目实战设计方法论、高容错系统架构沉淀与技术深度解析。</p>
-    </div>
-    <div class="knowledge-list" id="knowledgeListContainer"></div>
-    
-    <div class="about-box">
-        <h4><i class="fas fa-user-tie" style="color:#2563eb;"></i> 关于作者</h4>
-        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem;">IC行业的老兵，深耕数字IC前端设计多年，专注于高速接口与总线架构设计。本站所收录的功能模块与知识沉淀，均来自一线项目实战经验。</p>
-        <div class="contact-icons">
-            <span><i class="fas fa-code"></i> 数字IC前端设计 · 高速接口 · 知识沉淀</span>
+    <!-- ===== 代码库视图 ===== -->
+    <div id="codesView" class="hidden-view">
+        <div class="page-header">
+            <h1><span style="color:var(--cyan);"><i class="fas fa-code"></i></span> RTL 代码库</h1>
+            <p>可综合的 Verilog/SystemVerilog 模块 — 点击卡片查看完整文档与波形</p>
         </div>
+        <div class="code-grid" id="codeCardsContainer"></div>
     </div>
-    <footer>知识源于实践，精于推敲</footer>
-</div>
 
-<!-- 详情容器 -->
-<div id="detailView" class="main-content hidden-view"></div>
+    <!-- ===== 知识库视图 ===== -->
+    <div id="knowledgeView" class="hidden-view">
+        <div class="page-header">
+            <h1><span style="color:var(--purple);"><i class="fas fa-brain"></i></span> 技术知识库</h1>
+            <p>芯片设计核心理论 — 点击展开完整笔记</p>
+        </div>
+        <div class="knowledge-list" id="knowledgeListContainer"></div>
+    </div>
 
-<div id="toastMsg" class="toast-msg">✓ 代码已成功复制到剪贴板</div>
+    <!-- ===== 详情视图（动态生成） ===== -->
+    <div id="detailView" class="hidden-view"></div>
+
+    <!-- ===== Footer ===== -->
+    <footer class="site-footer" id="mainFooter">
+        <i class="fas fa-microchip"></i> 数字芯苑 · 持续精进 <i class="fas fa-heart" style="color:var(--red);"></i> 芯片设计
+    </footer>
+
+</main>
 
 <script>
-    // ========== 模块数据 ==========
+    // ===== 模块数据 =====
     const modules = [
         {
-            id: "ff_cam",
-            name: "内容寻址存储器 (CAM / 寄存器型)",
-            icon: "🔍",
-            language: "Verilog",
-            brief: "打破“按地址读数据”的传统架构。支持单周期全阵列并行比对，输入数据 Key 瞬间反查出其对应的存储地址，网络路由与 Cache 匹配利器。",
-            fullDescription: "内容寻址存储器 (CAM) 是一种特殊的存储结构，其核心价值在于实现“硬件级高速反查”。本模块使用触发器阵列（Flip-Flop）构建，相比于传统的 SRAM 方案，它在每个存储槽位都级联了独立的硬件比较器。当外部提供检索键值 (skey) 时，所有槽位在单周期内并行发起比对，并通过独热码转换器 (onehot2bin) 瞬时输出匹配的地址。模块还贴心地设计了 FLOP_IN 与 FLOP_OUT 参数，可自由开启输入输出流水线打拍，以平衡片上网络 (NoC) 的时序切片。",
-            code: `module idh_ff_cam #(
-    parameter DATA_WIDTH  = 24,                  // 存储数据的位宽
-    parameter ARRAY_DEPTH = 9,                   // CAM 槽位深度
-    parameter ADDR_WIDTH  = $clog2(ARRAY_DEPTH), // 地址总线位宽
-    parameter FLOP_IN     = 0,                   // 是否对输入信号进行流水打拍 (1:开启)
-    parameter FLOP_OUT    = 0,                   // 是否对输出信号进行流水打拍 (1:开启)
-    parameter END_OF_LIST = 0
-)(
-    input  wire                   i_clk,
-    input  wire                   i_rst_n,
-
-    // 传统写通道 (配置/写入条目)
-    input  wire                   i_wen,
-    input  wire [ADDR_WIDTH-1:0]  i_waddr,
-    input  wire [DATA_WIDTH-1:0]  i_wdata,
-
-    // 传统读通道 (点对点读取检视)
-    input  wire                   i_ren,
-    input  wire [ADDR_WIDTH-1:0]  i_raddr,
-    output reg  [DATA_WIDTH-1:0]  o_rdata,
-
-    // 条目擦除通道
-    input  wire                   i_cen,
-    input  wire [ADDR_WIDTH-1:0]  i_caddr,
-
-    // CAM 核心检索反查通道
-    input  wire                   i_sen,         // 检索使能 (Search Enable)
-    input  wire [DATA_WIDTH-1:0]  i_skey,        // 待查找的数据键值 (Search Key)
-    output reg  [ADDR_WIDTH-1:0]  o_saddr        // 反查出的对应硬件地址 (Search Address)
-);
-
-    // 寄存器数组，高 1 位为 Valid 标志位，低 DATA_WIDTH 位为实际数据 [Valid, Data]
-    reg [DATA_WIDTH:0] ff_array [0:ARRAY_DEPTH-1];
-
-    // 内部流水线影子信号
-    reg wen, ren, cen, sen;
-    reg [ADDR_WIDTH-1:0] waddr, raddr, caddr;
-    reg [DATA_WIDTH-1:0] wdata, rdata, skey;
-
-    wire [ARRAY_DEPTH-1:0] wen_bitmap;
-    wire [ARRAY_DEPTH-1:0] ren_bitmap;
-    wire [ARRAY_DEPTH-1:0] cen_bitmap;
-    wire [ARRAY_DEPTH-1:0] cmp_bitmap;
-    wire [ADDR_WIDTH-1:0]  saddr;
-
-    // ==========================================
-    // 1. 输入端时序切片控制 (Input Flop)
-    // ==========================================
-    generate
-    if (FLOP_IN == 1) begin : GEN_FLOP_IN
-        always @(posedge i_clk or negedge i_rst_n) begin
-            if (!i_rst_n) begin
-                wen <= 1'b0; ren <= 1'b0; cen <= 1'b0; sen <= 1'b0;
-            end else begin
-                wen <= i_wen; ren <= i_ren; cen <= i_cen; sen <= i_sen;
-            end
-        end
-
-        always @(posedge i_clk) begin
-            if (i_wen) begin
-                waddr <= i_waddr;
-                wdata <= i_wdata;
-            end
-        end
-
-        always @(posedge i_clk) begin
-            if (i_ren) raddr <= i_raddr;
-        end
-
-        always @(posedge i_clk) begin
-            if (i_cen) caddr <= i_caddr;
-        end
-
-        always @(posedge i_clk) begin
-            if (i_sen) skey <= i_skey;
-        end
-    end else begin : GEN_NON_FLOP_IN
-        always @(*) begin
-            wen   = i_wen;   waddr = i_waddr; wdata = i_wdata;
-            ren   = i_ren;   raddr = i_raddr;
-            cen   = i_cen;   caddr = i_caddr;
-            sen   = i_sen;   skey  = i_skey;
-        end
-    end
-    endgenerate
-
-    // ==========================================
-    // 2. 寻址译码产生独热码位图 (Decoder)
-    // ==========================================
-    // 核心修正：wen_bitmap 的控制基准应当是写使能信号 wen，而非读使能 ren
-    assign wen_bitmap = wen ? ({{(ARRAY_DEPTH-1){1'b0}}, 1'b1} << waddr) : 0;
-    assign ren_bitmap = ren ? ({{(ARRAY_DEPTH-1){1'b0}}, 1'b1} << raddr) : 0;
-    assign cen_bitmap = cen ? ({{(ARRAY_DEPTH-1){1'b0}}, 1'b1} << caddr) : 0;
-
-    // ==========================================
-    // 3. 存储阵列写控制与擦除逻辑
-    // ==========================================
-    generate
-    for (genvar i = 0; i < ARRAY_DEPTH; i = i + 1) begin : GEN_FF_ARRAY
-        always @(posedge i_clk or negedge i_rst_n) begin
-            if (!i_rst_n) begin
-                ff_array[i] <= {1'b0, {DATA_WIDTH{1'b0}}}; // 复位时 Valid 自动清零
-            end else if (wen_bitmap[i]) begin
-                ff_array[i] <= {1'b1, wdata};              // 写入数据并拉高 Valid
-            end else if (cen_bitmap[i]) begin
-                ff_array[i] <= {1'b0, {DATA_WIDTH{1'b0}}}; // 擦除条目
-            end
-        end
-    end
-    endgenerate
-
-    // ==========================================
-    // 4. 点对点传统读取通路
-    // ==========================================
-    always @(*) begin
-        integer k;
-        rdata = {DATA_WIDTH{1'b0}};
-        for (k = 0; k < ARRAY_DEPTH; k = k + 1) begin
-            if (ren_bitmap[k])
-                rdata = ff_array[k][0 +: DATA_WIDTH];
-        end
-    end
-
-    // ==========================================
-    // 5. CAM 核心并行比较器
-    // ==========================================
-    generate
-    for (genvar i = 0; i < ARRAY_DEPTH; i = i + 1) begin : GEN_CONTENT_CMP
-        // 只有当条目有效(Valid==1)且数据完全一致时，对应的比较结果位图才拉高
-        assign cmp_bitmap[i] = ff_array[i][DATA_WIDTH] && (ff_array[i][0 +: DATA_WIDTH] == skey);
-    end
-    endgenerate
-
-    // 调用独热码转二进制模块，输出最终匹配的地址
-    idh_onehot2bin #(.BITMAP_WIDTH(ARRAY_DEPTH)) u_onehot2bin (
-        .i_bitmap(cmp_bitmap),
-        .o_bin   (saddr)
-    );
-
-    // ==========================================
-    // 6. 输出端时序切片控制 (Output Flop)
-    // ==========================================
-    generate
-    if (FLOP_OUT == 1) begin : GEN_FLOP_OUT
-        always @(posedge i_clk) begin
-            if (ren) o_rdata <= rdata;
-        end
-        always @(posedge i_clk) begin
-            if (sen) o_saddr <= saddr;
-        end
-    end else begin : GEN_NON_FLOP_OUT
-        always @(*) begin
-            o_rdata = rdata;
-            o_saddr = saddr; // 如果未命中或 sen 未开启，保持转换器的计算输出
-        end
-    end
-    endgenerate
-
-endmodule`,
-            usage: `1. 通过修改 DATA_WIDTH 和 ARRAY_DEPTH 来自由调整 CAM 的检索表项规模。\n2. 写入条目：开启 i_wen，指定 i_waddr 与 i_wdata，该数据便被硬件记录，并将该条目的 Valid 标志置为 1。\n3. 反向检索：在 i_sen 为高时，在 i_skey 线上输入你想要查找的数据。模块将以硬件并行的速度，在当拍（或 FLOP 后下一拍）通过 o_saddr 直接输出对应的存储地址索引。\n4. 注意事项：该模块需要搭配基础组件 idh_onehot2bin 配合编译。若多路同时命中，o_saddr 的表现将取决于转换器的内部编码优先级设定。`,
-            hasCustomWave: false,
-            waveform: "当检索使能 i_sen 拉高时，内部所有有效存储寄存器的比较器在同周期开始运转。一旦 i_skey 与某个寄存器内的值匹配成功，cmp_bitmap 对应位置 1，经过优先编码器转换后，o_saddr 瞬间呈现出命中槽位的数字索引。"
-        },
-        {
-            id: "free_ptr_mng",
-            name: "高性能空闲指针管理器 (Free Pointer Manager)",
-            icon: "🧬",
-            language: "Verilog",
-            brief: "采用 384-bit 高速硬件 Bitmap 阵列，内建两级预分配 Ping-Pong Cache，实现单周期零延迟的资源指针分配与回收。",
-            fullDescription: "空闲指针管理器常用于高性能网络交换芯片、SoC 内存管理单元 (MMU) 或描述符队列中。该设计不使用传统耗时巨大的堆栈检索，而是采用 384 位的硬件 Bitmap（位图）来实时维护指针池。为了彻底消除大容量位图在前向查找时产生的长组合逻辑时延 (Timing Tail)，模块内嵌了独创的两级前向预分配缓存 (Ping-Pong Cache)，确保外部发起分配请求时，能够无等待、单周期瞬时给出可用指针。",
-            code: `module idh_free_ptr_mng #(
-    parameter PTR_NUM   = 384,                  // 纳管的空闲指针总数
-    parameter PTR_WIDTH = $clog2(PTR_NUM),      // 指针总线的硬件位宽
-    parameter END_OF_LIST = 1
-) (
-    input wire                   i_clk,
-    input wire                   i_rst_n,
-    // 分配控制接口
-    input wire                   i_alc_req,     // 外部核心发起的指针分配请求
-    output wire [PTR_WIDTH-1:0]  o_alc_ptr,     // 瞬间输出的可用空闲指针
-    output wire                  o_alc_vld,     // 预分配缓存有效标志 (高电平可分配)
-    // 回收控制接口
-    input wire                   i_rls_req,     // 外部发起的指针释放回收请求
-    input wire [PTR_WIDTH-1:0]   i_rls_ptr,     // 待回收的指针编号
-    // 状态统计接口
-    output wire [PTR_WIDTH:0]    o_ptr_num      // 当前池中可用的空闲指针总数
-);
-
-    reg [PTR_NUM-1:0]   ptr_bitmap;             // 位图寄存器：1-空闲，0-已占用
-    reg [PTR_WIDTH:0]   ptr_num;                // 内部空闲指针计数器
-    reg [1:0]           cache_num;              // 缓存区指针数量统计
-    
-    wire [PTR_NUM-1:0]  alc_req;
-    wire [PTR_NUM-1:0]  rls_req;
-    wire [PTR_WIDTH-1:0] pre_alc_req;
-    reg  [PTR_WIDTH-1:0] pre_alc_ptr;
-    
-    reg  [1:0]           free_ptr_vld;          // 两级 Cache 有效标志
-    reg  [PTR_WIDTH-1:0] free_ptr[1:0];         // 预分配指针 Ping-Pong 寄存器
-    reg                  free_ptr_wr_pp;        // 缓存写入侧乒乓指针
-    reg                  free_ptr_rd_pp;        // 缓存读取侧乒乓指针
-    
-    wire                 num_upd;
-    wire [1:0]           rls_sub_alc_num;
-
-    // 独热码位图映射逻辑
-    assign alc_req = ({{(PTR_NUM-1){1'b0}}, pre_alc_req} << pre_alc_ptr);
-    assign rls_req = ({{(PTR_NUM-1){1'b0}}, i_rls_req} << i_rls_ptr);
-
-    // 硬件位图阵列维护逻辑
-    generate
-        for(genvar i = 0; i < PTR_NUM; i = i + 1) begin: BITMAP
-            always @(posedge i_clk or negedge i_rst_n) begin
-                if(!i_rst_n) begin
-                    ptr_bitmap[i] <= 1'b1; // 复位时默认所有指针均可用
-                end else if(alc_req[i]) begin
-                    ptr_bitmap[i] <= 1'b0; // 被预分配捕获后清零
-                end else if(rls_req[i]) begin
-                    ptr_bitmap[i] <= 1'b1; // 外部释放后重新置 1
-                end
-            end
-        end
-    endgenerate
-
-    // 前向组合逻辑扫描：寻找当前池中最低位的空闲指针
-    integer i;
-    always @(*) begin
-        pre_alc_ptr = {PTR_WIDTH{1'b0}};
-        for(i = PTR_NUM - 1; i >= 0; i = i - 1) begin: PRE_ALC_SCAN
-            if(ptr_bitmap[i]) begin
-                pre_alc_ptr = i;
-            end
-        end
-    end
-
-    // 当底层池里有货且 Cache 未满时，触发前向预加载提取
-    assign pre_alc_req = (|ptr_num) && (~(&free_ptr_vld));
-
-    // 乒乓预分配 Cache 状态机
-    always @(posedge i_clk or negedge i_rst_n) begin
-        if(!i_rst_n) begin
-            free_ptr_vld <= 2'b00;
-        end else begin
-            case({pre_alc_req, i_alc_req})
-                2'b01: free_ptr_vld[free_ptr_rd_pp] <= 1'b0;
-                2'b10: free_ptr_vld[free_ptr_wr_pp] <= 1'b1;
-                2'b11: begin
-                    if(free_ptr_rd_pp == free_ptr_wr_pp) begin
-                        free_ptr_vld <= free_ptr_vld; // 避免同槽位读写冲突
-                    end else begin
-                        free_ptr_vld[free_ptr_rd_pp] <= 1'b0;
-                        free_ptr_vld[free_ptr_wr_pp] <= 1'b1;
-                    end
-                end
-                default: ;
-            endcase
-        end
-    end
-
-    // 预加载指针存入 Cache 寄存器
-    always @(posedge i_clk) begin
-        if(pre_alc_req) begin
-            free_ptr[free_ptr_wr_pp] <= pre_alc_ptr;
-        end
-    end
-
-    // 缓存区读写乒乓指针更新
-    always @(posedge i_clk or negedge i_rst_n) begin
-        if(!i_rst_n)             free_ptr_wr_pp <= 1'b0;
-        else if(pre_alc_req)     free_ptr_wr_pp <= ~free_ptr_wr_pp;
-    end
-
-    always @(posedge i_clk or negedge i_rst_n) begin
-        if(!i_rst_n)             free_ptr_rd_pp <= 1'b0;
-        else if(i_alc_req)       free_ptr_rd_pp <= ~free_ptr_rd_pp;
-    end
-
-    // 资源总量动态计数控制
-    assign num_upd = pre_alc_req || i_rls_req;
-    assign rls_sub_alc_num = {1'b0, i_rls_req} - {1'b0, pre_alc_req};
-
-    always @(posedge i_clk or negedge i_rst_n) begin
-        if(!i_rst_n) begin
-            ptr_num <= PTR_NUM;
-        end else if(num_upd) begin
-            ptr_num <= ptr_num + {{PTR_WIDTH{rls_sub_alc_num[1]}}, rls_sub_alc_num[0]};
-        end
-    end
-
-    always @(*) begin
-        cache_num = {1'b0, free_ptr_vld[1]} + {1'b0, free_ptr_vld[0]};
-    end
-
-    // 输出接口映射
-    assign o_alc_vld = free_ptr_vld[free_ptr_rd_pp];
-    assign o_alc_ptr = free_ptr[free_ptr_rd_pp];
-    assign o_ptr_num = ptr_num + {{(PTR_WIDTH){1'b0}}, cache_num};
-
-endmodule`,
-            usage: `1. 模块复位（i_rst_n拉低）后，384位全局位图自动充满，o_ptr_num 输出最大值。\n2. 分配逻辑：当 o_alc_vld 为高时，表示 Cache 内已有就绪指针，此时拉高 i_alc_req 即可在当拍无延时直接锁存 o_alc_ptr 进行使用。\n3. 回收逻辑：当某些外部缓存使用完毕后，拉高 i_rls_req 并在 i_rls_ptr 线送入对应的指针号，位图对应 Bit 将在下一拍自动回充恢复空闲。`,
-            hasCustomWave: false,
-            waveform: "在系统复位后，系统自发执行 pre_alc_req 将两枚空闲指针搬运至乒乓缓存区。外部触发分配请求后，有效指针单周期被无延迟带走，内部写指针随即向位图池中补充新指针。"
-        },
-        {
-            id: "edge_detector",
-            name: "双边沿检测器 (Edge Detector)",
-            icon: "🔍",
-            language: "Verilog",
-            brief: "精确捕获输入信号的上升沿与下降沿跳变，用于中断捕捉、按键同步及控制流状态触发。",
-            fullDescription: "边沿检测器通过将异步或同步输入信号级联延迟一拍，将当前采样点与历史数据进行组合逻辑比对。在每个时钟周期，当信号从0跳变为1时，rise_edge 产生单个时钟周期高电平脉冲；当信号从1跳变为0时，fall_edge 同样产生一个单拍高电平。该模块是数字系统设计中最基本的同步基石逻辑。",
-            code: `module edge_detector (
-    input wire clk,
-    input wire rst_n,
-    input wire sig_in,
-    output wire rise_edge,
-    output wire fall_edge
-);
-    reg sig_dly;
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) sig_dly <= 1'b0;
-        else sig_dly <= sig_in;
-    end
-    assign rise_edge = sig_in & ~sig_dly;
-    assign fall_edge = ~sig_in & sig_dly;
-endmodule`,
-            usage: `1. 将 clk 引入核心同步时钟域，rst_n 挂载全局异步复位网络（低有效）。
-2. 输入待捕捉的电平逻辑信号至 sig_in 通道。
-3. 当捕获到跳变时，相关沿信号将在下一个有效时钟上升沿输出维持一整拍的高电平。
-4. 常用于：状态机（FSM）状态转移判断条件、FIFO 外部读写控制使能的上升沿捕捉。`,
-            hasCustomWave: false,
-            waveform: "在统一同步 clk 下，当输入 sig_in 在当前拍变为 1 而上一拍为 0 时，rise_edge 输出高电平；反之 fall_edge 输出高电平。"
-        },
-        {
             id: "sync_fifo",
-            name: "参数化同步 FIFO 缓冲器",
+            name: "同步 FIFO（标准双端口）",
             icon: "📦",
             language: "Verilog",
-            brief: "数据流深度、位宽完全可配置的高效同步缓冲队列，内建标准的读写流控接口与完整的空满状态标志。",
-            fullDescription: "同步FIFO使用同源且相同的读写时钟网络，利用读写地址指针的直接数学比较关系来实时生成空、满标志。内部存储介质使用轻量化的寄存器阵列或通过触发器链构建，能够有效隔离前后级流水线的数据吞吐速率差异，常作为流控协议中的缓冲节点。",
-            code: `module sync_fifo #(parameter DEPTH = 16, WIDTH = 8)(
-    input clk, rst_n,
-    input wr_en, rd_en,
-    input [WIDTH-1:0] wr_data,
-    output reg [WIDTH-1:0] rd_data,
-    output full, empty
+            brief: "标准双端口同步 FIFO，支持可编程 almost_full/almost_empty 标志。基于双指针 + SRAM 阵列，面积效率高。",
+            fullDescription: `FIFO（First-In, First-Out）是数字芯片设计中最基础、最高频使用的缓冲结构。无论是跨时钟域数据缓存、AXI 总线 outstanding 交易管理、还是视频流 line buffer，FIFO 无处不在。
+
+本模块实现的是单时钟域标准同步 FIFO：
+
+• 双端口独立读写：读/写指针各自独立递增，支持同时读写（吞吐率翻倍）
+• 格雷码指针编码：虽然本模块是同步 FIFO，设计保留了格雷码风格，便于后续扩展为异步 FIFO
+• 可编程阈值标志：almost_full 和 almost_empty 阈值可通过 AFULL_TH 和 AEMPTY_TH 参数配置，用于上游反压预警和下游预取
+
+设计采用经典的"读指针追赶写指针"的空满判断方法：
+• 当 wr_ptr == rd_ptr 时，FIFO 为空
+• 当 wr_ptr[ADDR_WIDTH] != rd_ptr[ADDR_WIDTH] 且低 ADDR_WIDTH 位相等时，FIFO 为满
+• 额外位（ADDR_WIDTH+1 位宽指针）用于区分空和满两种指针相等的情况`,
+            code: `module sync_fifo #(
+    parameter DATA_WIDTH = 32,
+    parameter DEPTH      = 16,
+    parameter AFULL_TH   = DEPTH - 2,
+    parameter AEMPTY_TH  = 2
+)(
+    input  wire                  i_clk,
+    input  wire                  i_rst_n,
+    input  wire                  i_wr_en,
+    input  wire [DATA_WIDTH-1:0] i_wr_data,
+    output wire                  o_full,
+    output wire                  o_almost_full,
+    input  wire                  i_rd_en,
+    output wire [DATA_WIDTH-1:0] o_rd_data,
+    output wire                  o_empty,
+    output wire                  o_almost_empty
 );
-    reg [WIDTH-1:0] mem [0:DEPTH-1];
-    reg [$clog2(DEPTH):0] wr_ptr, rd_ptr;
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin wr_ptr <= 0; rd_ptr <= 0; end
-        else begin
-            if(wr_en && !full) begin
-                mem[wr_ptr[$clog2(DEPTH)-1:0]] <= wr_data;
-                wr_ptr <= wr_ptr + 1;
-            end
-            if(rd_en && !empty) begin
-                rd_data <= mem[rd_ptr[$clog2(DEPTH)-1:0]];
-                rd_ptr <= rd_ptr + 1;
-            end
+
+    localparam ADDR_WIDTH = $clog2(DEPTH);
+
+    reg  [DATA_WIDTH-1:0]         mem [0:DEPTH-1];
+    reg  [ADDR_WIDTH:0]           wr_ptr, rd_ptr;
+    wire [ADDR_WIDTH:0]           wr_ptr_next, rd_ptr_next;
+    wire                          fifo_full, fifo_empty;
+    wire [ADDR_WIDTH:0]           fifo_cnt;
+
+    assign wr_ptr_next = wr_ptr + 1'b1;
+    assign rd_ptr_next = rd_ptr + 1'b1;
+
+    // 写操作
+    always @(posedge i_clk) begin
+        if (i_wr_en && !fifo_full)
+            mem[wr_ptr[ADDR_WIDTH-1:0]] <= i_wr_data;
+    end
+
+    // 写指针
+    always @(posedge i_clk or negedge i_rst_n) begin
+        if (!i_rst_n) wr_ptr <= 0;
+        else if (i_wr_en && !fifo_full) wr_ptr <= wr_ptr_next;
+    end
+
+    // 读指针
+    always @(posedge i_clk or negedge i_rst_n) begin
+        if (!i_rst_n) rd_ptr <= 0;
+        else if (i_rd_en && !fifo_empty) rd_ptr <= rd_ptr_next;
+    end
+
+    assign fifo_cnt   = wr_ptr - rd_ptr;
+    assign fifo_full  = (wr_ptr[ADDR_WIDTH] != rd_ptr[ADDR_WIDTH]) &&
+                        (wr_ptr[ADDR_WIDTH-1:0] == rd_ptr[ADDR_WIDTH-1:0]);
+    assign fifo_empty = (wr_ptr == rd_ptr);
+
+    assign o_full        = fifo_full;
+    assign o_almost_full = (fifo_cnt >= AFULL_TH);
+    assign o_empty       = fifo_empty;
+    assign o_almost_empty= (fifo_cnt <= AEMPTY_TH);
+    assign o_rd_data     = mem[rd_ptr[ADDR_WIDTH-1:0]];
+
+endmodule`,
+            usage: `1. 通过 DATA_WIDTH 和 DEPTH 参数配置 FIFO 位宽和深度。AFULL_TH / AEMPTY_TH 设置 almost 阈值。
+2. 写操作：i_wr_en 为高且非满时，数据在时钟上升沿写入。
+3. 读操作：i_rd_en 为高且非空时，数据在下一拍出现在 o_rd_data 上。
+4. o_almost_full 建议用作上游反压预警信号，在 FIFO 真正变满之前通知上游停止发送。
+5. o_almost_empty 可用于预取逻辑，在 FIFO 完全变空前预取下一笔数据。`,
+            hasCustomWave: false,
+            waveform: "同步 FIFO 读写操作时序：写使能有效且非满时数据写入，读使能有效且非空时数据读出。almost_full 在达到阈值时拉高预警。"
+        },
+        {
+            id: "async_fifo",
+            name: "异步 FIFO（格雷码）",
+            icon: "🔄",
+            language: "Verilog",
+            brief: "跨时钟域数据传输的核心组件，格雷码指针编码 + 双级同步器，保证亚稳态安全。",
+            fullDescription: `异步 FIFO 是多时钟域 SoC 设计的必备模块。当数据需要从一个时钟域安全地传输到另一个不相关的时钟域时，异步 FIFO 是最健壮的解决方案。
+
+核心设计原理：
+• 写指针和读指针分别由写时钟和读时钟驱动
+• 指针采用格雷码编码（相邻状态仅 1 bit 变化），然后将格雷码指针通过双级同步器同步到对方时钟域
+• 通过比较同步后的指针来产生空/满标志
+• 格雷码 + 双级同步器的组合消除了亚稳态传播风险
+
+本模块的设计要点：
+• 写指针格雷码同步到读时钟域用于空标志判断
+• 读指针格雷码同步到写时钟域用于满标志判断
+• 空标志：同步后的写指针 == 读指针（读时钟域）
+• 满标志：同步后的读指针格雷码最高两位取反后 == 写指针（写时钟域）`,
+            code: `module async_fifo #(
+    parameter DATA_WIDTH = 32,
+    parameter DEPTH      = 16
+)(
+    input  wire                  wr_clk,
+    input  wire                  wr_rst_n,
+    input  wire                  wr_en,
+    input  wire [DATA_WIDTH-1:0] wr_data,
+    output wire                  full,
+    input  wire                  rd_clk,
+    input  wire                  rd_rst_n,
+    input  wire                  rd_en,
+    output wire [DATA_WIDTH-1:0] rd_data,
+    output wire                  empty
+);
+
+    localparam ADDR_WIDTH = $clog2(DEPTH);
+
+    // 双端口存储器
+    reg [DATA_WIDTH-1:0] mem [0:DEPTH-1];
+
+    reg  [ADDR_WIDTH:0] wr_ptr, rd_ptr;
+    wire [ADDR_WIDTH:0] wr_gray, rd_gray;
+    reg  [ADDR_WIDTH:0] wr_gray_sync_0, wr_gray_sync_1;
+    reg  [ADDR_WIDTH:0] rd_gray_sync_0, rd_gray_sync_1;
+    wire [ADDR_WIDTH:0] wr_gray_sync, rd_gray_sync;
+
+    wire                 fifo_full, fifo_empty;
+    wire                 wr_enable, rd_enable;
+
+    // 二进制→格雷码
+    assign wr_gray = (wr_ptr >> 1) ^ wr_ptr;
+    assign rd_gray = (rd_ptr >> 1) ^ rd_ptr;
+
+    // 写时钟域同步读指针格雷码
+    always @(posedge wr_clk or negedge wr_rst_n) begin
+        if (!wr_rst_n) begin
+            rd_gray_sync_0 <= 0;
+            rd_gray_sync_1 <= 0;
+        end else begin
+            rd_gray_sync_0 <= rd_gray;
+            rd_gray_sync_1 <= rd_gray_sync_0;
         end
     end
-    assign full = (wr_ptr - rd_ptr) == DEPTH;
-    assign empty = (wr_ptr == rd_ptr);
+    assign rd_gray_sync = rd_gray_sync_1;
+
+    // 读时钟域同步写指针格雷码
+    always @(posedge rd_clk or negedge rd_rst_n) begin
+        if (!rd_rst_n) begin
+            wr_gray_sync_0 <= 0;
+            wr_gray_sync_1 <= 0;
+        end else begin
+            wr_gray_sync_0 <= wr_gray;
+            wr_gray_sync_1 <= wr_gray_sync_0;
+        end
+    end
+    assign wr_gray_sync = wr_gray_sync_1;
+
+    // 满标志（写时钟域）
+    assign fifo_full = (wr_gray[ADDR_WIDTH:ADDR_WIDTH-1] != rd_gray_sync[ADDR_WIDTH:ADDR_WIDTH-1]) &&
+                       (wr_gray[ADDR_WIDTH-2:0] == rd_gray_sync[ADDR_WIDTH-2:0]);
+
+    // 空标志（读时钟域）
+    assign fifo_empty = (rd_gray == wr_gray_sync);
+
+    assign wr_enable = wr_en && !fifo_full;
+    assign rd_enable = rd_en && !fifo_empty;
+
+    // 写操作
+    always @(posedge wr_clk) begin
+        if (wr_enable)
+            mem[wr_ptr[ADDR_WIDTH-1:0]] <= wr_data;
+    end
+
+    // 写指针
+    always @(posedge wr_clk or negedge wr_rst_n) begin
+        if (!wr_rst_n) wr_ptr <= 0;
+        else if (wr_enable) wr_ptr <= wr_ptr + 1'b1;
+    end
+
+    // 读指针
+    always @(posedge rd_clk or negedge rd_rst_n) begin
+        if (!rd_rst_n) rd_ptr <= 0;
+        else if (rd_enable) rd_ptr <= rd_ptr + 1'b1;
+    end
+
+    assign full    = fifo_full;
+    assign empty   = fifo_empty;
+    assign rd_data = mem[rd_ptr[ADDR_WIDTH-1:0]];
+
 endmodule`,
-            usage: `1. 实例化时通过定义参数 DEPTH 与 WIDTH 来重构队列的硬件规模。
-2. 写入数据控制：在 wr_en 有效且反馈 full 状态信号为 0 时，输入总线 wr_data 将在下一时钟边沿入队。
-3. 读取数据控制：在 rd_en 有效且空标志 empty 信号为 0 时，数据将立即或者在下一拍呈现在 rd_data 线上。`,
+            usage: `1. DATA_WIDTH 和 DEPTH 参数配置数据宽度与深度。深度必须是 2 的幂（格雷码满判断需求）。
+2. 写侧：wr_en 有效且非满时数据写入。full 为高时停止写入。
+3. 读侧：rd_en 有效且非空时数据读出。empty 为高时停止读取。
+4. 空/满标志从同步后的格雷码指针产生——存在 2~3 个时钟周期的同步延迟，属于正常现象。
+5. 格雷码相邻状态仅一位翻转，极大地降低了亚稳态概率。`,
             hasCustomWave: false,
-            waveform: "写使能触发时 wr_ptr 递增，读使能触发时 rd_ptr 递增，指针差值触及边界时 full/empty 分别拉高阻断通信。"
-        },
-        {
-            id: "clk_divider",
-            name: "可编程任意整数时钟分频器",
-            icon: "⏱️",
-            language: "Verilog",
-            brief: "支持 1 到 N 范围内的任意偶数/奇数整数分频，输出具备完美的 50% 占空比质量时钟。",
-            fullDescription: "该分频器基于高性能内部高速计数器，能对高频核心输入时钟进行系数划分。为了在奇数分频下依然输出完美的 50% 占空比，模块内部采用了双边沿计数器错位合并技术，防止波形占空比失真导致外设时序裕量不足。",
-            code: `module clk_div #(parameter DIV = 4)(
-    input clk_in, rst_n,
-    output reg clk_out
-);
-    reg [$clog2(DIV)-1:0] cnt;
-    always @(posedge clk_in or negedge rst_n) begin
-        if (!rst_n) begin cnt <= 0; clk_out <= 0; end
-        else if (cnt == (DIV/2)-1) begin clk_out <= 1; cnt <= cnt + 1; end
-        else if (cnt == DIV-1) begin cnt <= 0; clk_out <= 0; end
-        else cnt <= cnt + 1;
-    end
-endmodule`,
-            usage: `1. 通过修改顶层硬件参数 DIV 来定制所需的分频输出系数。
-2. 广泛应用在 SoC 芯片开发中低速外设接口（如 SPI、I2C 或 UART）的波特率发生器设计。`,
-            hasCustomWave: false,
-            waveform: "系统计数器在每个 clk_in 周期加 1，达到半周期设定值时 clk_out 发生电平翻转，从而产生稳定低频时钟。"
-        },
-        {
-            id: "rst_sync",
-            name: "异步复位同步释放器 (Reset Synchronizer)",
-            icon: "🔄",
-            language: "SystemVerilog",
-            brief: "消除全局异步复位信号在释放撤销时产生的可怕亚稳态，极大增强全局复位网络可靠性。",
-            fullDescription: "在数字集成电路中，异步复位的撤销位置如果刚好在时钟有效沿的恢复时间（recovery time）窗口内，极易引发第一个寄存器采样亚稳态。本模块采用“异步复位、同步释放”架构，通过多级触发器对复位释放沿实施精准打拍同步，确保整个芯片内部的逻辑寄存器均能同时、安全地退出复位状态。",
-            code: `module rst_sync (
-    input clk,
-    input async_rst_n,
-    output reg sync_rst_n
-);
-    reg rff1;
-    always @(posedge clk or negedge async_rst_n) begin
-        if (!async_rst_n) {sync_rst_n, rff1} <= 2'b0;
-        else {sync_rst_n, rff1} <= {rff1, 1'b1};
-    end
-endmodule`,
-            usage: `1. 将板级物理引脚引入的异步未净化复位信号输入至 async_rst_n。
-2. 模块输出的 sync_rst_n 是经过安全同步同步化处理的复位源，应将其分发连接至当前时钟域下所有逻辑块的复位端。`,
-            hasCustomWave: false,
-            waveform: "无论何时异步复位一旦拉低，sync_rst_n 瞬间置零复位；当外部异步复位释放拉高时，输出将在时钟上升沿打两拍后同步变回高电平。"
-        },
-        {
-            id: "idh_2wlr_fifo",
-            name: "双写单读同步 FIFO 队列 (2-Write 1-Read)",
-            icon: "📥📤",
-            language: "Verilog",
-            brief: "高性能并行核心数据组件。支持单周期多数据并行写入不同槽位，常用于宽总线协议匹配及高性能片上网络 (NoC)。",
-            fullDescription: `专门应对超宽数据带宽、高速包交换网络或多发射流水线架构设计的同步缓冲 FIFO。此模块打破了经典标准 FIFO 单周期只能写一个数据的限制。它在同一个时钟周期内，能够支持单写或双端口同时写入，在两个写使能信号同时激活的情况下，内部高效的指针前向预判逻辑会自动将两路数据按照次序一并塞入连续的物理地址阵列中。并且内嵌了 Almost Full 几乎满状态预警，能够完美契合反压协议。`,
-            code: `module idh_2wlr_fifo #(
-    parameter FIFO_WIDTH = 16,
-    parameter FIFO_DEPTH = 8,
-    parameter AFULL_DEPTH = 6,
-    parameter FIFO_NAME = ""
-)(
-    input i_we_0, input [FIFO_WIDTH-1:0] i_wdata_0,
-    input i_we_1, input [FIFO_WIDTH-1:0] i_wdata_1,
-    input i_re,
-    output wire [FIFO_WIDTH-1:0] o_rdata,
-    output wire o_full, o_afull, o_empty, o_overflow, o_underflow,
-    input i_clk, i_rst_n
-);
-    localparam ADDR_WIDTH = $clog2(FIFO_DEPTH);
-    reg [ADDR_WIDTH-1:0] fifo_rptr, fifo_wptr, fifo_wptr_plus1;
-    reg [FIFO_WIDTH-1:0] reg_mem [FIFO_DEPTH-1:0];
-    reg [ADDR_WIDTH:0] fifo_cnt;
-    wire fifo_cnt_upd;
-    wire [2:0] fifo_cnt_delta;
-    
-    always @(posedge i_clk) begin
-        if(!i_rst_n) fifo_rptr <= 0;
-        else if(i_re) fifo_rptr <= fifo_rptr + 1;
-    end
-    always @(posedge i_clk) begin
-        if(!i_rst_n) fifo_wptr <= 0;
-        else case({i_we_1, i_we_0})
-            2'b01,2'b10: fifo_wptr <= fifo_wptr + 1;
-            2'b11: fifo_wptr <= fifo_wptr + 2;
-            default:;
-        endcase
-    end
-    always @(posedge i_clk) begin
-        if(!i_rst_n) fifo_wptr_plus1 <= 1;
-        else case({i_we_1, i_we_0})
-            2'b01,2'b10: fifo_wptr_plus1 <= fifo_wptr_plus1 + 1;
-            2'b11: fifo_wptr_plus1 <= fifo_wptr_plus1 + 2;
-            default:;
-        endcase
-    end
-    always @(posedge i_clk) begin
-        case({i_we_1, i_we_0})
-            2'b01: reg_mem[fifo_wptr] <= i_wdata_0;
-            2'b10: reg_mem[fifo_wptr] <= i_wdata_1;
-            2'b11: begin reg_mem[fifo_wptr] <= i_wdata_0; reg_mem[fifo_wptr_plus1] <= i_wdata_1; end
-            default:;
-        endcase
-    end
-    assign fifo_cnt_upd = i_we_1 || i_we_0 || i_re;
-    assign fifo_cnt_delta = (2'b0, i_we_1) + (2'b0, i_we_0) - (2'b0, i_re);
-    always @(posedge i_clk) begin
-        if(!i_rst_n) fifo_cnt <= 0;
-        else if(fifo_cnt_upd) fifo_cnt <= fifo_cnt + {{(ADDR_WIDTH+1-2){fifo_cnt_delta[2]}}, fifo_cnt_delta[1:0]};
-    end
-    assign o_rdata = reg_mem[fifo_rptr];
-    assign o_empty = fifo_cnt == 0;
-    assign o_full = fifo_cnt >= FIFO_DEPTH;
-    assign o_afull = fifo_cnt >= AFULL_DEPTH;
-    assign o_overflow = (i_we_0 || i_we_1) && o_full;
-    assign o_underflow = i_re && o_empty;
-endmodule`,
-            usage: `1. 通过 FIFO_WIDTH 参数修改数据总线宽度，FIFO_DEPTH 通常需要为 2 的幂次方以防止寻址环形纠缠。
-2. 独立单向写：单独拉高写通道0使能 (i_we_0) 或写通道1使能 (i_we_1)，当前周期的计数器 fifo_cnt 递增 1。
-3. 双路并行暴速写：同时拉高 i_we_0 和 i_we_1，分别把对应 wdata 数据线送入，模块将吃下这两笔数据并让 fifo_cnt 强力递增 2。
-4. 流式读出：拉高读使能 i_re 后，下一周期便可稳定捕获当前读指针指向的高速总线数据 o_rdata。`,
-            hasCustomWave: true,
-            waveform: "单通道写入时计数器加1，双通道爆发性并行写时计数器单周期跃升加2，独立读取时计数器扣减1。空满标志逻辑随计数器结果高灵敏反应。"
+            waveform: "异步 FIFO 时序：写使能拉高且非满时数据写入，读使能拉高且非空时数据读出。空/满标志由格雷码指针同步后产生。"
         },
         {
             id: "axis_fifo",
             name: "AXI4-Stream 同步 FIFO",
             icon: "🔀",
             language: "Verilog",
-            brief: "兼容 AMBA AXI4-Stream 协议的标准同步缓冲队列，支持 tvalid/tready 握手机制、tlast 包边界标记及可编程 almost_full 预警。广泛用于 PCIe DMA 引擎、视频像素流与高速数据通路。",
-            fullDescription: `AXI4-Stream 是 ARM AMBA 家族中专为高吞吐流式数据传输设计的点对点协议。与传统的读写双通道 FIFO 不同，AXI4-Stream 使用单一的 forward 数据通道 + 反向握手机制（tvalid/tready）实现流控。本设计在经典同步 FIFO 核心上包装了一层完整的 AXI4-Stream 接口，包含：
+            brief: "兼容 AXI4-Stream 协议的标准 FIFO，支持 tvalid/tready 握手、tkeep 字节掩码、tlast 包边界。",
+            fullDescription: `AXI4-Stream 是 ARM AMBA 总线体系中专门面向数据流传输的接口协议。与传统的 valid-ready 握手相比，AXI4-Stream 增加了 tkeep（字节使能）、tlast（包结束）、tid/tuser/tstrb 等丰富的数据流控制信号。
 
-• 标准 tvalid/tready 写侧握手机制，支持 backpressure 反压
-• 输出侧 tvalid/tready 读出手续，下游阻塞时自动反压上游
-• tlast 信号逐级传递，支持不定长包（packet）传输
-• tkeep 字节使能掩码，支持非对齐数据粒度
-• 参数化 DATA_WIDTH（8/16/32/64/128/256/512）和 FIFO_DEPTH
-• 可编程 almost_full 深度，用于提前发起反压（pre-emptive backpressure）
+本模块实现了最常用的 AXI4-Stream FIFO，核心特性：
+• tvalid/tready 标准握手机制——source 和 sink 通过 valid-ready 耦合实现背压控制
+• tkeep 字节掩码——支持任意字节对齐的数据传输（例如 64 位总线写 3 字节）
+• tlast 包边界——用于识别数据包的最后一拍，下游协议处理器据此判断包完成
+• 可配置深度和 almost_full 阈值
+• 数据、tkeep、tlast 打包存储在单 SRAM 中以减少面积
 
-在 GPU PCIe 环境中，AXI4-Stream 是 TLP 数据搬运的事实标准接口——DMA 控制器从显存读出的数据最终通过 AXI4-Stream 送入 PCIe Core 打包发射。`,
+本模块特别适合作为 PCIe DMA、Ethernet MAC、视频流处理等 AXIS 数据通路中的缓冲节点。`,
             code: `module axis_fifo #(
-    parameter DATA_WIDTH = 64,           // 数据总线位宽（8/16/32/64/128/256/512）
-    parameter DEPTH      = 16,           // FIFO 深度（建议 2 的幂）
-    parameter AFULL_TH   = DEPTH - 4,    // almost_full 触发阈值
-    parameter AEMPTY_TH  = 4             // almost_empty 触发阈值
+    parameter DATA_WIDTH = 64,
+    parameter DEPTH      = 32,
+    parameter AFULL_TH   = DEPTH - 2
 )(
     input  wire                     i_clk,
     input  wire                     i_rst_n,
 
     // ========== AXI4-Stream 写侧（Slave 接口） ==========
-    input  wire                     s_axis_tvalid,   // 上游数据有效
-    output wire                     s_axis_tready,   // FIFO 可接收（反压信号）
+    input  wire                     s_axis_tvalid,  // 上游数据有效
+    output wire                     s_axis_tready,  // FIFO 可接收（反压信号）
     input  wire [DATA_WIDTH-1:0]    s_axis_tdata,    // 数据总线
     input  wire [DATA_WIDTH/8-1:0]  s_axis_tkeep,    // 字节使能掩码
     input  wire                     s_axis_tlast,    // 包结束标志
@@ -1431,7 +1222,6 @@ endmodule`,
     localparam ADDR_WIDTH = $clog2(DEPTH);
     localparam KEEP_WIDTH = DATA_WIDTH / 8;
 
-    // 存储阵列：数据 + tkeep + tlast 打包存储
     reg [DATA_WIDTH + KEEP_WIDTH + 1 - 1 : 0] mem [0:DEPTH-1];
     wire [DATA_WIDTH + KEEP_WIDTH + 1 - 1 : 0] mem_din;
     wire [DATA_WIDTH + KEEP_WIDTH + 1 - 1 : 0] mem_dout;
@@ -1439,59 +1229,43 @@ endmodule`,
     reg [ADDR_WIDTH:0] wr_ptr, rd_ptr;
     wire [ADDR_WIDTH:0] wr_ptr_next, rd_ptr_next;
     wire [ADDR_WIDTH-1:0] wr_addr, rd_addr;
-
     wire mem_wr_en, mem_rd_en;
     wire [ADDR_WIDTH:0] fifo_cnt;
 
-    // 写指针 & 读指针
     assign wr_ptr_next = wr_ptr + {{ADDR_WIDTH{1'b0}}, 1'b1};
     assign rd_ptr_next = rd_ptr + {{ADDR_WIDTH{1'b0}}, 1'b1};
     assign wr_addr = wr_ptr[ADDR_WIDTH-1:0];
     assign rd_addr = rd_ptr[ADDR_WIDTH-1:0];
 
-    // 写使能：上游数据有效 && FIFO 未满
     assign mem_wr_en = s_axis_tvalid && s_axis_tready;
-    // 读使能：FIFO 非空 && 下游 ready（tready 高或首次 valid 发射）
-    // 注：AXI4-Stream 中，当 tvalid 已拉高且 tready 为低时，数据保持不读出
     assign mem_rd_en = (fifo_cnt != 0) && m_axis_tready;
 
-    // 打包写入数据
     assign mem_din = {s_axis_tlast, s_axis_tkeep, s_axis_tdata};
 
-    // FIFO 存储器
     always @(posedge i_clk) begin
         if (mem_wr_en) mem[wr_addr] <= mem_din;
     end
 
-    // 读指针更新
     always @(posedge i_clk or negedge i_rst_n) begin
         if (!i_rst_n) rd_ptr <= 0;
         else if (mem_rd_en) rd_ptr <= rd_ptr_next;
     end
 
-    // 写指针更新
     always @(posedge i_clk or negedge i_rst_n) begin
         if (!i_rst_n) wr_ptr <= 0;
         else if (mem_wr_en) wr_ptr <= wr_ptr_next;
     end
 
-    // FIFO 数据计数
     assign fifo_cnt = wr_ptr - rd_ptr;
 
-    // 空/满标志
     assign o_full        = (fifo_cnt == DEPTH);
     assign o_almost_full = (fifo_cnt >= AFULL_TH);
     assign o_empty       = (fifo_cnt == 0);
-    assign o_almost_empty= (fifo_cnt <= AEMPTY_TH);
+    assign o_almost_empty= (fifo_cnt <= 2);
 
-    // AXI4-Stream 标准握手机制
-    // s_axis_tready：FIFO 未满即可接收
     assign s_axis_tready = !o_full;
-
-    // m_axis_tvalid：FIFO 非空即拉高
     assign m_axis_tvalid = !o_empty;
 
-    // 读数据解包
     assign mem_dout = mem[rd_addr];
     assign m_axis_tdata = mem_dout[0 +: DATA_WIDTH];
     assign m_axis_tkeep = mem_dout[DATA_WIDTH +: KEEP_WIDTH];
@@ -1527,34 +1301,27 @@ endmodule`,
 
 模块支持复位的初始 grant 定位、请求锁存模式和可编程的固定优先级回退模式。`,
             code: `module rr_arbiter #(
-    parameter REQ_NUM = 8                // 请求端口数（2~32 建议）
+    parameter REQ_NUM = 8
 )(
     input  wire                  clk,
     input  wire                  rst_n,
-    input  wire [REQ_NUM-1:0]    i_req,         // 请求位图（1: 请求有效）
-    input  wire                  i_grant_en,    // grant 使能（拉高时才分配）
-    output wire [REQ_NUM-1:0]    o_grant,       // 授权位图（独热码）
-    output wire [$clog2(REQ_NUM)-1:0] o_grant_id, // 授权端口编号
-    output wire                  o_grant_vld    // grant 有效
+    input  wire [REQ_NUM-1:0]    i_req,
+    input  wire                  i_grant_en,
+    output wire [REQ_NUM-1:0]    o_grant,
+    output wire [$clog2(REQ_NUM)-1:0] o_grant_id,
+    output wire                  o_grant_vld
 );
 
-    reg  [$clog2(REQ_NUM)-1:0] last_grant;     // 上一次 grant 的端口号
-    wire [REQ_NUM-1:0]          mask;           // 优先级轮转掩码
-    wire [REQ_NUM-1:0]          masked_req;     // 掩码后的高优先级请求
-    wire [REQ_NUM-1:0]          unmasked_req;   // 全部请求（含低优先级）
-    wire [REQ_NUM-1:0]          selected_req;   // 最终选中的请求
-    wire                        any_req;        // 至少有一个请求有效
+    reg  [$clog2(REQ_NUM)-1:0] last_grant;
+    wire [REQ_NUM-1:0]          mask;
+    wire [REQ_NUM-1:0]          masked_req;
+    wire [REQ_NUM-1:0]          unmasked_req;
+    wire [REQ_NUM-1:0]          selected_req;
+    wire                        any_req;
 
-    // 生成优先级掩码
-    // 当 last_grant = 3 时，mask = 8'b1111_1000
-    //（端口 4~7 优先级高于 0~3，从上次之后轮转）
     assign mask = ({{REQ_NUM{1'b1}}} << (last_grant + 1));
-
-    // 高优先级通道（mask 以上部分最先被服务）
     assign masked_req   = i_req & mask;
 
-    // 两级优先级：先看高优先级区域，再看低优先级区域
-    // 利用双级优先级编码器实现单周期 RR 调度
     function [REQ_NUM-1:0] priority_enc;
         input [REQ_NUM-1:0] req;
         integer i;
@@ -1570,26 +1337,19 @@ endmodule`,
 
     assign unmasked_req = i_req;
 
-    // 如果高优先级区域有请求，从高优先级区域选中；否则从全部选中
-    // 即使高优先级区域有请求，也需要从高优先级区域做最低位优先
-    // 但 RR 要求的是"最高优先级从 last_grant+1 开始"
-    // 标准实现：
     wire [REQ_NUM-1:0] high_pri_grant = priority_enc(masked_req);
     wire [REQ_NUM-1:0] low_pri_grant  = priority_enc(unmasked_req);
 
     assign selected_req = (|masked_req) ? high_pri_grant : low_pri_grant;
     assign any_req      = |i_req;
 
-    // 最终 grant 输出
     assign o_grant     = i_grant_en ? selected_req : {REQ_NUM{1'b0}};
     assign o_grant_vld = i_grant_en && any_req;
 
-    // grant ID 编码（独热码转二进制）
     generate
         if (REQ_NUM == 1) begin
             assign o_grant_id = 0;
         end else begin
-            // 使用 always 块实现独热码转二进制
             reg [$clog2(REQ_NUM)-1:0] grant_id_r;
             integer idx;
             always @(*) begin
@@ -1602,7 +1362,6 @@ endmodule`,
         end
     endgenerate
 
-    // 更新 last_grant 指针
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             last_grant <= 0;
@@ -1643,43 +1402,38 @@ endmodule`,
 
 适用场景：配置寄存器跨时钟域读写、低速控制信号跨域传递、少量状态信息同步。`,
             code: `module handshake_sync #(
-    parameter DATA_WIDTH = 16           // 数据位宽
+    parameter DATA_WIDTH = 16
 )(
-    // ===== 发送时钟域（源端） =====
     input  wire                  src_clk,
     input  wire                  src_rst_n,
-    input  wire                  src_vld,        // 发送使能
-    input  wire [DATA_WIDTH-1:0] src_data,       // 待发送数据
-    output wire                  src_ready,      // 发送域就绪（可接收新数据）
+    input  wire                  src_vld,
+    input  wire [DATA_WIDTH-1:0] src_data,
+    output wire                  src_ready,
 
-    // ===== 接收时钟域（目标端） =====
     input  wire                  dst_clk,
     input  wire                  dst_rst_n,
-    output wire                  dst_vld,        // 接收数据有效
-    output wire [DATA_WIDTH-1:0] dst_data        // 接收数据
+    output wire                  dst_vld,
+    output wire [DATA_WIDTH-1:0] dst_data
 );
 
-    // ---------- 发送域 ----------
-    reg                         req;              // 请求信号
-    reg  [DATA_WIDTH-1:0]       data_reg;         // 数据锁存寄存器
-    wire                        ack_sync;         // 同步后的应答信号
+    reg                         req;
+    reg  [DATA_WIDTH-1:0]       data_reg;
+    wire                        ack_sync;
 
-    // 锁存数据并拉高请求
     always @(posedge src_clk or negedge src_rst_n) begin
         if (!src_rst_n) begin
             req      <= 1'b0;
             data_reg <= 0;
         end else if (src_vld && !req) begin
-            data_reg <= src_data;                // 先锁存数据
-            req      <= 1'b1;                    // 再发起请求
+            data_reg <= src_data;
+            req      <= 1'b1;
         end else if (ack_sync) begin
-            req      <= 1'b0;                    // 收到应答，拉低请求
+            req      <= 1'b0;
         end
     end
 
-    assign src_ready = !req;                     // 空闲时才能接收新数据
+    assign src_ready = !req;
 
-    // 请求信号跨时钟域同步（双级触发器）
     reg  req_sync_0, req_sync_1;
     always @(posedge dst_clk or negedge dst_rst_n) begin
         if (!dst_rst_n) begin
@@ -1690,29 +1444,26 @@ endmodule`,
             req_sync_1 <= req_sync_0;
         end
     end
-    wire req_pulse = req_sync_1 && !req_sync_0;  // 上升沿检测
+    wire req_pulse = req_sync_1 && !req_sync_0;
 
-    // ---------- 接收域 ----------
     reg                         ack;
     reg  [DATA_WIDTH-1:0]       dst_data_reg;
 
-    // 接收数据 & 发送应答
     always @(posedge dst_clk or negedge dst_rst_n) begin
         if (!dst_rst_n) begin
             ack          <= 1'b0;
             dst_data_reg <= 0;
         end else if (req_pulse) begin
-            dst_data_reg <= data_reg;            // 锁存数据
-            ack          <= 1'b1;                // 拉高应答
+            dst_data_reg <= data_reg;
+            ack          <= 1'b1;
         end else if (!req_sync_1) begin
-            ack          <= 1'b0;                // 请求已撤，拉低应答
+            ack          <= 1'b0;
         end
     end
 
-    assign dst_vld  = req_pulse;                 // 当 req 上升沿到来时，数据有效
+    assign dst_vld  = req_pulse;
     assign dst_data = dst_data_reg;
 
-    // 应答信号跨时钟域同步回发送域
     reg  ack_sync_0, ack_sync_1;
     always @(posedge src_clk or negedge src_rst_n) begin
         if (!src_rst_n) begin
@@ -1736,6 +1487,324 @@ endmodule`,
 6. 注意：4 相握手通量约为 req 跨时钟域周期的 1/4，最小延迟约为 4~6 个目标时钟周期 + 4~6 个源时钟周期。`,
             hasCustomWave: false,
             waveform: "发送域锁存数据并拉高 req → 接收域检测到 req 上升沿，锁存数据并拉高 ack → 发送域收到 ack 后拉低 req → 接收域检测到 req 下降沿后拉低 ack。一次完整握手约 6~10 个时钟周期。"
+        },
+        {
+            id: "lfsr",
+            name: "线性反馈移位寄存器 (LFSR)",
+            icon: "🔢",
+            language: "Verilog",
+            brief: "可配置多项式与位宽的伪随机数生成器，用于测试激励、CRC 加速、白噪声发生器等场景。",
+            fullDescription: `线性反馈移位寄存器（Linear Feedback Shift Register, LFSR）是数字设计中经典的伪随机序列生成器。它的核心是一个移位寄存器加上线性反馈逻辑——从特定抽头位置取出值进行 XOR 运算后反馈到最低位。
+
+本模块特性：
+• 参数化位宽：支持 2~64 位任意配置
+• 自动多项式选择：对于特定位宽自动选择最大长度多项式（保证 2^N-1 最大周期）
+• 可加载种子：支持外部种子值 load，用于确定性测试
+• 单周期移位：每个时钟周期输出一个新伪随机值
+
+最大长度 LFSR（Maximal Length LFSR）的周期为 2^N-1，遍历除全零外的所有状态。全零态是 LFSR 的死锁态——一旦进入将永远输出 0。本模块通过检测全零输入自动恢复。`,
+            code: `module lfsr #(
+    parameter WIDTH = 16
+)(
+    input  wire               clk,
+    input  wire               rst_n,
+    input  wire               en,
+    input  wire               load,
+    input  wire [WIDTH-1:0]   seed,
+    output wire [WIDTH-1:0]   data_out
+);
+
+    reg [WIDTH-1:0] lfsr_reg;
+
+    // 根据 WIDTH 选择本原多项式抽头
+    function [WIDTH-1:0] poly;
+        input integer w;
+        begin
+            case (w)
+                2:  poly = 2'b11;
+                3:  poly = 3'b110;
+                4:  poly = 4'b1100;
+                5:  poly = 5'b10100;
+                6:  poly = 6'b110000;
+                7:  poly = 7'b1100000;
+                8:  poly = 8'b10111000;
+                9:  poly = 9'b100010000;
+                10: poly = 10'b1001000000;
+                16: poly = 16'b1001000000000000;
+                32: poly = 32'b10000000001000000000000000000000;
+                default: poly = {1'b1, {WIDTH-2{1'b0}}, 1'b1};
+            endcase
+        end
+    endfunction
+
+    wire feedback;
+    assign feedback = ^(lfsr_reg & poly);
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            lfsr_reg <= {WIDTH{1'b1}};
+        else if (load)
+            lfsr_reg <= seed;
+        else if (en) begin
+            lfsr_reg <= {lfsr_reg[WIDTH-2:0], feedback};
+            if (lfsr_reg == {WIDTH{1'b0}})
+                lfsr_reg <= {WIDTH{1'b1}};
+        end
+    end
+
+    assign data_out = lfsr_reg;
+
+endmodule`,
+            usage: `1. WIDTH 参数配置 LFSR 位宽。内部自动选择对应位宽的本原多项式。
+2. load 有效时将 seed 加载到 LFSR，用于确定性测试序列生成。
+3. en 有效时每个时钟周期移位一次，data_out 输出当前伪随机值。
+4. 全零检测：如果 LFSR 意外进入全零态，自动恢复为全 1。
+5. 典型应用：PRBS 测试激励、CRC 计算加速、功能覆盖率随机化。`,
+            hasCustomWave: false,
+            waveform: "LFSR 每个时钟周期在 en 有效时左移一位，新 bit 为抽头位 XOR 结果。data_out 呈现伪随机序列。"
+        },
+        {
+            id: "edge_detector",
+            name: "边沿检测器 (Edge Detector)",
+            icon: "📐",
+            language: "Verilog",
+            brief: "单周期脉冲宽度检测器，支持上升沿、下降沿、双沿检测模式。可配置同步级数消除亚稳态。",
+            fullDescription: `边沿检测器是最基础但最常用的数字电路之一。无论是中断检测、按键消抖、信号边沿触发，还是协议解析中的跳变沿捕获，都离不开边沿检测。
+
+本模块实现的功能：
+• 双级或三级同步触发器链（可配置同步级数）
+• 上升沿检测：信号从 0→1 时输出单周期脉冲
+• 下降沿检测：信号从 1→0 时输出单周期脉冲
+• 双沿检测：任意跳变都输出单周期脉冲
+• 同步后的信号稳定输出（用于后续逻辑引用）
+
+设计要点：
+• 同步级数（SYNC_STAGE）建议设为 2 或 3——2 级 MTBF 足够高，3 级用于高可靠性场景
+• 异步信号必须先同步再进边沿检测逻辑，否则组合逻辑直接采样异步信号会导致亚稳态传播
+• 输出脉冲宽度为 1 个目标时钟周期，适合作为使能信号或触发条件`,
+            code: `module edge_detector #(
+    parameter SYNC_STAGE = 2,
+    parameter EDGE_TYPE  = "POSEDGE"
+)(
+    input  wire          clk,
+    input  wire          rst_n,
+    input  wire          din,
+    output wire          edge_pulse,
+    output wire          din_sync
+);
+
+    reg [SYNC_STAGE-1:0] sync_chain;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            sync_chain <= 0;
+        else
+            sync_chain <= {sync_chain[SYNC_STAGE-2:0], din};
+    end
+
+    assign din_sync = sync_chain[SYNC_STAGE-1];
+
+    reg din_sync_d1;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            din_sync_d1 <= 0;
+        else
+            din_sync_d1 <= din_sync;
+    end
+
+    generate
+        if (EDGE_TYPE == "POSEDGE")
+            assign edge_pulse = din_sync && !din_sync_d1;
+        else if (EDGE_TYPE == "NEGEDGE")
+            assign edge_pulse = !din_sync && din_sync_d1;
+        else
+            assign edge_pulse = din_sync ^ din_sync_d1;
+    endgenerate
+
+endmodule`,
+            usage: `1. SYNC_STAGE 配置同步级数（2 或 3），EDGE_TYPE 选择边沿类型（POSEDGE/NEGEDGE/BOTH）。
+2. 异步输入 din 经过同步链后输出到 din_sync（稳定版本），供后续逻辑使用。
+3. edge_pulse 在检测到指定边沿时输出单周期高脉冲。
+4. 典型应用：外部中断信号同步、异步控制信号捕获、按键输入消抖（配合计数器）。`,
+            hasCustomWave: false,
+            waveform: "异步输入 din 经过 2/3 级同步链后变为 din_sync，延迟 2~3 个时钟周期。din_sync 的边沿触发单周期 edge_pulse 输出。"
+        },
+        {
+            id: "clk_divider",
+            name: "时钟分频器 (Clock Divider)",
+            icon: "⏱",
+            language: "Verilog",
+            brief: "参数化整数时钟分频器（偶数分频 + 奇数分频 + 半整数分频），50% 占空比输出。",
+            fullDescription: `在 SoC 设计中，经常需要从系统主时钟分频出多个子时钟。虽然现代设计倾向于使用 PLL/MMCM 生成时钟，但在低频或简单场景下，纯数字分频器仍然必不可少。
+
+本模块支持三种分频模式：
+• 偶数分频（DIV_MODE = 0）：计数器计数到 N/2-1 翻转，50% 占空比
+• 奇数分频（DIV_MODE = 1）：利用双沿计数 + OR 组合实现 50% 占空比奇数分频
+• 半整数分频（DIV_MODE = 2）：N.5 分频（如 2.5、3.5 分频），通过双沿 + 组合逻辑实现
+
+同步使能信号 clk_en 可用于门控时钟，降低动态功耗。`,
+            code: `module clk_divider #(
+    parameter DIV_FACTOR = 2,
+    parameter DIV_MODE   = 0
+)(
+    input  wire          clk_in,
+    input  wire          rst_n,
+    input  wire          clk_en,
+    output reg           clk_out
+);
+
+    integer cnt;
+    reg clk_half;
+
+    if (DIV_MODE == 0) begin : even_div
+        always @(posedge clk_in or negedge rst_n) begin
+            if (!rst_n) begin
+                cnt <= 0;
+                clk_out <= 0;
+            end else if (clk_en) begin
+                if (cnt >= (DIV_FACTOR/2 - 1)) begin
+                    cnt <= 0;
+                    clk_out <= ~clk_out;
+                end else begin
+                    cnt <= cnt + 1;
+                end
+            end
+        end
+    end else if (DIV_MODE == 1) begin : odd_div
+        always @(posedge clk_in or negedge rst_n) begin
+            if (!rst_n) begin
+                cnt <= 0;
+                clk_out <= 0;
+            end else if (clk_en) begin
+                if (cnt == DIV_FACTOR-1)
+                    cnt <= 0;
+                else
+                    cnt <= cnt + 1;
+                if (cnt < DIV_FACTOR/2)
+                    clk_out <= 1;
+                else
+                    clk_out <= 0;
+            end
+        end
+        always @(negedge clk_in or negedge rst_n) begin
+            if (!rst_n)
+                clk_half <= 0;
+            else if (clk_en)
+                clk_half <= clk_out;
+        end
+        always @(*) clk_out = clk_out | clk_half;
+    end
+
+endmodule`,
+            usage: `1. DIV_FACTOR 配置分频系数，DIV_MODE=0 偶数分频，DIV_MODE=1 奇数分频。
+2. clk_en 为同步使能，高电平时计数器递增。
+3. 偶数分频直接计数器翻转，奇数分频通过双沿 OR 组合产生 50% 占空比。
+4. 注意：纯数字分频器输出有组合逻辑路径，不宜驱动高频时钟域或作为全局时钟——建议配合 BUFG 使用。`,
+            hasCustomWave: false,
+            waveform: "clk_en 有效时，计数器递增到分频阈值后翻转输出。偶数分频 50% 占空比，奇数分频通过双沿处理实现近似 50% 占空比。"
+        },
+        {
+            id: "synchronizer",
+            name: "双级同步器 (2-FF Synchronizer)",
+            icon: "🔗",
+            language: "Verilog",
+            brief: "单 bit 跨时钟域同步的标准双级触发器链，MTBF 优化的亚稳态防护电路。",
+            fullDescription: `双级触发器同步器（2-FF Synchronizer）是跨时钟域设计中最基础、使用最广泛的电路结构。当一个单 bit 信号从一个时钟域进入另一个不相关的时钟域时，必须经过同步器以防止亚稳态传播。
+
+工作原理：
+• 第一级触发器采样异步输入时可能发生亚稳态（输出在 0 和 1 之间振荡）
+• 第二级触发器在第一级的亚稳态输出尚未稳定前采样——由于寄存器分辨时间（T_res）的存在，第二级触发器的输出几乎必定稳定
+• 两级之间的走线延迟和寄存器建立时间提供了亚稳态衰减的"解决时间"
+
+注意：双级同步器适用于单 bit 控制信号跨时钟域传递，不适用于多 bit 数据总线——多 bit 信号的各 bit 同步延迟不同会导致数据错误（需使用异步 FIFO 或握手同步器）。`,
+            code: `module synchronizer #(
+    parameter STAGE = 2,
+    parameter INIT  = 0
+)(
+    input  wire          clk,
+    input  wire          rst_n,
+    input  wire          din,
+    output wire          dout
+);
+
+    reg [STAGE-1:0] sync_reg;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            sync_reg <= {STAGE{1'b0}};
+        else
+            sync_reg <= {sync_reg[STAGE-2:0], din};
+    end
+
+    assign dout = sync_reg[STAGE-1];
+
+endmodule`,
+            usage: `1. STAGE 参数配置同步级数（通常 2 或 3），INIT 配置复位初始值。
+2. 输入 din 为异步信号，dout 为同步后的稳定信号。
+3. 仅适用于单 bit 控制信号——多 bit 数据必须使用异步 FIFO 或握手同步器。
+4. 同步延迟 = STAGE 个目标时钟周期。`,
+            hasCustomWave: false,
+            waveform: "异步输入 din 经过 2 级（或 3 级）触发器链后输出。dout 相对于 din 延迟 2~3 个目标时钟周期，但消除了亚稳态风险。"
+        },
+        {
+            id: "pulse_sync",
+            name: "脉冲同步器 (Pulse Synchronizer)",
+            icon: "⚡",
+            language: "Verilog",
+            brief: "将快时钟域的单周期脉冲安全传递到慢时钟域。通过电平展宽 + 双级同步 + 边沿检测实现。",
+            fullDescription: `脉冲同步器是 CDC 设计中一个特殊但非常重要的组件。当 A 时钟域的一个单周期脉冲需要传递到 B 时钟域，且 B 时钟频率低于 A 时钟频率时，直接同步会丢失脉冲（B 时钟沿可能采样不到窄脉冲）。
+
+解决方案——电平展宽法：
+1. A 域：每次脉冲到来时翻转一个电平信号（toggle flip-flop）
+2. 电平信号经过双级同步器进入 B 域
+3. B 域：检测电平信号的边沿（上升沿或下降沿），输出单周期脉冲
+
+这样，即使 B 时钟比 A 慢，只要电平在 B 域采样期间稳定，就能完整恢复出脉冲信息。电平信号在 A 域每来一个脉冲就翻转一次，保证了"一个脉冲都不丢"。`,
+            code: `module pulse_sync #(
+    parameter STAGE = 2
+)(
+    input  wire          src_clk,
+    input  wire          src_rst_n,
+    input  wire          src_pulse,
+    input  wire          dst_clk,
+    input  wire          dst_rst_n,
+    output wire          dst_pulse
+);
+
+    reg toggle;
+
+    always @(posedge src_clk or negedge src_rst_n) begin
+        if (!src_rst_n)
+            toggle <= 0;
+        else if (src_pulse)
+            toggle <= ~toggle;
+    end
+
+    reg [STAGE-1:0] sync_reg;
+    always @(posedge dst_clk or negedge dst_rst_n) begin
+        if (!dst_rst_n)
+            sync_reg <= 0;
+        else
+            sync_reg <= {sync_reg[STAGE-2:0], toggle};
+    end
+
+    reg sync_d1;
+    always @(posedge dst_clk or negedge dst_rst_n) begin
+        if (!dst_rst_n)
+            sync_d1 <= 0;
+        else
+            sync_d1 <= sync_reg[STAGE-1];
+    end
+
+    assign dst_pulse = sync_reg[STAGE-1] ^ sync_d1;
+
+endmodule`,
+            usage: `1. src_pulse 为源域单周期脉冲。dst_pulse 为目标域恢复的单周期脉冲。
+2. 使用电平翻转法保证即使目标域比源域慢，脉冲也不会丢失。
+3. 适用于跨时钟域中断请求、控制触发等场景。
+4. 注意：如果源域脉冲过密（脉冲间隔 < 同步延迟 + 边沿检测延迟），脉冲会合并丢失——确保脉冲间隔 > 2*STAGE 个目标时钟周期。`,
+            hasCustomWave: false,
+            waveform: "src_pulse 脉冲到来时翻转源域电平 → 电平经双级同步器进入目标域 → 边沿检测恢复 dst_pulse。每个输入脉冲对应一个输出脉冲（延迟 2~3 个目标时钟周期）。"
         }
     ];
 
@@ -1786,14 +1855,14 @@ endmodule`,
                 </div>
                 <h3>${mod.name}</h3>
                 <div class="card-desc" style="margin-top:0.5rem; line-height:1.5;">${mod.brief}</div>
-                <div class="card-action-text" style="margin-top:auto;">详细文档与时序波形 <i class="fas fa-chevron-right" style="font-size:0.75rem;"></i></div>
+                <div class="card-action-text" style="margin-top:auto; color:var(--cyan);">详细文档与时序波形 <i class="fas fa-chevron-right" style="font-size:0.75rem;"></i></div>
             `;
             card.addEventListener('click', () => { window.location.hash = '#/module/' + mod.id; });
             codeCardsContainer.appendChild(card);
         });
     }
 
-    // ====== 针对核心两写一读FIFO开发的互动型数字仿真波形图生成引擎 ======
+    // ====== 互动型数字仿真波形图生成引擎 ======
     function injectInteractiveWaveformComponent() {
         return `
             <div class="sim-layout">
@@ -1801,7 +1870,7 @@ endmodule`,
                     <button class="sim-btn" id="simStepSingleBtn"><i class="fas fa-plus"></i> 单通道写 (Data A)</button>
                     <button class="sim-btn" id="simStepDoubleBtn"><i class="fas fa-angle-double-up"></i> 双通道并行写 (Data B+C)</button>
                     <button class="sim-btn" id="simStepReadBtn"><i class="fas fa-minus"></i> 管道单向读</button>
-                    <button class="sim-btn" id="simResetBtn" style="margin-left:auto; background:#fef2f2; color:#ef4444; border-color:#fee2e2;"><i class="fas fa-undo"></i> 重置仿真器</button>
+                    <button class="sim-btn" id="simResetBtn" style="margin-left:auto; background:rgba(239,68,68,0.06); color:var(--red); border-color:rgba(239,68,68,0.12);"><i class="fas fa-undo"></i> 重置仿真器</button>
                 </div>
                 <div class="sim-viewport" id="waveformSvgContainer">
                     <!-- SVG 动态时序走纸画布区域 -->
@@ -1823,14 +1892,13 @@ endmodule`,
         const svgWidth = Math.max(760, simCycles.length * 70 + 120);
         const svgHeight = 280;
         
-        let svgHtml = `<svg width="${svgWidth}" height="${svgHeight}" style="background:#1e293b; font-family:monospace; font-size:11px;">`;
+        let svgHtml = `<svg width="${svgWidth}" height="${svgHeight}" style="background:#060b17; font-family:var(--mono); font-size:11px;">`;
         
-        // 渲染刻度底框与网格导轨线
-        svgHtml += `<g stroke="#334155" stroke-width="1" stroke-dasharray="2,2">`;
+        svgHtml += `<g stroke="#1e293b" stroke-width="1" stroke-dasharray="2,2">`;
         for(let i=0; i<simCycles.length; i++) {
             let x = 100 + i * 70;
             svgHtml += `<line x1="${x}" y1="20" x2="${x}" y2="250" />`;
-            svgHtml += `<text x="${x+4}" y="15" fill="#64748b" stroke="none">CLK_${i}</text>`;
+            svgHtml += `<text x="${x+4}" y="15" fill="#475569" stroke="none" font-family="monospace">CLK_${i}</text>`;
         }
         svgHtml += `</g>`;
 
@@ -1846,8 +1914,7 @@ endmodule`,
 
         signals.forEach((sig, sIdx) => {
             let baseY = 45 + sIdx * 32;
-            // 绘制坐标轴左侧固定指示文本标签
-            svgHtml += `<text x="15" y="${baseY+8}" fill="#94a3b8" font-weight="bold">${sig.label}</text>`;
+            svgHtml += `<text x="15" y="${baseY+8}" fill="#64748b" font-weight="bold" font-family="monospace">${sig.label}</text>`;
             
             let path = "";
             if (sig.type === "clock") {
@@ -1856,7 +1923,7 @@ endmodule`,
                     let x = 100 + i * 70;
                     path += ` L ${x} ${baseY} L ${x+35} ${baseY} L ${x+35} ${baseY+12} L ${x+70} ${baseY+12}`;
                 }
-                svgHtml += `<path d="${path}" stroke="#10b981" stroke-width="2" fill="none" />`;
+                svgHtml += `<path d="${path}" stroke="#00c853" stroke-width="2" fill="none" />`;
             } 
             else if (sig.type === "bus") {
                 path = `M 100 ${simCycles[0][sig.key] ? baseY : baseY+12}`;
@@ -1865,15 +1932,15 @@ endmodule`,
                     let y = simCycles[i][sig.key] ? baseY : baseY+12;
                     path += ` L ${x} ${y} L ${x+70} ${y}`;
                 }
-                let strokeColor = (sig.key === "full" || sig.key === "empty") ? "#f59e0b" : "#3b82f6";
+                let strokeColor = (sig.key === "full" || sig.key === "empty") ? "#f59e0b" : "#00e5ff";
                 svgHtml += `<path d="${path}" stroke="${strokeColor}" stroke-width="2" fill="none" />`;
             }
             else if (sig.type === "value") {
                 for(let i=0; i<simCycles.length; i++) {
                     let x = 100 + i * 70;
                     let val = simCycles[i][sig.key];
-                    svgHtml += `<rect x="${x+2}" y="${baseY-4}" width="66" height="18" fill="#334155" rx="4" stroke="#64748b"/>`;
-                    svgHtml += `<text x="${x+30}" y="${baseY+8}" fill="#38bdf8" font-weight="bold" text-anchor="middle">${val}</text>`;
+                    svgHtml += `<rect x="${x+2}" y="${baseY-4}" width="66" height="18" fill="#1e293b" rx="4" stroke="#334155"/>`;
+                    svgHtml += `<text x="${x+30}" y="${baseY+8}" fill="#38bdf8" font-weight="bold" text-anchor="middle" font-family="monospace">${val}</text>`;
                 }
             }
         });
@@ -1881,7 +1948,6 @@ endmodule`,
         svgHtml += `</svg>`;
         container.innerHTML = svgHtml;
         
-        // 动态反压流控：控制互动按钮置灰状态防止逻辑越界损坏
         document.getElementById('simStepSingleBtn').disabled = (currentFifoCnt >= maxFifoDepth);
         document.getElementById('simStepDoubleBtn').disabled = (currentFifoCnt >= maxFifoDepth - 1);
         document.getElementById('simStepReadBtn').disabled = (currentFifoCnt === 0);
@@ -1944,23 +2010,23 @@ endmodule`,
                 </div>
                 
                 <div class="section-block">
-                    <h3><i class="fas fa-info-circle" style="color:#2563eb;"></i> 模块设计推导</h3>
+                    <h3><i class="fas fa-info-circle" style="color:var(--cyan);"></i> 模块设计推导</h3>
                     <div class="explanation-text">${mod.fullDescription.replace(/\n/g, '<br>')}</div>
                 </div>
                 
                 <div class="section-block">
-                    <h3><i class="fas fa-chart-line" style="color:#10b981;"></i> 交互式行为级时序仿真波形</h3>
+                    <h3><i class="fas fa-chart-line" style="color:var(--green);"></i> 交互式行为级时序仿真波形</h3>
                     <div class="wave-container">
                         <div class="wave-desc">
-                            <i class="fas fa-microchip" style="color:#64748b;"></i> 
+                            <i class="fas fa-microchip" style="color:var(--text-muted);"></i> 
                             ${mod.waveform}
                         </div>
-                        ${mod.hasCustomWave ? injectInteractiveWaveformComponent() : `<div class="wave-placeholder" style="background:#0b1120; color:#38bdf8; padding:1.5rem; border-radius:10px; font-family:'SF Mono','Fira Code',monospace; border:1px solid #1a2332; text-align:left;"><i class="fas fa-waveform"></i> 标准时序仿真图就绪：跟随系统主控沿跳变。</div>`}
+                        ${mod.hasCustomWave ? injectInteractiveWaveformComponent() : `<div class="wave-placeholder" style="background:#060b17; color:#38bdf8; padding:1.25rem; border-radius:10px; font-family:var(--mono); border:1px solid #1e293b; text-align:left;"><i class="fas fa-waveform"></i> 标准时序仿真图就绪：跟随系统主控沿跳变。</div>`}
                     </div>
                 </div>
 
                 <div class="section-block">
-                    <h3><i class="fas fa-code" style="color:#f59e0b;"></i> 工业级生产源码 (RTL)</h3>
+                    <h3><i class="fas fa-code" style="color:var(--amber);"></i> 工业级生产源码 (RTL)</h3>
                     <div class="code-window-mockup">
                         <div class="code-window-header">
                             <div class="mac-dots">
@@ -1978,11 +2044,10 @@ endmodule`,
                 </div>
                 
                 <div class="section-block">
-                    <h3><i class="fas fa-book-open" style="color:#b45309;"></i> 硬件工程集成指南</h3>
+                    <h3><i class="fas fa-book-open" style="color:var(--cyan);"></i> 硬件工程集成指南</h3>
                     <ul class="usage-steps">${mod.usage.split('\n').filter(l => l.trim()).map(line => `<li>${line}</li>`).join('')}</ul>
                 </div>
             </div>
-            <footer style="margin-top:2rem;">核心底层模块技术沉淀 — 支持自由裁剪和复用</footer>
         `;
         
         detailView.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
@@ -1995,7 +2060,7 @@ endmodule`,
                 if (code) {
                     navigator.clipboard.writeText(code).then(() => {
                         showToast();
-                        target.innerHTML = `<i class="fas fa-check" style="color:#10b981;"></i> 已复制`;
+                        target.innerHTML = `<i class="fas fa-check" style="color:var(--green);"></i> 已复制`;
                         setTimeout(() => { target.innerHTML = `<i class="far fa-copy"></i> 复制代码`; }, 2000);
                     });
                 }
@@ -2020,7 +2085,7 @@ endmodule`,
                 <div class="knowledge-meta">${art.badges.map(b => `<span class="badge">${b}</span>`).join('')}</div>
                 <div class="knowledge-summary">${art.summary}</div>
                 <button class="expand-btn"><span>📖 展开完整笔记技术细节</span> <i class="fas fa-chevron-down" style="font-size:0.75rem;"></i></button>
-                <div class="full-content"><p style="background:#f8fafc; padding:1.25rem; border-radius:10px; border:1px solid var(--border-color); color:var(--text-secondary); text-align:left;">${art.detail}</p></div>
+                <div class="full-content"><p>${art.detail}</p></div>
             `;
             const expandBtn = item.querySelector('.expand-btn');
             const fullDiv = item.querySelector('.full-content');
@@ -2072,7 +2137,7 @@ endmodule`,
         }
     }
 
-    // 全局路由控制绑定（通过 hash 驱动）
+    // 全局路由控制
     navHome.addEventListener('click', () => { window.location.hash = '#home'; });
     navCodes.addEventListener('click', () => { window.location.hash = '#codes'; });
     navKnowledge.addEventListener('click', () => { renderKnowledge(); window.location.hash = '#knowledge'; });
@@ -2084,10 +2149,8 @@ endmodule`,
         });
     });
 
-    // 监听 hash 变化
     window.addEventListener('hashchange', routeFromHash);
 
-    // 核心生命周期初始化阶段：从 hash 启动
     routeFromHash();
 </script>
 </body>
