@@ -744,9 +744,28 @@
             border: 1px solid var(--border);
             text-align: left;
             transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
         }
         .knowledge-item:hover {
-            border-color: var(--border-light);
+            border-color: var(--cyan);
+            background: var(--bg-hover);
+            transform: translateX(4px);
+        }
+        .knowledge-item::after {
+            content: '›';
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .knowledge-item:hover::after {
+            opacity: 1;
+            color: var(--cyan);
         }
         .knowledge-title {
             font-size: 1.1rem;
@@ -768,47 +787,6 @@
             font-weight: 600;
             padding: 0.15rem 0.6rem;
             border-radius: 6px;
-        }
-        .knowledge-summary {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            line-height: 1.7;
-            margin-bottom: 0.8rem;
-        }
-        .expand-btn {
-            background: none;
-            border: 1px solid var(--border-light);
-            background: var(--bg-elevated);
-            color: var(--text-muted);
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: var(--font);
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .expand-btn:hover {
-            background: rgba(0, 229, 255, 0.06);
-            color: var(--cyan);
-            border-color: rgba(0, 229, 255, 0.1);
-        }
-        .full-content {
-            display: none;
-            margin-top: 0.8rem;
-        }
-        .full-content p {
-            background: var(--bg-elevated);
-            padding: 1.1rem;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            text-align: left;
-            font-size: 0.9rem;
-            line-height: 1.7;
         }
 
         /* ===== Toast 提示 ===== */
@@ -952,7 +930,7 @@
     <div id="knowledgeView" class="hidden-view">
         <div class="page-header">
             <h1><span style="color:var(--purple);"><i class="fas fa-brain"></i></span> 技术知识库</h1>
-            <p>芯片设计核心理论 — 点击展开完整笔记</p>
+            <p>点击知识文章查看完整笔记</p>
         </div>
         <div class="knowledge-list" id="knowledgeListContainer"></div>
     </div>
@@ -1933,10 +1911,10 @@ endmodule`,
     ];
 
     const knowledgeArticles = [
-        { title: "🌉 跨时钟域处理 (CDC) 完全指南", badges: ["核心理论", "大厂面试常客"], summary: "全面剖析单 bit 慢向快、快向慢时钟域跨越技术（两级触发器同步、电平展宽采样机制）。针对多 bit 复杂数据交互推荐格雷码异步 FIFO 机制或经典握手交互协议。", detail: "慢时钟域向快时钟域同步时：利用经典的两级触发器链打拍即可获取极高的 MTBF（平均无故障工作时间）。反之，在快向慢跨越时，由于慢时钟沿可能漏采样窄脉冲，则必须在源端实施脉冲展宽保持技术，或者通过引入反馈确认应答线进行闭环握手。工业领域通常会借助 SpyGlass-CDC 工具针对全设计进行自动化的跨时钟域断言结构审查。" },
-        { title: "⚡ 高能效低功耗设计技术体系总结", badges: ["架构进阶", "后端协同"], summary: "数字前仿至后端落地的功耗全栈控制策略：包括最基础也是最高效的时钟门控技术 (Clock Gating)、多阈值电压 (Multi-VT)、静态电源关断 (PSO) 以及高级动态电压频率调节 (DVFS)。", detail: "在写 RTL 代码阶段，工程师应当写出能被综合工具（如 Design Compiler）自动识别并替换为门控集成单元 (ICG) 的条件分支，集中寄存器的使能端。对于超低功耗待机场景，则需要通过编写 UPF (Unified Power Format) 文件来定义电源域、电压隔离单元（Isolation Cells）与保持寄存器（Retention Registers），确保硬件在断电休眠后数据不丢失且不发生电流倒灌。" },
-        { title: "📏 高可靠性 FIFO 深度精确计算数学模型", badges: ["核心算法", "同步/异步"], summary: "从输入突发长度（Burst Length）、读写工作频率及最恶劣极端边界条件出发，推演设计无溢出风险的 FIFO 深度计算公式：Depth ≥ 突发长度 - (突发长度 × 读时钟频率 / 写时钟频率)。同时涵盖同步/异步 FIFO 的将满 (XOFF) / 将空 (XON) 阈值设计。", detail: "一、深度计算：假设某设计中写入时钟频率为 100MHz，连续的数据突发最大长度为 16 个数据，读取端时钟频率工作在 80MHz 且无延时连续读。在最密集的写入期间，总共消耗了 16 × (1/100MHz) = 160ns。在这 160ns 内，读取端能够抽走的数据个数为 160ns / (1/80MHz) = 12.8 个数据。因此 FIFO 内部最大堆积差值为 16 - 12.8 = 3.2 个。为防止溢出，向上取整并保留防抖裕量，最终应选择物理深度为 4 或 8 的单元。<br><br>二、同步 FIFO 阈值设计 (XOFF / XON)：设计好 FIFO 的标准是\u201c将满不溢出，将空不断流\u201d。XOFF_DEPTH 指的是将满反压置起的位置——当 FIFO 水位达到该值，上游收到反压停止写入，此时上游所有过冲（pipeline 中残留的数据）写入 FIFO 后恰好填满而不溢出。XON_DEPTH 指的是将满反压撤销的位置——当 FIFO 被读出到该水位，反压撤销，上游恢复写入，保证数据能够续上，读出端不会断流。XOFF 和 XON 之间需要留有足够的迟滞窗口，避免频繁反压震荡。<br><br>三、异步 FIFO 特殊考量：异步 FIFO 的深度选择还需考虑两级同步器引入的延迟——写指针同步到读时钟域需要 2 拍，读指针同步到写时钟域也需要 2 拍。这意味着在跨时钟域场景下，从水位达到阈值到反压生效之间存在额外 latency，深度设计时必须把这部分 pipeline 延迟纳入裕量计算，否则实际水位可能超过理论最大值导致溢出。" },
-        { title: "📊 带宽计算方法详解 (Performance Analysis)", badges: ["性能分析", "核心理论"], summary: "带宽（Bandwidth）是衡量数据传输能力的关键指标，核心公式：BW = outstanding × datawidth × burst / latency。从系统架构层面深入解构提升带宽的四大策略，以及面积、功耗、时序之间的权衡。", detail: "在 IC 设计中，带宽可以通过以下核心公式计算：<br><br><b>BW = outstanding × datawidth × burst / latency</b><br><br>各参数含义：<br>• <b>outstanding</b>：未完成请求的数量，即系统能同时并行处理的请求数<br>• <b>datawidth</b>：数据位宽，通常以 bit 或 byte 为单位<br>• <b>burst</b>：突发传输长度，即每次请求传输的数据量<br>• <b>latency</b>：延迟时间，从发出请求到接收响应的时间<br><br>提升带宽的四大策略：<br>1️⃣ <b>增加 outstanding 值</b>——通过增加并行处理的请求数来隐藏延迟，让总线在等待一个请求响应时同时处理其他请求<br>2️⃣ <b>扩大数据位宽</b>——增加每次传输的数据量，如从 64bit 扩大到 128bit/256bit<br>3️⃣ <b>增加突发传输长度</b>——减少请求/响应的握手开销占比，提高链路利用率<br>4️⃣ <b>减少延迟</b>——优化数据传输路径，减少中间级数和组合逻辑深度，降低握手往返时间<br><br>需要权衡的因素：增加 outstanding 虽然可以提高带宽，但会增加缓冲区大小和控制逻辑复杂度，导致芯片面积和功耗上升。同样，增加数据位宽会带来绕线 congest 风险和时序收敛难度。实际工程中需要在性能、面积、功耗（PPA）之间找到最优平衡点。" }
+        { id: "cdc-guide", title: "🌉 跨时钟域处理 (CDC) 完全指南", badges: ["核心理论", "大厂面试常客"], summary: "全面剖析单 bit 慢向快、快向慢时钟域跨越技术（两级触发器同步、电平展宽采样机制）。针对多 bit 复杂数据交互推荐格雷码异步 FIFO 机制或经典握手交互协议。", detail: "慢时钟域向快时钟域同步时：利用经典的两级触发器链打拍即可获取极高的 MTBF（平均无故障工作时间）。反之，在快向慢跨越时，由于慢时钟沿可能漏采样窄脉冲，则必须在源端实施脉冲展宽保持技术，或者通过引入反馈确认应答线进行闭环握手。工业领域通常会借助 SpyGlass-CDC 工具针对全设计进行自动化的跨时钟域断言结构审查。" },
+        { id: "low-power-design", title: "⚡ 高能效低功耗设计技术体系总结", badges: ["架构进阶", "后端协同"], summary: "数字前仿至后端落地的功耗全栈控制策略：包括最基础也是最高效的时钟门控技术 (Clock Gating)、多阈值电压 (Multi-VT)、静态电源关断 (PSO) 以及高级动态电压频率调节 (DVFS)。", detail: "在写 RTL 代码阶段，工程师应当写出能被综合工具（如 Design Compiler）自动识别并替换为门控集成单元 (ICG) 的条件分支，集中寄存器的使能端。对于超低功耗待机场景，则需要通过编写 UPF (Unified Power Format) 文件来定义电源域、电压隔离单元（Isolation Cells）与保持寄存器（Retention Registers），确保硬件在断电休眠后数据不丢失且不发生电流倒灌。" },
+        { id: "fifo-depth", title: "📏 高可靠性 FIFO 深度精确计算数学模型", badges: ["核心算法", "同步/异步"], summary: "从输入突发长度（Burst Length）、读写工作频率及最恶劣极端边界条件出发，推演设计无溢出风险的 FIFO 深度计算公式：Depth ≥ 突发长度 - (突发长度 × 读时钟频率 / 写时钟频率)。同时涵盖同步/异步 FIFO 的将满 (XOFF) / 将空 (XON) 阈值设计。", detail: "一、深度计算：假设某设计中写入时钟频率为 100MHz，连续的数据突发最大长度为 16 个数据，读取端时钟频率工作在 80MHz 且无延时连续读。在最密集的写入期间，总共消耗了 16 × (1/100MHz) = 160ns。在这 160ns 内，读取端能够抽走的数据个数为 160ns / (1/80MHz) = 12.8 个数据。因此 FIFO 内部最大堆积差值为 16 - 12.8 = 3.2 个。为防止溢出，向上取整并保留防抖裕量，最终应选择物理深度为 4 或 8 的单元。<br><br>二、同步 FIFO 阈值设计 (XOFF / XON)：设计好 FIFO 的标准是\u201c将满不溢出，将空不断流\u201d。XOFF_DEPTH 指的是将满反压置起的位置——当 FIFO 水位达到该值，上游收到反压停止写入，此时上游所有过冲（pipeline 中残留的数据）写入 FIFO 后恰好填满而不溢出。XON_DEPTH 指的是将满反压撤销的位置——当 FIFO 被读出到该水位，反压撤销，上游恢复写入，保证数据能够续上，读出端不会断流。XOFF 和 XON 之间需要留有足够的迟滞窗口，避免频繁反压震荡。<br><br>三、异步 FIFO 特殊考量：异步 FIFO 的深度选择还需考虑两级同步器引入的延迟——写指针同步到读时钟域需要 2 拍，读指针同步到写时钟域也需要 2 拍。这意味着在跨时钟域场景下，从水位达到阈值到反压生效之间存在额外 latency，深度设计时必须把这部分 pipeline 延迟纳入裕量计算，否则实际水位可能超过理论最大值导致溢出。" },
+        { id: "bandwidth-analysis", title: "📊 带宽计算方法详解 (Performance Analysis)", badges: ["性能分析", "核心理论"], summary: "带宽（Bandwidth）是衡量数据传输能力的关键指标，核心公式：BW = outstanding × datawidth × burst / latency。从系统架构层面深入解构提升带宽的四大策略，以及面积、功耗、时序之间的权衡。", detail: "在 IC 设计中，带宽可以通过以下核心公式计算：<br><br><b>BW = outstanding × datawidth × burst / latency</b><br><br>各参数含义：<br>• <b>outstanding</b>：未完成请求的数量，即系统能同时并行处理的请求数<br>• <b>datawidth</b>：数据位宽，通常以 bit 或 byte 为单位<br>• <b>burst</b>：突发传输长度，即每次请求传输的数据量<br>• <b>latency</b>：延迟时间，从发出请求到接收响应的时间<br><br>提升带宽的四大策略：<br>1️⃣ <b>增加 outstanding 值</b>——通过增加并行处理的请求数来隐藏延迟，让总线在等待一个请求响应时同时处理其他请求<br>2️⃣ <b>扩大数据位宽</b>——增加每次传输的数据量，如从 64bit 扩大到 128bit/256bit<br>3️⃣ <b>增加突发传输长度</b>——减少请求/响应的握手开销占比，提高链路利用率<br>4️⃣ <b>减少延迟</b>——优化数据传输路径，减少中间级数和组合逻辑深度，降低握手往返时间<br><br>需要权衡的因素：增加 outstanding 虽然可以提高带宽，但会增加缓冲区大小和控制逻辑复杂度，导致芯片面积和功耗上升。同样，增加数据位宽会带来绕线 congest 风险和时序收敛难度。实际工程中需要在性能、面积、功耗（PPA）之间找到最优平衡点。" }
     ];
 
     // DOM 元素引用
@@ -2205,24 +2183,36 @@ endmodule`,
         knowledgeArticles.forEach(art => {
             const item = document.createElement('div');
             item.className = 'knowledge-item fade-in-item';
+            item.style.cursor = 'pointer';
             item.innerHTML = `
                 <div class="knowledge-title">${art.title}</div>
                 <div class="knowledge-meta">${art.badges.map(b => `<span class="badge">${b}</span>`).join('')}</div>
-                <div class="knowledge-summary">${art.summary}</div>
-                <button class="expand-btn"><span>📖 展开完整笔记技术细节</span> <i class="fas fa-chevron-down" style="font-size:0.75rem;"></i></button>
-                <div class="full-content"><p>${art.detail}</p></div>
             `;
-            const expandBtn = item.querySelector('.expand-btn');
-            const fullDiv = item.querySelector('.full-content');
-            expandBtn.addEventListener('click', () => {
-                const isShow = fullDiv.style.display === 'block';
-                fullDiv.style.display = isShow ? 'none' : 'block';
-                expandBtn.innerHTML = isShow ? 
-                    `<span>📖 展开完整笔记技术细节</span> <i class="fas fa-chevron-down" style="font-size:0.75rem;"></i>` : 
-                    `<span>收起详细笔记</span> <i class="fas fa-chevron-up" style="font-size:0.75rem;"></i>`;
+            item.addEventListener('click', () => {
+                window.location.hash = '#/knowledge/' + art.id;
             });
             knowledgeListContainer.appendChild(item);
         });
+    }
+
+    function showKnowledgeDetail(articleId) {
+        const art = knowledgeArticles.find(a => a.id === articleId);
+        if (!art) { showView('knowledge'); return; }
+
+        detailView.innerHTML = `
+            <div class="detail-container">
+                <button class="back-link" id="backToKnowledgeBtn"><i class="fas fa-arrow-left"></i> 返回知识库</button>
+                <div class="detail-title-wrapper">
+                    <div class="detail-title"><span>${art.title}</span></div>
+                </div>
+                <div class="knowledge-meta" style="margin-bottom:1.5rem;">${art.badges.map(b => `<span class="badge">${b}</span>`).join('')}</div>
+                <div class="section-block">
+                    <div class="explanation-text">${art.detail}</div>
+                </div>
+            </div>
+        `;
+        document.getElementById('backToKnowledgeBtn')?.addEventListener('click', () => { window.location.hash = '#knowledge'; });
+        showView('detail');
     }
 
     function escapeHtml(str) {
@@ -2248,6 +2238,10 @@ endmodule`,
             } else {
                 showView('home');
             }
+        } else if (hash.startsWith('/knowledge/')) {
+            const articleId = hash.replace('/knowledge/', '');
+            renderKnowledge();
+            showKnowledgeDetail(articleId);
         } else if (hash === 'codes') {
             renderCodeCards();
             renderKnowledge();
