@@ -823,6 +823,174 @@
             margin: 0 2px;
         }
 
+        /* ===== 技能云标签 ===== */
+        .skill-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 1.8rem;
+            position: relative;
+            z-index: 1;
+            max-width: 520px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .skill-tag {
+            padding: 0.35rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            font-family: var(--mono);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            cursor: default;
+            animation: float 4s ease-in-out infinite;
+            animation-delay: calc(var(--i) * 0.2s);
+        }
+        .skill-tag:hover {
+            transform: translateY(-3px);
+            border-color: var(--tag-color, var(--cyan));
+            color: var(--tag-color, var(--cyan));
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+        .skill-tag:nth-child(1) { --tag-color: var(--cyan); --i: 0; }
+        .skill-tag:nth-child(2) { --tag-color: var(--purple); --i: 1; }
+        .skill-tag:nth-child(3) { --tag-color: var(--green); --i: 2; }
+        .skill-tag:nth-child(4) { --tag-color: var(--amber); --i: 3; }
+        .skill-tag:nth-child(5) { --tag-color: var(--cyan); --i: 4; }
+        .skill-tag:nth-child(6) { --tag-color: var(--purple); --i: 5; }
+        .skill-tag:nth-child(7) { --tag-color: var(--green); --i: 6; }
+        .skill-tag:nth-child(8) { --tag-color: var(--amber); --i: 7; }
+        .skill-tag:nth-child(9) { --tag-color: var(--cyan); --i: 8; }
+        .skill-tag:nth-child(10) { --tag-color: var(--purple); --i: 9; }
+
+        /* ===== 精选模块区 ===== */
+        .featured-section {
+            margin-bottom: 2rem;
+        }
+        .featured-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .featured-header h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .featured-header a {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.2s;
+            text-decoration: none;
+        }
+        .featured-header a:hover {
+            color: var(--cyan);
+        }
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 0.9rem;
+        }
+        .featured-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            padding: 1.1rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .featured-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--card-accent, var(--cyan));
+            opacity: 0.4;
+            transition: opacity 0.3s;
+        }
+        .featured-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 229, 255, 0.15);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            background: var(--bg-hover);
+        }
+        .featured-card:hover::before {
+            opacity: 1;
+        }
+        .featured-card-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.35rem;
+        }
+        .featured-card-icon {
+            font-size: 1.3rem;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-light);
+            flex-shrink: 0;
+        }
+        .featured-card h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            line-height: 1.3;
+        }
+        .featured-card-brief {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 0.6rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+        .featured-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .featured-card-lang {
+            background: rgba(0, 229, 255, 0.06);
+            padding: 0.1rem 0.5rem;
+            border-radius: 5px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--cyan);
+            font-family: var(--mono);
+            border: 1px solid rgba(0, 229, 255, 0.08);
+        }
+        .featured-card-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--green);
+        }
+
         /* ===== 响应式 ===== */
         @media (max-width: 768px) {
             .nav-container { padding: 0.6rem 1rem; }
@@ -886,6 +1054,20 @@
                 <span class="dot"></span>
                 <span><i class="fas fa-cube"></i> Verilog · SystemVerilog · UVM</span>
             </div>
+
+            <!-- 技能云标签 -->
+            <div class="skill-cloud">
+                <span class="skill-tag">PCIe</span>
+                <span class="skill-tag">DMA</span>
+                <span class="skill-tag">AXI</span>
+                <span class="skill-tag">CDC</span>
+                <span class="skill-tag">FIFO</span>
+                <span class="skill-tag">RTL</span>
+                <span class="skill-tag">SoC</span>
+                <span class="skill-tag">Verilog</span>
+                <span class="skill-tag">LFSR</span>
+                <span class="skill-tag">CRC</span>
+            </div>
         </section>
 
         <!-- 入口卡片 -->
@@ -914,6 +1096,15 @@
                 <div class="stat-number">3</div>
                 <div class="stat-label"><i class="fas fa-book"></i> 技术笔记</div>
             </div>
+        </div>
+
+        <!-- 精选模块 -->
+        <div class="featured-section">
+            <div class="featured-header">
+                <h3><i class="fas fa-star" style="color:var(--amber);"></i> 精选模块</h3>
+                <a onclick="switchView('codes')">查看全部 <i class="fas fa-arrow-right" style="font-size:0.65rem;"></i></a>
+            </div>
+            <div class="featured-grid" id="featuredGrid"></div>
         </div>
     </div>
 
@@ -1541,72 +1732,6 @@ endmodule`,
             waveform: "LFSR 每个时钟周期在 en 有效时左移一位，新 bit 为抽头位 XOR 结果。data_out 呈现伪随机序列。"
         },
         {
-            id: "edge_detector",
-            name: "边沿检测器 (Edge Detector)",
-            icon: "📐",
-            language: "Verilog",
-            brief: "边沿检测器，支持上升/下降/双沿 + 可配同步级数消亚稳态。",
-            fullDescription: `边沿检测器是最基础但最常用的数字电路之一。无论是中断检测、按键消抖、信号边沿触发，还是协议解析中的跳变沿捕获，都离不开边沿检测。
-
-本模块实现的功能：
-• 双级或三级同步触发器链（可配置同步级数）
-• 上升沿检测：信号从 0→1 时输出单周期脉冲
-• 下降沿检测：信号从 1→0 时输出单周期脉冲
-• 双沿检测：任意跳变都输出单周期脉冲
-• 同步后的信号稳定输出（用于后续逻辑引用）
-
-设计要点：
-• 同步级数（SYNC_STAGE）建议设为 2 或 3——2 级 MTBF 足够高，3 级用于高可靠性场景
-• 异步信号必须先同步再进边沿检测逻辑，否则组合逻辑直接采样异步信号会导致亚稳态传播
-• 输出脉冲宽度为 1 个目标时钟周期，适合作为使能信号或触发条件`,
-            code: `module edge_detector #(
-    parameter SYNC_STAGE = 2,
-    parameter EDGE_TYPE  = "POSEDGE"
-)(
-    input  wire          clk,
-    input  wire          rst_n,
-    input  wire          din,
-    output wire          edge_pulse,
-    output wire          din_sync
-);
-
-    reg [SYNC_STAGE-1:0] sync_chain;
-
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-            sync_chain <= 0;
-        else
-            sync_chain <= {sync_chain[SYNC_STAGE-2:0], din};
-    end
-
-    assign din_sync = sync_chain[SYNC_STAGE-1];
-
-    reg din_sync_d1;
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-            din_sync_d1 <= 0;
-        else
-            din_sync_d1 <= din_sync;
-    end
-
-    generate
-        if (EDGE_TYPE == "POSEDGE")
-            assign edge_pulse = din_sync && !din_sync_d1;
-        else if (EDGE_TYPE == "NEGEDGE")
-            assign edge_pulse = !din_sync && din_sync_d1;
-        else
-            assign edge_pulse = din_sync ^ din_sync_d1;
-    endgenerate
-
-endmodule`,
-            usage: `1. SYNC_STAGE 配置同步级数（2 或 3），EDGE_TYPE 选择边沿类型（POSEDGE/NEGEDGE/BOTH）。
-2. 异步输入 din 经过同步链后输出到 din_sync（稳定版本），供后续逻辑使用。
-3. edge_pulse 在检测到指定边沿时输出单周期高脉冲。
-4. 典型应用：外部中断信号同步、异步控制信号捕获、按键输入消抖（配合计数器）。`,
-            hasCustomWave: false,
-            waveform: "异步输入 din 经过 2/3 级同步链后变为 din_sync，延迟 2~3 个时钟周期。din_sync 的边沿触发单周期 edge_pulse 输出。"
-        },
-        {
             id: "clk_divider",
             name: "时钟分频器 (Clock Divider)",
             icon: "⏱",
@@ -1679,49 +1804,6 @@ endmodule`,
 4. 注意：纯数字分频器输出有组合逻辑路径，不宜驱动高频时钟域或作为全局时钟——建议配合 BUFG 使用。`,
             hasCustomWave: false,
             waveform: "clk_en 有效时，计数器递增到分频阈值后翻转输出。偶数分频 50% 占空比，奇数分频通过双沿处理实现近似 50% 占空比。"
-        },
-        {
-            id: "synchronizer",
-            name: "双级同步器 (2-FF Synchronizer)",
-            icon: "🔗",
-            language: "Verilog",
-            brief: "标准双级 FF 同步器，单 bit CDC，MTBF 优化亚稳态防护。",
-            fullDescription: `双级触发器同步器（2-FF Synchronizer）是跨时钟域设计中最基础、使用最广泛的电路结构。当一个单 bit 信号从一个时钟域进入另一个不相关的时钟域时，必须经过同步器以防止亚稳态传播。
-
-工作原理：
-• 第一级触发器采样异步输入时可能发生亚稳态（输出在 0 和 1 之间振荡）
-• 第二级触发器在第一级的亚稳态输出尚未稳定前采样——由于寄存器分辨时间（T_res）的存在，第二级触发器的输出几乎必定稳定
-• 两级之间的走线延迟和寄存器建立时间提供了亚稳态衰减的"解决时间"
-
-注意：双级同步器适用于单 bit 控制信号跨时钟域传递，不适用于多 bit 数据总线——多 bit 信号的各 bit 同步延迟不同会导致数据错误（需使用异步 FIFO 或握手同步器）。`,
-            code: `module synchronizer #(
-    parameter STAGE = 2,
-    parameter INIT  = 0
-)(
-    input  wire          clk,
-    input  wire          rst_n,
-    input  wire          din,
-    output wire          dout
-);
-
-    reg [STAGE-1:0] sync_reg;
-
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-            sync_reg <= {STAGE{1'b0}};
-        else
-            sync_reg <= {sync_reg[STAGE-2:0], din};
-    end
-
-    assign dout = sync_reg[STAGE-1];
-
-endmodule`,
-            usage: `1. STAGE 参数配置同步级数（通常 2 或 3），INIT 配置复位初始值。
-2. 输入 din 为异步信号，dout 为同步后的稳定信号。
-3. 仅适用于单 bit 控制信号——多 bit 数据必须使用异步 FIFO 或握手同步器。
-4. 同步延迟 = STAGE 个目标时钟周期。`,
-            hasCustomWave: false,
-            waveform: "异步输入 din 经过 2 级（或 3 级）触发器链后输出。dout 相对于 din 延迟 2~3 个目标时钟周期，但消除了亚稳态风险。"
         },
         {
             id: "pulse_sync",
@@ -2225,6 +2307,35 @@ endmodule`,
         setTimeout(() => toast.style.opacity = '0', 2000);
     }
 
+    // ===== 精选模块渲染（首页） =====
+    function renderFeaturedModules() {
+        const grid = document.getElementById('featuredGrid');
+        if (!grid) return;
+        const featuredIds = ['async_fifo', 'rr_arbiter', 'axi_slice', 'handshake_sync'];
+        const accents = ['var(--cyan)', 'var(--purple)', 'var(--green)', 'var(--amber)'];
+        grid.innerHTML = '';
+        featuredIds.forEach((id, i) => {
+            const mod = modules.find(m => m.id === id);
+            if (!mod) return;
+            const card = document.createElement('div');
+            card.className = 'featured-card fade-in-item';
+            card.style.setProperty('--card-accent', accents[i]);
+            card.innerHTML = `
+                <div class="featured-card-top">
+                    <div class="featured-card-icon">${mod.icon}</div>
+                    <h4>${mod.name}</h4>
+                </div>
+                <div class="featured-card-brief">${mod.brief}</div>
+                <div class="featured-card-meta">
+                    <span class="featured-card-dot"></span>
+                    <span class="featured-card-lang">${mod.language}</span>
+                </div>
+            `;
+            card.addEventListener('click', () => { window.location.hash = '#/module/' + mod.id; });
+            grid.appendChild(card);
+        });
+    }
+
     // ===== Hash 路由系统 =====
     function routeFromHash() {
         const hash = window.location.hash.slice(1) || 'home';
@@ -2252,6 +2363,7 @@ endmodule`,
         } else {
             renderCodeCards();
             renderKnowledge();
+            renderFeaturedModules();
             showView('home');
         }
     }
