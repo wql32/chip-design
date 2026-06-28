@@ -966,14 +966,6 @@
             </div>
         </div>
 
-        <!-- 精选模块 -->
-        <div class="featured-section">
-            <div class="featured-header">
-                <h3><i class="fas fa-star" style="color:var(--amber);"></i> 精选模块</h3>
-                <a onclick="switchView('codes')">查看全部 <i class="fas fa-arrow-right" style="font-size:0.65rem;"></i></a>
-            </div>
-            <div class="featured-grid" id="featuredGrid"></div>
-        </div>
     </div>
 
     <!-- ===== 代码库视图 ===== -->
@@ -2184,35 +2176,6 @@ endmodule`,
         setTimeout(() => toast.style.opacity = '0', 2000);
     }
 
-    // ===== 精选模块渲染（首页） =====
-    function renderFeaturedModules() {
-        const grid = document.getElementById('featuredGrid');
-        if (!grid) return;
-        const featuredIds = ['async_fifo', 'rr_arbiter', 'axi_slice', 'handshake_sync', 'rr_sch', 'free_ptr_mng'];
-        const accents = ['var(--green)', 'var(--purple)', 'var(--green)', 'var(--amber)'];
-        grid.innerHTML = '';
-        featuredIds.forEach((id, i) => {
-            const mod = modules.find(m => m.id === id);
-            if (!mod) return;
-            const card = document.createElement('div');
-            card.className = 'featured-card fade-in-item';
-            card.style.setProperty('--card-accent', accents[i]);
-            card.innerHTML = `
-                <div class="featured-card-top">
-                    <div class="featured-card-icon">${mod.icon}</div>
-                    <h4>${mod.name}</h4>
-                </div>
-                <div class="featured-card-brief">${mod.brief}</div>
-                <div class="featured-card-meta">
-                    <span class="featured-card-dot"></span>
-                    <span class="featured-card-lang">${mod.language}</span>
-                </div>
-            `;
-            card.addEventListener('click', () => { window.location.hash = '#/module/' + mod.id; });
-            grid.appendChild(card);
-        });
-    }
-
     // ===== Hash 路由系统 =====
     function routeFromHash() {
         const hash = window.location.hash.slice(1) || 'home';
@@ -2240,7 +2203,6 @@ endmodule`,
         } else {
             renderCodeCards();
             renderKnowledge();
-            renderFeaturedModules();
             showView('home');
         }
     }
