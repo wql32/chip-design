@@ -1089,7 +1089,7 @@
         <!-- 统计 -->
         <div class="stats">
             <div class="stat-item">
-                <div class="stat-number">11+</div>
+                <div class="stat-number">16</div>
                 <div class="stat-label"><i class="fas fa-microchip"></i> RTL 模块</div>
             </div>
             <div class="stat-item">
@@ -1854,6 +1854,150 @@ endmodule`,
 8. 注意：本模块为 2 深度——如果需要更深缓冲，建议用同步 FIFO 替代。`,
             hasCustomWave: false,
             waveform: "前端 front_hs 时数据交替写入 reg_a/reg_b，front_step 轮转。后端 end_hs 时交替读出，end_step 轮转。front_ready 基于 target 寄存器空闲状态提供精确反压。"
+        },
+        {
+            id: "basic_fifo",
+            name: "同步 FIFO (basic_fifo.v)",
+            icon: "📦",
+            language: "Verilog",
+            brief: `基于寄存器阵列的同步 FIFO，支持参数化深度/宽度、almost full 预警、overflow/underflow 检测。`,
+            fullDescription: `基于寄存器阵列的同步 FIFO，支持参数化深度/宽度、almost full 预警、overflow/underflow 检测。
+
+该模块来自 mx_rtl 代码库，可直接在 RTL 工程中例化使用。`,
+            code: `\nmodule basic_fifo\n#(\nparameter FIFO_WIDTH = 16        ,\nparameter FIFO_DEPTH = 8         ,\nparameter AFULL_DEPTH = 6        ,\nparameter FIFO_NAME  = ""        // For error log print purpose\n)\n(\ninput              i_we        ,\ninput  [FIFO_WIDTH-1:0] i_wdata   ,\ninput              i_re          ,\noutput wire [FIFO_WIDTH-1:0] o_rdata      ,\noutput wire        o_full        ,\noutput wire        o_afull       ,//almost full\noutput wire        o_empty       ,\noutput wire        o_overflow    ,\noutput wire        o_underflow   ,\ninput              i_clk         ,\ninput              i_rst_n\n);\n\n//=====================================================================\n// PARAMETERS\n//=====================================================================\n\nlocalparam ADDR_WIDTH = $clog2(FIFO_DEPTH);\n\n//=====================================================================\n// INTERNAL SIGNALS\n//=====================================================================\n\nreg  [ADDR_WIDTH-1:0] fifo_rptr;\nreg  [ADDR_WIDTH-1:0] fifo_wptr;\nreg  [ADDR_WIDTH-1:0] fifo_wptr_plus1;\nreg  [FIFO_WIDTH-1:0] reg_mem [FIFO_DEPTH-1:0];\nreg  [ADDR_WIDTH:0]   fifo_cnt;\nwire                  fifo_cnt_upd;\nwire [2:0]            fifo_cnt_delta;\n\nalways @(posedge i_clk) begin\n  if(!i_rst_n) begin\n    fifo_rptr <= {ADDR_WIDTH{1'b0}};\n  end\n  else if(i_re) begin\n    fifo_rptr <= fifo_rptr + 1'b1;\n  end\n  else ;\nend\n\nalways @(posedge i_clk) begin\n  if(!i_rst_n) begin\n    fifo_wptr <= {ADDR_WIDTH{1'b0}};\n  end\n  else if (i_we && fifo_wptr == FIFO_DEPTH-1)begin\n\t  fifo_wptr <= {ADDR_WIDTH{1'b0}};\n  end\n  else if (i_we)begin\n\t  fifp_wptr <= fifo_wptr + 1'b1;\n  end\n  else ;\nend\n\n\nalways @(posedge i_clk) begin\n  if (i_we)begin\n\t  reg_mem[fifo_wptr] <= i_wdata;\n  end\n  else ;\nend\n\nassign fifo_cnt_upd = i_we || i_re;\nassign fifo_cnt_delta = (1'b0, i_we) - (1'b0, i_re);\n\nalways @(posedge i_clk) begin\n  if(!i_rst_n) begin\n    fifo_cnt <= {ADDR_WIDTH{1'b0}};\n  end\n  else if(fifo_cnt_upd) begin\n    fifo_cnt <= fifo_cnt + {{(ADDR_WIDTH+1-1){fifo_cnt_delta[1]}}, {fifo_cnt_delta[0]}};\n  end\n  else ;\nend\n\nassign o_rdata = reg_mem[fifo_rptr];\n\nassign o_empty = fifo_cnt == {(ADDR_WIDTH+1){1'b0}};\nassign o_full = fifo_cnt >= FIFO_DEPTH;\nassign o_afull = fifo_cnt >= AFULL_DEPTH;\n\nassign o_overflow  = i_we && o_full;\nassign o_underflow = i_re && o_empty;\n\nendmodule \n`,
+            usage: `1. 修改参数化配置适配具体场景。
+2. 在设计中例化本模块，连接对应接口信号。
+3. 完整源码请参考 GitHub 仓库：https://github.com/wql32/chip-design/tree/main/mx_rtl/basic_fifo.v`,
+            hasCustomWave: false,
+            waveform: `同步 FIFO 常规时序波形。`
+        },
+        {
+            id: "2w1r_fifo",
+            name: "双写单读 FIFO (2w1r_fifo.v)",
+            icon: "📥",
+            language: "Verilog",
+            brief: `双写入端口、单读取端口 FIFO，支持两个写源同时写入，带仲裁逻辑。含 almost full 预警与溢出检测。`,
+            fullDescription: `双写入端口、单读取端口 FIFO，支持两个写源同时写入，带仲裁逻辑。含 almost full 预警与溢出检测。
+
+该模块来自 mx_rtl 代码库，可直接在 RTL 工程中例化使用。`,
+            code: `\nmodule 2wlr_fifo\n#(\nparameter FIFO_WIDTH = 16        ,\nparameter FIFO_DEPTH = 8         ,\nparameter AFULL_DEPTH = 6        ,\nparameter FIFO_NAME  = ""        // For error log print purpose\n)\n(\ninput              i_we_0        ,\ninput  [FIFO_WIDTH-1:0] i_wdata_0   ,\ninput              i_we_1        ,\ninput  [FIFO_WIDTH-1:0] i_wdata_1   ,\ninput              i_re          ,\noutput wire [FIFO_WIDTH-1:0] o_rdata      ,\noutput wire        o_full        ,\noutput wire        o_afull       ,//almost full\noutput wire        o_empty       ,\noutput wire        o_overflow    ,\noutput wire        o_underflow   ,\ninput              i_clk         ,\ninput              i_rst_n\n);\n\n//=====================================================================\n// PARAMETERS\n//=====================================================================\n\nlocalparam ADDR_WIDTH = $clog2(FIFO_DEPTH);\n\n//=====================================================================\n// INTERNAL SIGNALS\n//=====================================================================\n\nreg  [ADDR_WIDTH-1:0] fifo_rptr;\nreg  [ADDR_WIDTH-1:0] fifo_wptr;\nreg  [ADDR_WIDTH-1:0] fifo_wptr_plus1;\nreg  [FIFO_WIDTH-1:0] reg_mem [FIFO_DEPTH-1:0];\nreg  [ADDR_WIDTH:0]   fifo_cnt;\nwire                  fifo_cnt_upd;\nwire [2:0]            fifo_cnt_delta;\n\nalways @(posedge i_clk) begin\n  if(!i_rst_n) begin\n    fifo_rptr <= {ADDR_WIDTH{1'b0}};\n  end\n  else if(i_re) begin\n    fifo_rptr <= fifo_rptr + 1'b1;\n  end\n  else ;\nend\n\nalways @(posedge i_clk) begin\n  if(!i_rst_n) begin\n    fifo_wptr <= {ADDR_WIDTH{1'b0}};\n  end\n  else begin\n    case({i_we_1, i_we_0})\n    2'b01, 2'b10: begin\n      fifo_wptr <= fifo_wptr + 2'h1;\n    end\n    2'b11: begin\n      fifo_wptr <= fifo_wptr + 2'h2;\n    end\n    default: ;\n    endcase\n  end\nend\n\nalways @(posedge i_clk) begin\n  if(!i_rst_n) begin\n    fifo_wptr_plus1 <= {{(ADDR_WIDTH-1){1'b0}}, 1'b1};\n  end\n  else begin\n    case({i_we_1, i_we_0})\n    2'b01, 2'b10: begin\n      fifo_wptr_plus1 <= fifo_wptr_plus1 + 2'h1;\n    end\n    2'b11: begin\n      fifo_wptr_plus1 <= fifo_wptr_plus1 + 2'h2;\n    end\n    default: ;\n    endcase\n  end\nend\n\nalways @(posedge i_clk) begin\n  case({i_we_1, i_we_0})\n  2'b01: begin\n    reg_mem[fifo_wptr] <= i_wdata_0;\n  end\n  2'b10: begin\n    reg_mem[fifo_wptr] <= i_wdata_1;\n  end\n  2'b11: begin\n    reg_mem[fifo_wptr] <= i_wdata_0;\n    reg_mem[fifo_wptr_plus1] <= i_wdata_1;\n  end\n  default: ;\n  endcase\nend\n\nassign fifo_cnt_upd = i_we_1 || i_we_0 || i_re;\nassign fifo_cnt_delta = (2'b0, i_we_1) + (2'b0, i_we_0) - (2'b0, i_re);\n\nalways @(posedge i_clk) begin\n  if(!i_rst_n) begin\n    fifo_cnt <= {ADDR_WIDTH{1'b0}};\n  end\n  else if(fifo_cnt_upd) begin\n    fifo_cnt <= fifo_cnt + {{(ADDR_WIDTH+1-2){fifo_cnt_delta[2]}}, {fifo_cnt_delta[1:0]}};\n  end\n  else ;\nend\n\nassign o_rdata = reg_mem[fifo_rptr];\n\nassign o_empty = fifo_cnt == {(ADDR_WIDTH+1){1'b0}};\nassign o_full = fifo_cnt >= FIFO_DEPTH;\nassign o_afull = fifo_cnt >= AFULL_DEPTH;\n\nassign o_overflow = (i_we_0 || i_we_1) && o_full;\nassign o_underflow = i_re && o_empty;\n\nendmodule \n`,
+            usage: `1. 修改参数化配置适配具体场景。
+2. 在设计中例化本模块，连接对应接口信号。
+3. 完整源码请参考 GitHub 仓库：https://github.com/wql32/chip-design/tree/main/mx_rtl/2w1r_fifo.v`,
+            hasCustomWave: false,
+            waveform: `双写单读 FIFO 常规时序波形。`
+        },
+        {
+            id: "ff_arrary",
+            name: "FF 寄存器堆 (ff_arrary.v)",
+            icon: "🧩",
+            language: "Verilog",
+            brief: `基于触发器的 SRAM 替代方案，参数化数据位宽/深度，可选输入输出流水线寄存器。适合小容量高速存储。`,
+            fullDescription: `基于触发器的 SRAM 替代方案，参数化数据位宽/深度，可选输入输出流水线寄存器。适合小容量高速存储。
+
+该模块来自 mx_rtl 代码库，可直接在 RTL 工程中例化使用。`,
+            code: `/**\n * File     ff_array.v\n * @brief   This is a generic design of a FF based sram.\n *\n * @date    2020.12\n * @license Copyright (c) 2020 by Me, Inc. All rights reserved.\n */\n\nmodule ff_array #(\n    parameter DATA_WIDTH = 24,\n    parameter ARRAY_DEPTH = 9,\n    parameter ADDR_WIDTH = $clog2(ARRAY_DEPTH),\n    parameter FLOP_IN    = 0,\n    parameter FLOP_OUT   = 1,\n    parameter END_OF_LIST = 1\n)(\n    input               i_clk,\n    input               i_rst_n,\n    input               i_wen,\n    input  [ADDR_WIDTH-1:0] i_waddr,\n    input  [DATA_WIDTH-1:0] i_wdata,\n    input  [ADDR_WIDTH-1:0] i_raddr,\n    output reg [DATA_WIDTH-1:0] o_rdata\n);\n\n    reg  [DATA_WIDTH-1:0] ff_array  [ARRAY_DEPTH-1:0];\n    reg                   wen;\n    reg  [ADDR_WIDTH-1:0] waddr;\n    reg  [DATA_WIDTH-1:0] wdata;\n    reg                   ren;\n    reg  [ADDR_WIDTH-1:0] raddr;\n    reg  [DATA_WIDTH-1:0] rdata;\n\n    wire  [ARRAY_DEPTH-1:0] wen_bitmap;\n    wire  [ARRAY_DEPTH-1:0] ren_bitmap;\n\n    generate\n        if(FLOP_IN == 1) begin : GEN_FLOP_IN\n            always @(posedge i_clk) begin\n                if(!i_rst_n) begin\n                    wen <= 1'b0;\n                    ren <= 1'b0;\n                end\n                else begin\n                    wen <= i_wen;\n                    ren <= i_ren;\n                end\n            end\n        end\n        else begin : GEN_NON_FLOP_IN\n            always @(*) begin\n                wen  = i_wen;\n                waddr = i_waddr;\n                wdata = i_wdata;\n            end\n\n            always @(*) begin\n                ren  = i_ren;\n                raddr = i_raddr;\n            end\n        end\n    endgenerate\n\n    assign wen_bitmap = {{(ARRAY_DEPTH-1){1'b0}}, wen} << waddr;\n    assign ren_bitmap = {{(ARRAY_DEPTH-1){1'b0}}, ren} << raddr;\n\n    generate\n        for(genvar i = 0; i < ARRAY_DEPTH; i = i + 1) begin : GEN_FF_ARRAY\n            always @(posedge i_clk) begin\n                if(wen_bitmap[i]) begin\n                    ff_array[i] <= wdata;\n                end\n                else ;\n            end\n        end\n    endgenerate\n\n    always @(*) begin\n        integer i = 0;\n        rdata = {DATA_WIDTH{1'b0}};\n        for(i = 0; i < ARRAY_DEPTH; i = i + 1) begin : ROTATE\n            rdata = rdata | {DATA_WIDTH{ren_bitmap[i]}} & ff_array[i];\n        end\n    end\n\n    generate\n        if(FLOP_OUT == 1) begin : GEN_FLOP_OUT\n            always @(posedge i_clk) begin\n                if(ren) begin\n                    o_rdata <= rdata;\n                end\n                else ;\n            end\n        end\n        else begin : GEN_NON_FLOP_OUT\n            always @(*) begin\n                o_rdata = rdata;\n            end\n        end\n    endgenerate\n\nendmodule\n`,
+            usage: `1. 修改参数化配置适配具体场景。
+2. 在设计中例化本模块，连接对应接口信号。
+3. 完整源码请参考 GitHub 仓库：https://github.com/wql32/chip-design/tree/main/mx_rtl/ff_arrary.v`,
+            hasCustomWave: false,
+            waveform: `FF 寄存器堆 常规时序波形。`
+        },
+        {
+            id: "ff_cam",
+            name: "FF 内容寻址存储器 (ff_cam.v)",
+            icon: "🔍",
+            language: "Verilog",
+            brief: `触发器实现的内容寻址存储器 (CAM)，支持读/写/比较/搜索四模式，参数化流水线级数。`,
+            fullDescription: `触发器实现的内容寻址存储器 (CAM)，支持读/写/比较/搜索四模式，参数化流水线级数。
+
+该模块来自 mx_rtl 代码库，可直接在 RTL 工程中例化使用。`,
+            code: `module ff_cam #(\n    parameter DATA_WIDTH  = 24,\n    parameter ARRAY_DEPTH = 9,\n    parameter ADDR_WIDTH  = $clog2(ARRAY_DEPTH),\n    parameter FLOP_IN     = 0,\n    parameter FLOP_OUT    = 0,\n    parameter END_OF_LIST = 0\n)(\n    input  i_clk,\n    input  i_rst_n,\n\n    input                    i_wen,\n    input  [ADDR_WIDTH-1:0]  i_waddr,\n    input  [DATA_WIDTH-1:0]  i_wdata,\n\n    input                    i_ren,\n    input  [ADDR_WIDTH-1:0]  i_raddr,\n    output reg [DATA_WIDTH-1:0] o_rdata,\n\n    input                    i_cen,\n    input  [ADDR_WIDTH-1:0]  i_caddr,\n\n    input                    i_sen,\n    input  [DATA_WIDTH-1:0]  i_skey,\n    output reg [ADDR_WIDTH-1:0] o_saddr\n);\n\n// 寄存器数组，每个元素包含 {valid, data}\nreg [DATA_WIDTH:0] ff_array [0:ARRAY_DEPTH-1];\n\n// 内部信号\nreg wen, ren, cen, sen;\nreg [ADDR_WIDTH-1:0] waddr, raddr, caddr;\nreg [DATA_WIDTH-1:0] wdata, rdata, skey;\n\nwire [ARRAY_DEPTH-1:0] wen_bitmap;\nwire [ARRAY_DEPTH-1:0] ren_bitmap;\nwire [ARRAY_DEPTH-1:0] cen_bitmap;\nwire [ARRAY_DEPTH-1:0] cmp_bitmap;\nwire [ADDR_WIDTH-1:0]  saddr;\n\n// 输入寄存器控制\ngenerate\nif (FLOP_IN == 1) begin : GEN_FLOP_IN\n    always @(posedge i_clk) begin\n        if (!i_rst_n) begin\n            wen <= 1'b0;\n            ren <= 1'b0;\n            cen <= 1'b0;\n            sen <= 1'b0;\n        end else begin\n            wen <= i_wen;\n            ren <= i_ren;\n            cen <= i_cen;\n            sen <= i_sen;\n        end\n    end\n\n    always @(posedge i_clk) begin\n        if (i_wen) begin\n            waddr <= i_waddr;\n            wdata <= i_wdata;\n        end\n    end\n\n    always @(posedge i_clk) begin\n        if (i_ren) begin\n            raddr <= i_raddr;\n        end\n    end\n\n    always @(posedge i_clk) begin\n        if (i_cen) begin\n            caddr <= i_caddr;\n        end\n    end\n\n    always @(posedge i_clk) begin\n        if (i_sen) begin\n            skey <= i_skey;\n        end\n    end\nend else begin : GEN_NON_FLOP_IN\n    always @(*) begin\n        wen   = i_wen;\n        waddr = i_waddr;\n        wdata = i_wdata;\n        ren   = i_ren;\n        raddr = i_raddr;\n        cen   = i_cen;\n        caddr = i_caddr;\n        sen   = i_sen;\n        skey  = i_skey;\n    end\nend\nendgenerate\n\n// 位图控制信号\nassign wen_bitmap = ren ? ({{(ARRAY_DEPTH-1){1'b0}}, wen} << waddr) : 0;\nassign ren_bitmap = ren ? ({{(ARRAY_DEPTH-1){1'b0}}, 1'b1} << raddr) : 0;\nassign cen_bitmap = cen ? ({{(ARRAY_DEPTH-1){1'b0}}, 1'b1} << caddr) : 0;\n\n// 寄存器数组写入/清除逻辑\ngenerate\nfor (genvar i = 0; i < ARRAY_DEPTH; i = i + 1) begin : GEN_FF_ARRAY\n    always @(posedge i_clk) begin\n        if (!i_rst_n) begin\n            ff_array[i] <= {1'b0, {DATA_WIDTH{1'b0}}};\n        end else if (wen_bitmap[i]) begin\n            ff_array[i] <= {1'b1, wdata};\n        end else if (cen_bitmap[i]) begin\n            ff_array[i] <= {1'b0, {DATA_WIDTH{1'b0}}};\n        end\n    end\nend\nendgenerate\n\n// 读数据逻辑\nalways @(*) begin\n    integer i;\n    rdata = {DATA_WIDTH{1'b0}};\n    for (i = 0; i < ARRAY_DEPTH; i = i + 1) begin\n        if (ren_bitmap[i])\n            rdata = ff_array[i][0 +: DATA_WIDTH];\n    end\nend\n\n// 输出寄存器控制\ngenerate\nif (FLOP_OUT == 1) begin : GEN_FLOP_OUT\n    always @(posedge i_clk) begin\n        if (ren)\n            o_rdata <= rdata;\n    end\n\n    always @(posedge i_clk) begin\n        if (sen)\n            o_saddr <= saddr;\n    end\nend else begin : GEN_NON_FLOP_OUT\n    always @(*) begin\n        o_rdata = rdata;\n        if (sen)\n            o_saddr = saddr;\n    end\nend\nendgenerate\n\n// 比较逻辑（CAM 功能）\ngenerate\nfor (genvar i = 0; i < ARRAY_DEPTH; i = i + 1) begin : GEN_CONTENT_CMP\n    assign cmp_bitmap[i] = ff_array[i][DATA_WIDTH] && (ff_array[i][0 +: DATA_WIDTH] == skey);\nend\nendgenerate\n\n// 将匹配结果转换为地址\nidh_onehot2bin #(\n    .BITMAP_WIDTH(ARRAY_DEPTH)\n) u_onehot2bin (\n    .i_bitmap(cmp_bitmap),\n    .o_bin   (saddr)\n);\n\nendmodule\n`,
+            usage: `1. 修改参数化配置适配具体场景。
+2. 在设计中例化本模块，连接对应接口信号。
+3. 完整源码请参考 GitHub 仓库：https://github.com/wql32/chip-design/tree/main/mx_rtl/ff_cam.v`,
+            hasCustomWave: false,
+            waveform: `FF 内容寻址存储器 常规时序波形。`
+        },
+        {
+            id: "find_1st_one",
+            name: "寻找首个 One-hot 编码器 (find_1st_one.v)",
+            icon: "🔢",
+            language: "Verilog",
+            brief: `位图优先级编码器，将 bitmap 转换为 onehot 和 binary 两种输出。参数化位宽。`,
+            fullDescription: `位图优先级编码器，将 bitmap 转换为 onehot 和 binary 两种输出。参数化位宽。
+
+该模块来自 mx_rtl 代码库，可直接在 RTL 工程中例化使用。`,
+            code: `module find_1st_one\n  #(\n    parameter BITMAP_WDITH      = 253 ,\n    parameter BIN_WIDTH         = $clog2(BITMAP_WIDHT)\n  )\n  (\n    input  wire  [BITMAP_WIDTH-1:0]  i_bitmap  ,\n    output wire  [BITMAP_WIDTH-1:0]  o_onehot  ,\n    output wire  [BIN_WIDTH-1:0]     o_binary\n  );\n  reg [BIN_WIDTH-1:0] one_loc;\n  always@(*)begin\n    one_loc = {BIN_WIDHT{1'b0}};\n    for (integer i = BITMAP_WIDTH -1;i>=0;i=i-1)begin:LOC_ONE\n      if(i_bitmap[i])begin\n        one_loc =i ;\n      end\n    end\n  end\n  assign o_binary = one_loc;\n  assign o_onehot[0] = i_bitmap[0];\n  generate\n    for(genvar i =i;i<BITMAP_WIDTH;i=i+1)begin:GEN_ONEHOT\n      assign o_onehot[i] = i_bitmap[i] & (~(|i_bitmap[i-1:0]));\n    end\n  endgenerate\nendmodule\n`,
+            usage: `1. 修改参数化配置适配具体场景。
+2. 在设计中例化本模块，连接对应接口信号。
+3. 完整源码请参考 GitHub 仓库：https://github.com/wql32/chip-design/tree/main/mx_rtl/find_1st_one.v`,
+            hasCustomWave: false,
+            waveform: `寻找首个 One-hot 编码器 常规时序波形。`
+        },
+        {
+            id: "free_ptr_mng",
+            name: "空闲指针管理器 (free_ptr_mng.v)",
+            icon: "📌",
+            language: "Verilog",
+            brief: `硬件空闲指针管理器，基于 bitmap 管理最多 384 个指针的分配与释放，带预取缓存提高分配效率。`,
+            fullDescription: `硬件空闲指针管理器，基于 bitmap 管理最多 384 个指针的分配与释放，带预取缓存提高分配效率。
+
+该模块来自 mx_rtl 代码库，可直接在 RTL 工程中例化使用。`,
+            code: `module free_ptr_mng #(\n    parameter PTR_NUM = 384, // Total number of managed pointers\n    parameter PTR_WIDTH = $clog2(PTR_NUM) // Data width of a pointer\n    parameter END_OF_LIST =1\n) (\n    input wire i_clk,\n    input wire i_rst_n,\n    input wire                  i_alc_req, // Allocation request\n    output wire [PTR_WIDTH-1:0] o_alc_ptr, // Allocated free pointer\n    output wire o_alc_vld, // A flag to indicate there're free pointers\n  \n    input wire                 i_rls_req, // Allocation request\n    input wire [PTR_WIDTH-1:0] i_rls_ptr, // Allocated free pointer\n  \n    output wire [PTR_WIDTH:0] o_ptr_num // Number of free pointers\n);\n\n    reg [PTR_NUM-1:0] ptr_bitmap; // Bitmap of pointer pool. 1: free. 0: occupied.\n    reg [PTR_WIDTH:0] ptr_num; // Number of free pointers\n    reg [1:0] cache_num; // Number of cached pointers\n    wire [PTR_NUM-1:0] alc_req; // Allocation request in a bitmap style\n    wire [PTR_NUM-1:0] rls_req; // Release request in a bitmap style\n    wire [PTR_WIDTH-1:0] pre_alc_req;\n    reg [PTR_WIDTH-1:0] pre_alc_ptr;\n    reg [1:0] free_ptr_vld; // A flag to indicate there're free pointers\n    reg [PTR_WIDTH-1:0] free_ptr[1:0]; // A pre-allocated pointer\n    reg free_ptr_wr_pp;\n    reg free_ptr_rd_pp;\n    wire num_upd; // Released number subs allocated number, MSB bit is sign bit.\n  \twire [1:0] rls_sub_alc_num ;\n\n    assign alc_req = {{(PTR_NUM-1){1'b0}}, pre_alc_req} << pre_alc_ptr;\n    assign rls_req = {{(PTR_NUM-1){1'b0}}, i_rls_req} << i_rls_ptr;\n\n    generate\n        for(genvar i = 0; i < PTR_NUM; i = i + 1) begin: BITMAP\n            always @(posedge i_clk) begin\n                if(!i_rst_n) begin\n                    ptr_bitmap[i] <= 1'b1;\n                end else if(alc_req[i]) begin\n                    ptr_bitmap[i] <= 1'b0;\n                end else if(rls_req[i]) begin\n                    ptr_bitmap[i] <= 1'b1;\n                end else;\n            end\n        end\n    endgenerate\n\nalways @(*) begin\n    for(i = PTR_NUM - 1; i > 0; i = i - 1) begin: PRE_ALC_PTR\n        if(ptr_bitmap[i]) begin\n            pre_alc_ptr = i;\n        end\n    end\nend\n\nassign pre_alc_req = (|ptr_num) && (~(&free_ptr_vld));\n\nalways @(posedge i_clk) begin\n    if(!i_rst_n) begin\n        free_ptr_vld[0] <= 1'b0;\n        free_ptr_vld[1] <= 1'b0;\n    end \n    else begin\n        case({pre_alc_req, i_alc_req})\n            2'b01: begin\n               free_ptr_vld[free_ptr_rd_pp] <= 1'b0;\n            end\n            2'b10: begin\n              \tfree_ptr_vld[free_ptr_wr_pp] <= 1'b1;\n            end\n            2'b11: begin\n               free_ptr_vld[free_ptr_rd_pp] <= 1'b0;\n               free_ptr_vld[free_ptr_wr_pp] <= 1'b1;\n            end\n            default;\n        endcase\n    end\nend\n\nalways @(posedge i_clk) begin\n    if(pre_alc_req) begin\n        free_ptr[free_ptr_wr_pp] <= pre_alc_ptr;\n    end\nend\n\nalways @(posedge i_clk) begin\n    if(!i_rst_n) begin\n        free_ptr_wr_pp <= 1'b0;\n    end else if(pre_alc_req) begin\n        free_ptr_wr_pp <= ~free_ptr_wr_pp;\n    end\nend\n\nalways @(posedge i_clk) begin\n    if(!i_rst_n) begin\n        free_ptr_rd_pp <= 1'b0;\n    end else if(i_alc_req) begin\n        free_ptr_rd_pp <= ~free_ptr_rd_pp;\n    end\nend\n\nassign num_upd = pre_alc_req || i_rls_req;\nassign rls_sub_alc_num = {1'b0, i_rls_req} - {1'b0, pre_alc_req};\n\nalways @(posedge i_clk) begin\n    if(!i_rst_n) begin\n        ptr_num <= PTR_NUM;\n    end else if(num_upd) begin\n        ptr_num <= ptr_num + {{PTR_WIDTH{rls_sub_alc_num[1]}}, rls_sub_alc_num[0]};\n    end\nend\n\nalways @(*) begin\n  cache_num = {1'b0, free_ptr_vld[1]} + {1'b0, free_ptr_vld[0]};\nend\n\nassign o_alc_vld = free_ptr_vld[free_ptr_rd_pp];\nassign o_alc_ptr = free_ptr[free_ptr_rd_pp];\nassign o_ptr_num = {{(PTR_WIDTH-1){1'b0}}, cache_num};\n\nendmodule\n`,
+            usage: `1. 修改参数化配置适配具体场景。
+2. 在设计中例化本模块，连接对应接口信号。
+3. 完整源码请参考 GitHub 仓库：https://github.com/wql32/chip-design/tree/main/mx_rtl/free_ptr_mng.v`,
+            hasCustomWave: false,
+            waveform: `空闲指针管理器 常规时序波形。`
+        },
+        {
+            id: "mux_oh",
+            name: "One-hot 多路选择器 (mux_oh.v)",
+            icon: "🔀",
+            language: "Verilog",
+            brief: `One-hot 选择的多路数据选择器，通过二维数组转置 + OR 树实现高速选择。参数化数据位宽与端口数。`,
+            fullDescription: `One-hot 选择的多路数据选择器，通过二维数组转置 + OR 树实现高速选择。参数化数据位宽与端口数。
+
+该模块来自 mx_rtl 代码库，可直接在 RTL 工程中例化使用。`,
+            code: `module mux_oh #(\n    parameter DATA_WIDTH = 8,\n    parameter PORT_NUM   = 4\n)(\n    input  wire [DATA_WIDTH*PORT_NUM-1:0] i_data, // data of n ports\n    input  wire [PORT_NUM-1:0]            i_sel,  // select\n    output wire [DATA_WIDTH-1:0]          o_data  // data of selected port\n);\n\n    wire [DATA_WIDTH-1:0] data_2d          [PORT_NUM-1:0];\n    wire [PORT_NUM-1:0]   data_2d_trans    [DATA_WIDTH-1:0];\n\n    generate\n        // 1. 将输入数据按端口拆分为二维数组，并根据选择信号屏蔽\n        for (genvar i = 0; i < PORT_NUM; i = i + 1) begin : GEN_DATA_2D\n            assign data_2d[i] = i_data[i*DATA_WIDTH +: DATA_WIDTH] & {DATA_WIDTH{i_sel[i]}};\n        end\n\n        // 2. 转置二维数组\n        for (genvar i = 0; i < DATA_WIDTH; i = i + 1) begin : GEN_TRANS_X\n            for (genvar j = 0; j < PORT_NUM; j = j + 1) begin : Y\n                assign data_2d_trans[i][j] = data_2d[j][i];\n            end\n        end\n\n        // 3. 对转置后的每一位进行 OR 运算，得到输出\n        for (genvar i = 0; i < DATA_WIDTH; i = i + 1) begin : GEN_OUT\n            assign o_data[i] = |data_2d_trans[i];\n        end\n    endgenerate\n\nendmodule\n`,
+            usage: `1. 修改参数化配置适配具体场景。
+2. 在设计中例化本模块，连接对应接口信号。
+3. 完整源码请参考 GitHub 仓库：https://github.com/wql32/chip-design/tree/main/mx_rtl/mux_oh.v`,
+            hasCustomWave: false,
+            waveform: `One-hot 多路选择器 常规时序波形。`
+        },
+        {
+            id: "onehot2bin",
+            name: "One-hot 转二进制编码器 (onehot2bin.v)",
+            icon: "🔄",
+            language: "Verilog",
+            brief: `One-hot 到二进制编码转换器，递归二分法实现，支持 16~512 位宽的高效转换。`,
+            fullDescription: `One-hot 到二进制编码转换器，递归二分法实现，支持 16~512 位宽的高效转换。
+
+该模块来自 mx_rtl 代码库，可直接在 RTL 工程中例化使用。`,
+            code: `module onehot2bin #(\n    parameter BITMAP_WIDTH = 253,   // Supported width is not less than 16 and not greater than 512\n    parameter BIN_WIDTH    = $clog2(BITMAP_WIDTH)\n)(\n    input  wire [BITMAP_WIDTH-1:0] i_bitmap,  // bitmap of onehot type\n    output wire [BIN_WIDTH-1:0]   o_binary   // convert onehot sequence to binars\n);\n\nlocalparam BITMAP_CEIL_WIDTH = 2**BIN_WIDTH;\n\nwire [BITMAP_CELL_WIDTH-1:0] bitmap_ceil;\nwire [BITMAP_CELL_WIDTH/2-1:0] bitmap_seg [BIN_WIDTH-1:0];\n\nassign bitmap_ceil = ({{(BITMAP_CEIL_WIDTH-BITMAP_WIDTH){1'b0}}, i_bitmap});\n//BITMAP_WIDTH must be 8b at least\nassign bitmap_seg[0] = bitmap_half_1(bitmap_ceil);\nassign bitmap_seg[1] = bitmap_half_2(bitmap_ceil);\n\ngenerate\n    if(BITMAP_CEIL_WIDTH > 4) begin : GEN_BITMAP_WIDTH_8\n        assign bitmap_seg[2] = bitmap_half_4(bitmap_ceil);\n\n        function [BITMAP_CEIL_WIDTH/2-1 : 0] bitmap_half_4;\n            parameter EXTRACT_WIDTH = 4;\n            parameter STAP_WIDTH    = 2*EXTRACT_WIDTH;\n\n            input [BITMAP_CEIL_WIDTH-1 : 0] i_bitmap;\n\n            begin\n                for(integer i = 0; i < (BITMAP_CEIL_WIDTH/2)/EXTRACT_WIDTH; i = i + 1) begin : EXTRACT_HALF\n                    bitmap_half_4[i*EXTRACT_WIDTH +: EXTRACT_WIDTH] = i_bitmap[(STAP_WIDTH*(i+1)-1) : EXTRACT_WIDTH];\n                end\n            endfunction\n        end\n    endgenerate\n\n    generate\n        if(BITMAP_CELL_WIDTH > 8) begin : GEN_BITMAP_WIDTH_16\n            assign bitmap_seg[3] = bitmap_half_8(bitmap_ceil);\n\n            function [BITMAP_CEIL_WIDTH/2-1 : 0] bitmap_half_8;\n                parameter EXTRACT_WIDTH = 8;\n                parameter STAP_WIDTH    = 2*EXTRACT_WIDTH;\n\n                input [BITMAP_CELL_WIDTH-1 : 0] i_bitmap;\n\n                begin\n                    for(integer i = 0; i < (BITMAP_CEIL_WIDTH/2)/EXTRACT_WIDTH; i = i + 1) begin : EXTRACT_HALF\n                        bitmap_half_8[i*EXTRACT_WIDTH +: EXTRACT_WIDTH] = i_bitmap[(STAP_WIDTH*(i+1)) -: EXTRACT_WIDTH];\n                    end\n                endfunction\n            end\n        endgenerate\n\n        if(BITMAP_CELL_WIDTH > 16) begin : GEN_BITMAP_WIDTH_32\n            assign bitmap_seg[4] = bitmap_half_16(bitmap_ceil);\n\n            function [BITMAP_CEIL_WIDTH/2-1 : 0] bitmap_half_16;\n                parameter EXTRACT_WIDTH = 16;\n                parameter STAP_WIDTH    = 2*EXTRACT_WIDTH;\n\n                input [BITMAP_CEIL_WIDTH-1 : 0] i_bitmap;\n\n                begin\n                    for(integer i = 0; i < (BITMAP_CEIL_WIDTH/2)/EXTRACT_WIDTH; i = i + 1) begin : EXTRACT_HALF\n                        bitmap_half_16[i*EXTRACT_WIDTH +: EXTRACT_WIDTH] = i_bitmap[(STAP_WIDTH*(i+1)) -: EXTRACT_WIDTH];\n                    end\n                endfunction\n            end\n        endgenerate\n\n        if(BITMAP_CEIL_WIDTH > 32) begin : GEN_BITMAP_WIDTH_64\n            assign bitmap_seg[5] = bitmap_half_32(bitmap_ceil);\n\n            function [BITMAP_CEIL_WIDTH/2-1 : 0] bitmap_half_32;\n                parameter EXTRACT_WIDTH = 32;\n                parameter STAP_WIDTH    = 2*EXTRACT_WIDTH;\n\n                input [BITMAP_CEIL_WIDTH-1 : 0] i_bitmap;\n\n                begin\n                    for(integer i = 0; i < (BITMAP_CEIL_WIDTH/2)/EXTRACT_WIDTH; i = i + 1) begin : EXTRACT_HALF\n                        bitmap_half_32[i*EXTRACT_WIDTH +: EXTRACT_WIDTH] = i_bitmap[(STAP_WIDTH*(i+1)) -: EXTRACT_WIDTH];\n                    end\n                endfunction\n            end\n        endgenerate\n\n        if(BITMAP_CEIL_WIDTH > 64) begin : GEN_BITMAP_WIDTH_128\n            assign bitmap_seg[6] = bitmap_half_64(bitmap_ceil);\n\n            function [BITMAP_CEIL_WIDTH/2-1 : 0] bitmap_half_64;\n                parameter EXTRACT_WIDTH = 64;\n                parameter STAP_WIDTH    = 2*EXTRACT_WIDTH;\n\n                input [BITMAP_CEIL_WIDTH-1 : 0] i_bitmap;\n\n                begin\n                    for(integer i = 0; i < (BITMAP_CEIL_WIDTH/2)/EXTRACT_WIDTH; i = i + 1) begin : EXTRACT_HALF\n                        bitmap_half_64[i*EXTRACT_WIDTH +: EXTRACT_WIDTH] = i_bitmap[(STAP_WIDTH*(i+1)) -: EXTRACT_WIDTH];\n                    end\n                endfunction\n            end\n        endgenerate\n\n        if(BITMAP_CELL_WIDTH > 128) begin : GEN_BITMAP_WIDTH_256\n            assign bitmap_seg[7] = bitmap_half_128(bitmap_cell);\n\n            function [BITMAP_CELL_WIDTH/2-1 : 0] bitmap_half_128;\n                parameter EXTRACT_WIDTH = 128;\n                parameter STAP_WIDTH    = 2*EXTRACT_WIDTH;\n\n                input [BITMAP_CELL_WIDTH-1 : 0] i_bitmap;\n\n                begin\n                    for(integer i = 0; i < (BITMAP_CELL_WIDTH/2)/EXTRACT_WIDTH; i = i + 1) begin : EXTRACT_HALF\n                        bitmap_half_128[i*EXTRACT_WIDTH +: EXTRACT_WIDTH] = i_bitmap[(STAP_WIDTH*(i+1)) -: EXTRACT_WIDTH];\n                    end\n                endfunction\n            end\n        endgenerate\n\n        if(BITMAP_CELL_WIDTH > 256) begin : GEN_BITMAP_WIDTH_512\n            assign bitmap_seg[8] = bitmap_half_256(bitmap_cell);\n\n            function [BITMAP_CELL_WIDTH/2-1 : 0] bitmap_half_256;\n                parameter EXTRACT_WIDTH = 256;\n                parameter STAP_WIDTH    = 2*EXTRACT_WIDTH;\n\n                input [BITMAP_CELL_WIDTH-1 : 0] i_bitmap;\n\n                begin\n                    for(integer i = 0; i < (BITMAP_CELL_WIDTH/2)/EXTRACT_WIDTH; i = i + 1) begin : EXTRACT_HALF\n                        bitmap_half_256[i*EXTRACT_WIDTH +: EXTRACT_WIDTH] = i_bitmap[(STAP_WIDTH*(i+1)) -: EXTRACT_WIDTH];\n                    end\n                end\n                endfunction\n            end\n        endgenerate\n\n        generate\n            for(genvar i = 0; i < BIN_WIDTH; i = i + 1) begin : GEN_0_BINARY\n                assign o_binary[i] = |bitmap_seg[i];\n            end\n        endgenerate\nendmodule\n`,
+            usage: `1. 修改参数化配置适配具体场景。
+2. 在设计中例化本模块，连接对应接口信号。
+3. 完整源码请参考 GitHub 仓库：https://github.com/wql32/chip-design/tree/main/mx_rtl/onehot2bin.v`,
+            hasCustomWave: false,
+            waveform: `One-hot 转二进制编码器 常规时序波形。`
+        },
+        {
+            id: "rr_sch",
+            name: "轮询调度器 (rr_sch.v)",
+            icon: "⚖️",
+            language: "Verilog",
+            brief: `64 请求轮询调度器，基于 mask 机制实现公平轮转调度。支持暂停/恢复。`,
+            fullDescription: `64 请求轮询调度器，基于 mask 机制实现公平轮转调度。支持暂停/恢复。
+
+该模块来自 mx_rtl 代码库，可直接在 RTL 工程中例化使用。`,
+            code: `module rr_sch\n#(\nparameter       REQ_NUM     = 64\n)\n(\ninput  wire                i_clk      ,\ninput  wire                i_rst_n    ,\ninput  wire                i_sch_en   ,//When sch_en is disabled, scheduler is paused\ninput  wire [REQ_NUM-1:0]  i_req      ,//Requests to be scheduled\noutput wire [REQ_NUM-1:0]  o_gnt_vld  ,//output wire granted\noutput wire [REQ_NUM-1:0]  o_gnt      //Granted request in one-hot style\n);\n\nwire [REQ_NUM-1:0]          req_oh     ;//masked request\nwire [REQ_NUM-1:0]          req        ;//one-hot type of original request\nwire [REQ_NUM-1:0]          masked_req ;//masked request\nwire [REQ_NUM-1:0]          masked_req_oh ;//one-hot request of masked request\nwire [REQ_NUM-1:0]          mask_0     ;//Cascaded mask of original request\nwire [REQ_NUM-1:0]          mask_1     ;//Cascaded mask of masked request\nwire [REQ_NUM-1:0]          unmask_0   ;//Inverted mask\nwire [REQ_NUM-1:0]          unmask_1   ;//Inverted mask\nreg  [REQ_NUM-1:0]          mask_last  ;//mask from last grant\n\nassign req = i_req ;\nassign masked_req = req & mask_last;\n\n//Mask used to keep MSB than first 1.\nassign mask_0[0] = 1'b0;\nassign mask_1[0] = 1'b0;\n\nfor(genvar i = 1; i < REQ_NUM; i = i + 1) begin : GEN_MASK\nassign mask_0[i] = |req[i] | mask_0[i - 1];\nassign mask_1[i] = |masked_req[i-1:0];\nend\nendgenerate\n\nassign unmask_0 = ~mask_0;\nassign unmask_1 = ~mask_1;\n\nassign req_oh = req & unmask_0; //Find first one and mask all other bits, we get a onehot type req.\nassign masked_req_oh = masked_req & unmask_1; //Find first one and mask all other bits, we get a onehot type req.\n\nalways @(posedge i_clk) begin\n  if(!i_rst_n) begin\n    mask_last <= {REQ_NUM{1'b0}};\n  end\n  else if((masked_req == 1'b1) && (i_sch_en == 1'b1)) begin\n    mask_last <= mask_1;\n  end\n  else if((|req == 1'b1) && (i_sch_en == 1'b1)) begin\n    mask_last <= mask_0;\n  end\n  else ;\nend\n\n//Output\nassign o_gnt_vld = |req && i_sch_en;\nassign o_gnt = (|masked_req == 1'b1) ? masked_req_oh : req_oh;\n\nendmodule\n`,
+            usage: `1. 修改参数化配置适配具体场景。
+2. 在设计中例化本模块，连接对应接口信号。
+3. 完整源码请参考 GitHub 仓库：https://github.com/wql32/chip-design/tree/main/mx_rtl/rr_sch.v`,
+            hasCustomWave: false,
+            waveform: `轮询调度器 常规时序波形。`
         }
     ];
 
@@ -2176,7 +2320,7 @@ endmodule`,
     function renderFeaturedModules() {
         const grid = document.getElementById('featuredGrid');
         if (!grid) return;
-        const featuredIds = ['async_fifo', 'rr_arbiter', 'axi_slice', 'handshake_sync'];
+        const featuredIds = ['async_fifo', 'rr_arbiter', 'axi_slice', 'handshake_sync', 'rr_sch', 'free_ptr_mng'];
         const accents = ['var(--cyan)', 'var(--purple)', 'var(--green)', 'var(--amber)'];
         grid.innerHTML = '';
         featuredIds.forEach((id, i) => {
