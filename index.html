@@ -393,39 +393,87 @@
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 1rem;
         }
-        .code-section {
-            margin-bottom: 2rem;
+        /* ===== 分类卡片 homepage ===== */
+        .cat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: border-color 0.2s, transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
-        .code-section-header {
+        .cat-card:hover {
+            border-color: var(--green);
+            transform: translateY(-2px);
+        }
+        .cat-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cat-card-icon {
+            font-size: 1.6rem;
+        }
+        .cat-card-count {
+            font-family: var(--mono);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            background: rgba(255,255,255,0.04);
+            padding: 0.1rem 0.6rem;
+            border-radius: 8px;
+        }
+        .cat-card-name {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .cat-card-brief {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .cat-card-preview {
+            font-size: 1.1rem;
+            letter-spacing: 0.15em;
+            opacity: 0.5;
+            margin-top: 0.2rem;
+        }
+        .cat-card-action {
+            font-size: 0.85rem;
+            color: var(--green);
+            margin-top: auto;
+            padding-top: 0.3rem;
+        }
+        .cat-card-action i {
+            font-size: 0.75rem;
+            margin-left: 0.3rem;
+        }
+        .category-detail-header {
+            margin-bottom: 0.5rem;
+        }
+        .category-detail-title {
+            font-size: 1.3rem;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 0.6rem;
-            padding: 0.6rem 0 0.8rem 0;
+            padding-bottom: 0.8rem;
             border-bottom: 1px solid var(--border);
-            margin-bottom: 1rem;
         }
-        .code-section-icon {
-            font-size: 1.2rem;
+        .cat-detail-icon {
+            font-size: 1.5rem;
         }
-        .code-section-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            letter-spacing: 0.02em;
-        }
-        .code-section-count {
+        .cat-detail-count {
             margin-left: auto;
             font-size: 0.8rem;
             color: var(--text-secondary);
+            font-family: var(--mono);
             background: rgba(255,255,255,0.04);
             padding: 0.15rem 0.6rem;
             border-radius: 10px;
-            font-family: var(--mono);
-        }
-        .code-section-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 1rem;
         }
         .code-card {
             background: var(--bg-surface);
@@ -1986,8 +2034,18 @@ i_sch_en 用于暂停/恢复调度器，对调试和低功耗管理有用。应�
         codec: '&#x1f500;'
     };
 
+    const categoryBriefs = {
+        fifo: '同步 FIFO、异步 FIFO、AXI-Stream FIFO 等 5 种 FIFO 缓冲器，覆盖同步、跨时钟域、AXI 总线等场景。',
+        arbiter: '轮询仲裁器与调度器，支持 N 端口公平调度，防饿死，含 mask 机制。',
+        cdc: '跨时钟域同步器与时钟分频器，解决多时钟域设计的可靠数据传输问题。',
+        axi: 'AXI 总线通道切片寄存器，流水线级插入，打破长走线关键路径。',
+        storage: 'FF 寄存器堆、内容寻址存储器(CAM)、空闲指针管理器，通用存储方案。',
+        codec: 'One-hot 编码器、多路选择器、优先级编码器等组合逻辑函数模块。'
+    };
+
     function renderCodeCards() {
         codeCardsContainer.innerHTML = '';
+        // render back button if coming from category
         const grouped = {};
         modules.forEach(mod => {
             const cat = mod.category || 'other';
@@ -1996,33 +2054,55 @@ i_sch_en 用于暂停/恢复调度器，对调试和低功耗管理有用。应�
         });
         categoryOrder.forEach(cat => {
             if (!grouped[cat]) return;
-            const section = document.createElement('div');
-            section.className = 'code-section';
-            section.innerHTML = `
-                <div class="code-section-header">
-                    <span class="code-section-icon">${categoryIcons[cat]}</span>
-                    <span class="code-section-title">${categoryLabels[cat]}</span>
-                    <span class="code-section-count">${grouped[cat].length} 个模块</span>
+            const card = document.createElement('div');
+            card.className = 'cat-card fade-in-item';
+            const icons = grouped[cat].map(m => m.icon).join(' ');
+            card.innerHTML = `
+                <div class="cat-card-top">
+                    <span class="cat-card-icon">${categoryIcons[cat]}</span>
+                    <span class="cat-card-count">${grouped[cat].length}</span>
                 </div>
-                <div class="code-section-grid"></div>
+                <div class="cat-card-name">${categoryLabels[cat]}</div>
+                <div class="cat-card-brief">${categoryBriefs[cat]}</div>
+                <div class="cat-card-preview">${icons}</div>
+                <div class="cat-card-action">浏览模块 <i class="fas fa-arrow-right"></i></div>
             `;
-            const grid = section.querySelector('.code-section-grid');
-            grouped[cat].forEach(mod => {
-                const card = document.createElement('div');
-                card.className = 'code-card fade-in-item';
-                card.innerHTML = `
-                    <div class="card-header-row">
-                        <span style="font-size:1.5rem;">${mod.icon}</span>
-                        <span class="card-badge-tag">${mod.language}</span>
-                    </div>
-                    <h3>${mod.name}</h3>
-                    <div class="card-desc" style="margin-top:0.5rem; line-height:1.5;">${mod.brief}</div>
-                    <div class="card-action-text" style="margin-top:auto; color:var(--green);">详细文档与时序波形 <i class="fas fa-chevron-right" style="font-size:0.75rem;"></i></div>
-                `;
-                card.addEventListener('click', () => { window.location.hash = '#/module/' + mod.id; });
-                grid.appendChild(card);
-            });
-            codeCardsContainer.appendChild(section);
+            card.addEventListener('click', () => { window.location.hash = '#/category/' + cat; });
+            codeCardsContainer.appendChild(card);
+        });
+    }
+
+    function renderCategoryModules(catKey) {
+        const catMods = modules.filter(m => m.category === catKey);
+        if (!catMods.length) { window.location.hash = '#codes'; return; }
+        const label = categoryLabels[catKey] || catKey;
+        codeCardsContainer.innerHTML = `
+            <div class="category-detail-header">
+                <button class="back-link" id="backToCatBtn"><i class="fas fa-arrow-left"></i> 返回分类</button>
+            </div>
+            <div class="category-detail-title">
+                <span class="cat-detail-icon">${categoryIcons[catKey]}</span>
+                <span>${label}</span>
+                <span class="cat-detail-count">${catMods.length} 个模块</span>
+            </div>
+            <div class="code-grid" style="margin-top:1.5rem;"></div>
+        `;
+        document.getElementById('backToCatBtn').addEventListener('click', () => { window.location.hash = '#codes'; });
+        const grid = codeCardsContainer.querySelector('.code-grid');
+        catMods.forEach(mod => {
+            const card = document.createElement('div');
+            card.className = 'code-card fade-in-item';
+            card.innerHTML = `
+                <div class="card-header-row">
+                    <span style="font-size:1.5rem;">${mod.icon}</span>
+                    <span class="card-badge-tag">${mod.language}</span>
+                </div>
+                <h3>${mod.name}</h3>
+                <div class="card-desc" style="margin-top:0.5rem; line-height:1.5;">${mod.brief}</div>
+                <div class="card-action-text" style="margin-top:auto; color:var(--green);">详细文档与时序波形 <i class="fas fa-chevron-right" style="font-size:0.75rem;"></i></div>
+            `;
+            card.addEventListener('click', () => { window.location.hash = '#/module/' + mod.id; });
+            grid.appendChild(card);
         });
     }
 
@@ -2564,6 +2644,11 @@ i_sch_en 用于暂停/恢复调度器，对调试和低功耗管理有用。应�
             } else {
                 showView('home');
             }
+        } else if (hash.startsWith('/category/')) {
+            const catKey = hash.replace('/category/', '');
+            renderKnowledge();
+            renderCategoryModules(catKey);
+            showView('codes');
         } else if (hash.startsWith('/knowledge/')) {
             const articleId = hash.replace('/knowledge/', '');
             renderKnowledge();
