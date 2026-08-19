@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "name": "wql32_ff_cam",
+  "display_name": "FF 内容寻址存储器 (ff_cam.v)",
+  "version": "source",
+  "kind": "rtl_component",
+  "category": "storage",
+  "description": "基于触发器的 CAM，支持读、写、清除和内容搜索。",
+  "tags": [
+    "cam",
+    "content-addressable",
+    "search",
+    "valid"
+  ],
+  "protocols": [
+    "rtl"
+  ],
+  "limitations": [
+    "并行比较和 onehot-to-bin 路径随深度增加，需重点检查时序。"
+  ],
+  "verification": {
+    "simulation": "not_run",
+    "lint": "not_run",
+    "cdc": "not_applicable",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run"
+  },
+  "source_id": "ff_cam",
+  "source_url": "https://wql32.github.io/chip-design/#codes",
+  "source_repository": "https://github.com/wql32/chip-design",
+  "status": "experimental",
+  "features": [],
+  "design_patterns": [],
+  "problem_index": []
+}

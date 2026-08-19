@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "name": "wql32_2w1r_fifo",
+  "display_name": "双写单读 FIFO (2w1r_fifo.v)",
+  "version": "source",
+  "kind": "rtl_component",
+  "category": "fifo",
+  "description": "支持两个写入端口和一个读取端口的参数化 FIFO。",
+  "tags": [
+    "fifo",
+    "multi-write",
+    "single-read",
+    "arbitration"
+  ],
+  "protocols": [
+    "ready-valid"
+  ],
+  "limitations": [
+    "需明确双写冲突、写指针加二和满边界处理。",
+    "需要考虑双写要预留至少两个空间，防止溢出"
+  ],
+  "verification": {
+    "simulation": "passed",
+    "lint": "passed",
+    "cdc": "not_applicable",
+    "formal": "passed",
+    "synthesis": "passed",
+    "performance": "passed",
+    "last_checked": "2026/8/17"
+  },
+  "source_id": "2w1r_fifo",
+  "source_url": "https://wql32.github.io/chip-design/#codes",
+  "source_repository": "https://github.com/wql32/chip-design",
+  "status": "draft",
+  "features": []
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "name": "wql32_basic_fifo",
+  "display_name": "同步 FIFO (basic_fifo.v)",
+  "version": "source",
+  "kind": "rtl_component",
+  "category": "fifo",
+  "description": "参数化同步 FIFO，带 almost-full、overflow 和 underflow 检测。",
+  "tags": [
+    "fifo",
+    "synchronous",
+    "almost-full",
+    "overflow",
+    "underflow"
+  ],
+  "protocols": [
+    "ready-valid"
+  ],
+  "limitations": [
+    "需检查指针回绕、边界读写和源码中的参数约束。"
+  ],
+  "verification": {
+    "simulation": "not_run",
+    "lint": "not_run",
+    "cdc": "not_applicable",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run"
+  },
+  "source_id": "basic_fifo",
+  "source_url": "https://wql32.github.io/chip-design/#codes",
+  "source_repository": "https://github.com/wql32/chip-design",
+  "status": "stable",
+  "features": [],
+  "design_patterns": [],
+  "problem_index": []
+}

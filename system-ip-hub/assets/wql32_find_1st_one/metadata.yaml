@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "name": "wql32_find_1st_one",
+  "display_name": "寻找首个 One-hot 编码器 (find_1st_one.v)",
+  "version": "source",
+  "kind": "rtl_component",
+  "category": "codec",
+  "description": "从 bitmap 中查找首个有效 bit 并输出 One-hot/索引结果。",
+  "tags": [
+    "one-hot",
+    "priority",
+    "encoder",
+    "bitmap"
+  ],
+  "protocols": [
+    "rtl"
+  ],
+  "limitations": [
+    "需明确最低位/最高位优先级和无匹配时输出。"
+  ],
+  "verification": {
+    "simulation": "not_run",
+    "lint": "not_run",
+    "cdc": "not_applicable",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run"
+  },
+  "source_id": "find_1st_one",
+  "source_url": "https://wql32.github.io/chip-design/#codes",
+  "source_repository": "https://github.com/wql32/chip-design",
+  "status": "stable",
+  "features": [],
+  "design_patterns": [],
+  "problem_index": []
+}

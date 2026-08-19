@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "name": "wql32_mux_oh",
+  "display_name": "One-hot 多路选择器 (mux_oh.v)",
+  "version": "source",
+  "kind": "rtl_component",
+  "category": "codec",
+  "description": "由 One-hot 选择信号驱动的参数化多路选择器。",
+  "tags": [
+    "one-hot",
+    "mux",
+    "selection",
+    "combination"
+  ],
+  "protocols": [
+    "rtl"
+  ],
+  "limitations": [
+    "需确保选择信号互斥或明确多位同时有效时的合并语义。"
+  ],
+  "verification": {
+    "simulation": "not_run",
+    "lint": "not_run",
+    "cdc": "not_applicable",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run"
+  },
+  "source_id": "mux_oh",
+  "source_url": "https://wql32.github.io/chip-design/#codes",
+  "source_repository": "https://github.com/wql32/chip-design",
+  "status": "stable",
+  "features": [],
+  "design_patterns": [],
+  "problem_index": []
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "name": "wql32_ff_array",
+  "display_name": "FF 寄存器堆 (ff_arrary.v)",
+  "version": "source",
+  "kind": "rtl_component",
+  "category": "storage",
+  "description": "基于触发器的参数化小容量存储阵列，支持输入/输出流水线选项。",
+  "tags": [
+    "storage",
+    "register-file",
+    "ff-array",
+    "pipeline"
+  ],
+  "protocols": [
+    "rtl"
+  ],
+  "limitations": [
+    "深度增大时需评估面积、功耗和组合读路径时序。"
+  ],
+  "verification": {
+    "simulation": "not_run",
+    "lint": "not_run",
+    "cdc": "not_applicable",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run"
+  },
+  "source_id": "ff_arrary",
+  "source_url": "https://wql32.github.io/chip-design/#codes",
+  "source_repository": "https://github.com/wql32/chip-design",
+  "status": "stable",
+  "features": [],
+  "design_patterns": [],
+  "problem_index": []
+}

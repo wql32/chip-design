@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "name": "wql32_onehot2bin",
+  "display_name": "One-hot 转二进制编码器 (onehot2bin.v)",
+  "version": "source",
+  "kind": "rtl_component",
+  "category": "codec",
+  "description": "将 One-hot/bitmap 输入编码为二进制索引。",
+  "tags": [
+    "one-hot",
+    "binary",
+    "encoder",
+    "bitmap"
+  ],
+  "protocols": [
+    "rtl"
+  ],
+  "limitations": [
+    "需明确多位同时有效和全零输入的处理方式。"
+  ],
+  "verification": {
+    "simulation": "not_run",
+    "lint": "not_run",
+    "cdc": "not_applicable",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run"
+  },
+  "source_id": "onehot2bin",
+  "source_url": "https://wql32.github.io/chip-design/#codes",
+  "source_repository": "https://github.com/wql32/chip-design",
+  "status": "stable",
+  "features": [],
+  "design_patterns": [],
+  "problem_index": []
+}

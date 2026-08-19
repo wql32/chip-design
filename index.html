@@ -126,6 +126,20 @@
             position: relative;
             font-family: var(--font);
         }
+        .nav-links .hub-link {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            background: rgba(62, 207, 142, 0.08);
+            border: 1px solid rgba(62, 207, 142, 0.3);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--green);
+            padding: 0.45rem 1rem;
+            border-radius: 6px;
+            font-family: var(--font);
+        }
+        .nav-links .hub-link:hover { background: rgba(62, 207, 142, 0.14); color: #75e9ae; }
         .nav-links button:hover {
             color: var(--text-secondary);
             background: var(--bg-hover);
@@ -995,6 +1009,7 @@
             <button id="navHomeBtn" class="active-page"><i class="fas fa-microchip"></i> 首页</button>
             <button id="navCodesBtn"><i class="fas fa-code"></i> 代码库</button>
             <button id="navKnowledgeBtn"><i class="fas fa-book"></i> 知识库</button>
+            <a class="hub-link" href="system-ip-hub/"><i class="fas fa-project-diagram"></i> System IP Hub</a>
         </div>
     </div>
 </nav>
