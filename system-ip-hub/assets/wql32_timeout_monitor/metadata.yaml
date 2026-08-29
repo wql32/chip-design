@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "wql32_timeout_monitor",
+  "display_name": "Transaction Timeout Monitor",
+  "version": "0.1",
+  "kind": "rtl_component",
+  "category": "control",
+  "description": "监控单个 outstanding 事务的完成时间，超时后产生 pulse 并锁存错误，适用于 DMA、PCIe 和 CXL 控制路径。",
+  "tags": ["timeout", "watchdog", "transaction", "error", "dma", "pcie", "cxl"],
+  "protocols": ["AXI4", "PCIe", "CXL"],
+  "features": ["single-outstanding", "latched-timeout-limit", "valid-ready-start", "same-cycle-complete-restart", "abort", "sticky-error"],
+  "limitations": ["一次只跟踪一个事务；多 outstanding 场景需为每个 Tag/ID 配置实例或配合表结构。", "timeout_limit=0 表示关闭超时。", "done 与 timeout 同周期时 done 优先。", "超时后 elapsed 保留锁存的 timeout_limit，直到下一次启动或复位。"],
+  "design_patterns": ["watchdog", "transaction-lifecycle"],
+  "problem_index": ["request timeout", "stuck transaction", "error recovery"],
+  "source_id": "wql32_timeout_monitor"
+}

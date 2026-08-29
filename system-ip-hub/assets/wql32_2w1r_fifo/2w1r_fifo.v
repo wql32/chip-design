@@ -1,5 +1,5 @@
 
-module 2wlr_fifo
+module fifo_2w1r
 #(
 parameter FIFO_WIDTH = 16        ,
 parameter FIFO_DEPTH = 8         ,
@@ -101,7 +101,7 @@ always @(posedge i_clk) begin
 end
 
 assign fifo_cnt_upd = i_we_1 || i_we_0 || i_re;
-assign fifo_cnt_delta = (2'b0, i_we_1) + (2'b0, i_we_0) - (2'b0, i_re);
+assign fifo_cnt_delta = {2'b0, i_we_1} + {2'b0, i_we_0} - {2'b0, i_re};
 
 always @(posedge i_clk) begin
   if(!i_rst_n) begin

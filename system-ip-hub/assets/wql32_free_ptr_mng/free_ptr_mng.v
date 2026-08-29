@@ -1,6 +1,6 @@
 module free_ptr_mng #(
     parameter PTR_NUM = 384, // Total number of managed pointers
-    parameter PTR_WIDTH = $clog2(PTR_NUM) // Data width of a pointer
+    parameter PTR_WIDTH = $clog2(PTR_NUM), // Data width of a pointer
     parameter END_OF_LIST =1
 ) (
     input wire i_clk,
@@ -32,24 +32,27 @@ module free_ptr_mng #(
     assign alc_req = {{(PTR_NUM-1){1'b0}}, pre_alc_req} << pre_alc_ptr;
     assign rls_req = {{(PTR_NUM-1){1'b0}}, i_rls_req} << i_rls_ptr;
 
+    integer search_idx;
+    genvar bitmap_idx;
+
     generate
-        for(genvar i = 0; i < PTR_NUM; i = i + 1) begin: BITMAP
+        for(bitmap_idx = 0; bitmap_idx < PTR_NUM; bitmap_idx = bitmap_idx + 1) begin: BITMAP
             always @(posedge i_clk) begin
                 if(!i_rst_n) begin
-                    ptr_bitmap[i] <= 1'b1;
-                end else if(alc_req[i]) begin
-                    ptr_bitmap[i] <= 1'b0;
-                end else if(rls_req[i]) begin
-                    ptr_bitmap[i] <= 1'b1;
+                    ptr_bitmap[bitmap_idx] <= 1'b1;
+                end else if(alc_req[bitmap_idx]) begin
+                    ptr_bitmap[bitmap_idx] <= 1'b0;
+                end else if(rls_req[bitmap_idx]) begin
+                    ptr_bitmap[bitmap_idx] <= 1'b1;
                 end else;
             end
         end
     endgenerate
 
 always @(*) begin
-    for(i = PTR_NUM - 1; i > 0; i = i - 1) begin: PRE_ALC_PTR
-        if(ptr_bitmap[i]) begin
-            pre_alc_ptr = i;
+    for(search_idx = PTR_NUM - 1; search_idx > 0; search_idx = search_idx - 1) begin: PRE_ALC_PTR
+        if(ptr_bitmap[search_idx]) begin
+            pre_alc_ptr = search_idx;
         end
     end
 end
@@ -73,7 +76,7 @@ always @(posedge i_clk) begin
                free_ptr_vld[free_ptr_rd_pp] <= 1'b0;
                free_ptr_vld[free_ptr_wr_pp] <= 1'b1;
             end
-            default;
+            default: ;
         endcase
     end
 end

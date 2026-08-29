@@ -38,6 +38,9 @@ wire [ARRAY_DEPTH-1:0] ren_bitmap;
 wire [ARRAY_DEPTH-1:0] cen_bitmap;
 wire [ARRAY_DEPTH-1:0] cmp_bitmap;
 wire [ADDR_WIDTH-1:0]  saddr;
+integer read_idx;
+genvar array_idx;
+genvar compare_idx;
 
 // 输入寄存器控制
 generate
@@ -102,14 +105,14 @@ assign cen_bitmap = cen ? ({{(ARRAY_DEPTH-1){1'b0}}, 1'b1} << caddr) : 0;
 
 // 寄存器数组写入/清除逻辑
 generate
-for (genvar i = 0; i < ARRAY_DEPTH; i = i + 1) begin : GEN_FF_ARRAY
+for (array_idx = 0; array_idx < ARRAY_DEPTH; array_idx = array_idx + 1) begin : GEN_FF_ARRAY
     always @(posedge i_clk) begin
         if (!i_rst_n) begin
-            ff_array[i] <= {1'b0, {DATA_WIDTH{1'b0}}};
-        end else if (wen_bitmap[i]) begin
-            ff_array[i] <= {1'b1, wdata};
-        end else if (cen_bitmap[i]) begin
-            ff_array[i] <= {1'b0, {DATA_WIDTH{1'b0}}};
+            ff_array[array_idx] <= {1'b0, {DATA_WIDTH{1'b0}}};
+        end else if (wen_bitmap[array_idx]) begin
+            ff_array[array_idx] <= {1'b1, wdata};
+        end else if (cen_bitmap[array_idx]) begin
+            ff_array[array_idx] <= {1'b0, {DATA_WIDTH{1'b0}}};
         end
     end
 end
@@ -117,11 +120,10 @@ endgenerate
 
 // 读数据逻辑
 always @(*) begin
-    integer i;
     rdata = {DATA_WIDTH{1'b0}};
-    for (i = 0; i < ARRAY_DEPTH; i = i + 1) begin
-        if (ren_bitmap[i])
-            rdata = ff_array[i][0 +: DATA_WIDTH];
+    for (read_idx = 0; read_idx < ARRAY_DEPTH; read_idx = read_idx + 1) begin
+        if (ren_bitmap[read_idx])
+            rdata = ff_array[read_idx][0 +: DATA_WIDTH];
     end
 end
 
@@ -148,8 +150,8 @@ endgenerate
 
 // 比较逻辑（CAM 功能）
 generate
-for (genvar i = 0; i < ARRAY_DEPTH; i = i + 1) begin : GEN_CONTENT_CMP
-    assign cmp_bitmap[i] = ff_array[i][DATA_WIDTH] && (ff_array[i][0 +: DATA_WIDTH] == skey);
+for (compare_idx = 0; compare_idx < ARRAY_DEPTH; compare_idx = compare_idx + 1) begin : GEN_CONTENT_CMP
+    assign cmp_bitmap[compare_idx] = ff_array[compare_idx][DATA_WIDTH] && (ff_array[compare_idx][0 +: DATA_WIDTH] == skey);
 end
 endgenerate
 

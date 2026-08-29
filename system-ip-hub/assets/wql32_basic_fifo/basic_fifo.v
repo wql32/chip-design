@@ -56,7 +56,7 @@ always @(posedge i_clk) begin
 	  fifo_wptr <= {ADDR_WIDTH{1'b0}};
   end
   else if (i_we)begin
-	  fifp_wptr <= fifo_wptr + 1'b1;
+	  fifo_wptr <= fifo_wptr + 1'b1;
   end
   else ;
 end
@@ -70,7 +70,7 @@ always @(posedge i_clk) begin
 end
 
 assign fifo_cnt_upd = i_we || i_re;
-assign fifo_cnt_delta = (1'b0, i_we) - (1'b0, i_re);
+assign fifo_cnt_delta = {1'b0, i_we} - {1'b0, i_re};
 
 always @(posedge i_clk) begin
   if(!i_rst_n) begin

@@ -20,6 +20,7 @@ wire [REQ_NUM-1:0]          mask_1     ;//Cascaded mask of masked request
 wire [REQ_NUM-1:0]          unmask_0   ;//Inverted mask
 wire [REQ_NUM-1:0]          unmask_1   ;//Inverted mask
 reg  [REQ_NUM-1:0]          mask_last  ;//mask from last grant
+genvar                       mask_idx;
 
 assign req = i_req ;
 assign masked_req = req & mask_last;
@@ -28,9 +29,10 @@ assign masked_req = req & mask_last;
 assign mask_0[0] = 1'b0;
 assign mask_1[0] = 1'b0;
 
-for(genvar i = 1; i < REQ_NUM; i = i + 1) begin : GEN_MASK
-assign mask_0[i] = |req[i] | mask_0[i - 1];
-assign mask_1[i] = |masked_req[i-1:0];
+generate
+for(mask_idx = 1; mask_idx < REQ_NUM; mask_idx = mask_idx + 1) begin : GEN_MASK
+assign mask_0[mask_idx] = |req[mask_idx] | mask_0[mask_idx - 1];
+assign mask_1[mask_idx] = |masked_req[mask_idx-1:0];
 end
 endgenerate
 

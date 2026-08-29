@@ -19,6 +19,7 @@ module ff_array #(
     input               i_wen,
     input  [ADDR_WIDTH-1:0] i_waddr,
     input  [DATA_WIDTH-1:0] i_wdata,
+    input               i_ren,
     input  [ADDR_WIDTH-1:0] i_raddr,
     output reg [DATA_WIDTH-1:0] o_rdata
 );
@@ -33,6 +34,8 @@ module ff_array #(
 
     wire  [ARRAY_DEPTH-1:0] wen_bitmap;
     wire  [ARRAY_DEPTH-1:0] ren_bitmap;
+    integer read_idx;
+    genvar array_idx;
 
     generate
         if(FLOP_IN == 1) begin : GEN_FLOP_IN
@@ -67,19 +70,6 @@ module ff_array #(
             else ;
         end
 
-        else begin : GEN_NON_FLOP_IN
-            always @(*) begin
-                wen  = i_wen;
-                waddr = i_waddr;
-                wdata = i_wdata;
-            end
-
-            always @(*) begin
-                ren  = i_ren;
-                raddr = i_raddr;
-            end
-        end
-
         always @(*) begin
             ren  = i_ren;
             raddr = i_raddr;
@@ -90,10 +80,10 @@ module ff_array #(
     assign ren_bitmap = {{(ARRAY_DEPTH-1){1'b0}}, ren} << raddr;
 
     generate
-        for(genvar i = 0; i < ARRAY_DEPTH; i = i + 1) begin : GEN_FF_ARRAY
+        for(array_idx = 0; array_idx < ARRAY_DEPTH; array_idx = array_idx + 1) begin : GEN_FF_ARRAY
             always @(posedge i_clk) begin
-                if(wen_bitmap[i]) begin
-                    ff_array[i] <= wdata;
+                if(wen_bitmap[array_idx]) begin
+                    ff_array[array_idx] <= wdata;
                 end
                 else ;
             end
@@ -101,10 +91,9 @@ module ff_array #(
     endgenerate
 
     always @(*) begin
-        integer i = 0;
         rdata = {DATA_WIDTH{1'b0}};
-        for(i = 0; i < ARRAY_DEPTH; i = i + 1) begin : ROTATE
-            rdata = rdata | {DATA_WIDTH{ren_bitmap[i]}} & ff_array[i];
+        for(read_idx = 0; read_idx < ARRAY_DEPTH; read_idx = read_idx + 1) begin : ROTATE
+            rdata = rdata | {DATA_WIDTH{ren_bitmap[read_idx]}} & ff_array[read_idx];
         end
     end
 

@@ -29,8 +29,11 @@
     "last_checked": "2026/8/17"
   },
   "source_id": "2w1r_fifo",
-  "source_url": "https://wql32.github.io/chip-design/#codes",
-  "source_repository": "https://github.com/wql32/chip-design",
-  "status": "draft",
-  "features": []
+  "status": "needs_fix",
+  "features": [
+    "支持双写",
+    "支持将满将空指示"
+  ],
+  "design_patterns": [],
+  "problem_index": []
 }

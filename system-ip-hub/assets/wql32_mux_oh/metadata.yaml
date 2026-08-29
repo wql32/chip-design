@@ -27,9 +27,7 @@
     "performance": "not_run"
   },
   "source_id": "mux_oh",
-  "source_url": "https://wql32.github.io/chip-design/#codes",
-  "source_repository": "https://github.com/wql32/chip-design",
-  "status": "stable",
+  "status": "constrained",
   "features": [],
   "design_patterns": [],
   "problem_index": []

@@ -11,6 +11,7 @@ module clk_divider #(
     integer cnt;
     reg clk_half;
 
+    generate
     if (DIV_MODE == 0) begin : even_div
         always @(posedge clk_in or negedge rst_n) begin
             if (!rst_n) begin
@@ -49,5 +50,6 @@ module clk_divider #(
         end
         always @(*) clk_out = clk_out | clk_half;
     end
+    endgenerate
 
 endmodule

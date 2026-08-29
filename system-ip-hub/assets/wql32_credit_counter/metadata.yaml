@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "wql32_credit_counter",
+  "display_name": "Credit Counter",
+  "version": "0.1",
+  "kind": "rtl_component",
+  "category": "flow_control",
+  "description": "用于 outstanding request、buffer 或链路流控的 credit 分配与归还计数器。",
+  "tags": ["credit", "flow-control", "outstanding", "buffer", "pcie", "cxl"],
+  "protocols": ["PCIe", "CXL", "AXI4"],
+  "features": ["allocation-gating", "credit-return", "overflow-sticky", "saturating-return"],
+  "limitations": ["分配判断不使用同周期归还的 credit，行为保守但时序清晰。", "归还超过容量时饱和到 MAX_CREDITS 并置位错误。", "alloc_count=0 会被视为合法的零 credit 分配。"],
+  "design_patterns": ["resource-counter", "credit-based-flow-control"],
+  "problem_index": ["credit leak", "credit overflow", "outstanding limit"],
+  "source_id": "wql32_credit_counter"
+}
