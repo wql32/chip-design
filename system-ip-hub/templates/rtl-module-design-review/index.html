@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RTL模块设计与复盘模板 - System IP Design Hub</title>
+<style>
+:root{--ink:#132238;--muted:#62758a;--line:#d8e4ef;--panel:#ffffff;--nav:#081525;--blue:#2f80ed;--cyan:#19bfd2;--green:#0f9d72;--amber:#c77900;--violet:#7357d9;}
+*{box-sizing:border-box} body{font-family:Segoe UI,Inter,Arial,sans-serif;background:#eef4fa;color:var(--ink);margin:0;min-height:100vh;background-image:linear-gradient(rgba(38,93,140,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(38,93,140,.035) 1px,transparent 1px);background-size:28px 28px}
+.skip-link{position:fixed;left:16px;top:-60px;z-index:100;background:#fff;color:#0c5f91;padding:10px 14px;border-radius:8px;box-shadow:0 6px 20px #0003} .skip-link:focus{top:12px} :focus-visible{outline:3px solid #36bfd0;outline-offset:2px} button,a,input,select,textarea{transition:border-color .16s ease,background-color .16s ease,box-shadow .16s ease,transform .16s ease}
+header{background:linear-gradient(115deg,#071322 0%,#0d2947 57%,#10495a 100%);color:white;padding:14px 34px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 10px 30px #102a4330;position:sticky;top:0;z-index:5;border-bottom:1px solid #55d6e126}
+.brand{display:flex;align-items:center;gap:11px} .brand-mark{width:29px;height:29px;border:1px solid #5de0ef80;border-radius:8px;display:grid;place-items:center;background:#1bc8da16;box-shadow:0 0 20px #1bc8da22} .brand-mark:before{content:"";width:10px;height:10px;border:2px solid #6be5ef;border-radius:3px;box-shadow:7px 0 0 -4px #6be5ef,-7px 0 0 -4px #6be5ef} .brand-copy{display:flex;flex-direction:column;gap:1px} .brand-copy small{font:10px Consolas,monospace;color:#72d9e4;letter-spacing:1.4px} header .nav{color:#fff;font-size:16px;letter-spacing:.2px;font-weight:650} header nav{display:flex;gap:4px;flex-wrap:wrap;align-items:center} header a{color:#c9e7f5;text-decoration:none;padding:8px 11px;border-radius:8px;font-size:13px} header nav a:hover{background:#ffffff18;color:white;box-shadow:inset 0 0 0 1px #72d9e430}
+main{max-width:1320px;margin:38px auto;padding:0 28px} h1{font-size:32px;letter-spacing:-.7px;margin:0 0 8px} h2{margin-top:0} h3{margin-top:0} .eyebrow{color:var(--cyan);font:700 11px Consolas,monospace;text-transform:uppercase;letter-spacing:1.9px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px} .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:22px 0}
+.card{background:linear-gradient(145deg,#fff,#f8fbfe);border:1px solid var(--line);border-radius:15px;padding:21px;box-shadow:0 8px 24px #173b5d0c} .card:hover{box-shadow:0 12px 28px #173b5d16;transition:.18s ease}
+.stat-card{position:relative;overflow:hidden} .stat-card:after{content:"";position:absolute;right:-28px;top:-28px;width:88px;height:88px;border-radius:50%;background:#2f80ed12} .stat-value{font-size:30px;font-weight:750;margin-top:8px} .stat-label{color:var(--muted);font-size:13px}
+.muted{color:var(--muted)} .pill{display:inline-block;background:#e6f2fb;color:#17648a;border:1px solid #c7e5f0;border-radius:999px;padding:5px 10px;margin:2px;font-size:12px;font-weight:600}
+table{width:100%;border-collapse:separate;border-spacing:0;background:var(--panel);border:1px solid var(--line);border-radius:13px;overflow:hidden;box-shadow:0 5px 18px #173b5d0a} th,td{padding:14px 15px;border-bottom:1px solid #e8eef5;text-align:left;vertical-align:top} th{background:#f2f7fb;color:#506176;font-size:11px;text-transform:uppercase;letter-spacing:.7px} tr:last-child td{border-bottom:0} table tr:hover td{background:#f7fbff}
+a{color:#1769aa} code,pre{font-family:Consolas,"Cascadia Code",monospace} code{color:#135d83} pre{background:#0b172a;color:#dcebf7;padding:18px;border-radius:12px;overflow:auto;white-space:pre-wrap;line-height:1.5;border:1px solid #1d4260}
+input,select,textarea,button{padding:10px 12px;border:1px solid #c8d7e5;border-radius:8px;background:white;font:inherit} input{min-width:210px} textarea{width:100%;min-height:110px;resize:vertical} button{cursor:pointer;background:linear-gradient(135deg,#2377dd,#1359af);color:white;border-color:#1a63bd;font-weight:650;box-shadow:0 4px 10px #185abd24} button:hover{filter:brightness(1.08)} form{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0}
+.toolbar{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;margin:20px 0} .section-title{display:flex;align-items:center;gap:10px;margin:26px 0 12px} .section-title:before{content:"";width:4px;height:20px;border-radius:4px;background:linear-gradient(#18b6c9,#2f80ed)}
+.hero{background:linear-gradient(120deg,#091a2d,#103a56 62%,#105265);color:white;border:1px solid #2a6680;border-radius:19px;padding:32px;box-shadow:0 18px 40px #0b254333;position:relative;overflow:hidden} .hero:before{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 0 58%,#6be5ef0b 58% 58.3%,transparent 58.3% 100%),linear-gradient(90deg,transparent 0 75%,#6be5ef0b 75% 75.15%,transparent 75.15% 100%);pointer-events:none} .hero:after{content:"SYS / IP";position:absolute;right:26px;bottom:18px;font:700 50px Consolas;color:#ffffff0a;letter-spacing:5px} .hero p{color:#b8d5e7;max-width:730px} .hero .eyebrow{color:#64d7e4}
+.hero h1{max-width:720px;font-size:36px;line-height:1.15;margin-top:12px} .hero-actions{display:flex;align-items:center;gap:18px;margin-top:25px;position:relative;z-index:1} .hero-button{background:#73e1e8;color:#092237;padding:10px 15px;border-radius:8px;text-decoration:none;font-weight:750;box-shadow:0 6px 18px #02152244} .hero-button:hover{background:#a0f0f2;color:#092237} .hero-link{color:#bdeaf0;text-decoration:none;font-weight:650} .hero-link:hover{color:white}
+.dashboard-links .link-card{text-decoration:none;color:var(--ink);position:relative} .link-card h3{margin:9px 0 5px} .link-card p{color:var(--muted);margin:0 0 14px} .link-card>span:last-child{color:#1769aa;font-weight:700;font-size:13px} .link-card:hover{border-color:#9ed8e4}
+.result-line{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;margin:18px 0 12px;font-size:13px} .category-label{font:600 12px Consolas,monospace;color:#526d84;background:#eef4f8;border:1px solid #d5e3ec;border-radius:6px;padding:5px 8px}
+.filter-panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;margin:20px 0 14px;box-shadow:0 6px 18px #173b5d0a} .filter-panel form{margin:0;display:grid;grid-template-columns:minmax(240px,2fr) repeat(4,minmax(130px,1fr)) auto;gap:9px} .filter-panel input,.filter-panel select{min-width:0;width:100%} .filter-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid #e7eef4} .scope-switch,.view-switch{display:flex;gap:5px;flex-wrap:wrap} .scope-switch a,.view-switch a{padding:6px 10px;border-radius:7px;text-decoration:none;color:#547087;font-size:12px;font-weight:700} .scope-switch a.active,.view-switch a.active{background:#e6f3fa;color:#0b6492} .clear-filter{font-size:13px;text-decoration:none}
+.asset-card-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:13px} .asset-list-card{display:grid;grid-template-columns:1fr auto;gap:12px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px;text-decoration:none;color:var(--ink)} .asset-list-card:hover{border-color:#8ec8dc;box-shadow:0 9px 24px #173b5d13;transform:translateY(-1px)} .asset-list-card h3{margin:0 0 4px;font-size:17px} .asset-list-card p{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.55} .asset-list-card .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:10px} .asset-table-name p{margin:5px 0 0;max-width:600px;color:var(--muted);font-size:12px;line-height:1.45} .sample-mark{display:inline-block;background:#f0eafe;color:#6c48b5;border:1px solid #d9cbf5;border-radius:999px;padding:3px 7px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.knowledge-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px} .knowledge-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 7px 20px #173b5d0b;display:flex;flex-direction:column;min-height:230px} .knowledge-card header{position:static;background:none;color:inherit;padding:0;box-shadow:none;border:0;display:flex;align-items:flex-start;justify-content:space-between;gap:15px} .knowledge-card h2{font-size:18px;margin:0;line-height:1.35} .knowledge-card>p{color:#52677a;line-height:1.65;font-size:14px;flex:1} .knowledge-card .asset-links{padding-top:13px;border-top:1px solid #e6edf3} .knowledge-card .asset-links strong{display:block;font-size:12px;color:#5c7082;margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px} .knowledge-card details{margin-top:12px;background:#f7fafc;border-radius:9px;padding:10px 12px} .knowledge-card details summary{cursor:pointer;color:#1769aa;font-weight:700;font-size:13px} .knowledge-card details ul{margin:10px 0 2px;padding-left:20px;color:#465d70;font-size:13px;line-height:1.55} .knowledge-card footer{margin-top:13px;font-size:12px;color:var(--muted)} .index-count{white-space:nowrap;background:#edf5fa;color:#3f657e;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:700}
+.form-section{grid-column:1/-1;border-top:1px solid #e4edf4;padding-top:18px;margin-top:4px} .form-section h2{font-size:17px;margin:0 0 5px} .form-section p{margin:0;color:var(--muted);font-size:13px}
+ .code-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0 10px} .code-toolbar strong{font:600 13px Consolas,monospace;color:#38546c} .code-toolbar span{color:var(--muted);font-size:13px} .code-frame{margin-top:0;background:#071522;border:1px solid #1f4a68;border-radius:13px;overflow:hidden;box-shadow:0 12px 28px #0a25421c} .code-header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 15px;background:linear-gradient(90deg,#0d263c,#0b1d30);border-bottom:1px solid #1d425b;color:#8eafc3;font:12px Consolas,"Cascadia Code",monospace} .code-header .language{color:#68d5df;text-transform:uppercase;letter-spacing:.8px;font-size:10px;font-weight:700} .code-frame pre{margin:0;border:0;padding:5px 0;background:transparent;overflow:auto} .source-code{counter-reset:source-line;display:block;min-width:max-content;white-space:pre;line-height:1.15;font-size:13px;tab-size:4;color:#dcebf7} .source-line{display:block;min-height:1.15em;padding-right:28px} .source-line:hover{background:#ffffff08} .source-line:before{counter-increment:source-line;content:counter(source-line);display:inline-block;width:58px;margin-right:17px;text-align:right;color:#52708b;border-right:1px solid #20415b;padding-right:14px;user-select:none} .tok-comment{color:#70909a;font-style:italic} .tok-string{color:#a8d889} .tok-keyword{color:#70c7ff;font-weight:650} .tok-directive{color:#f3b66d;font-weight:650} .tok-number{color:#d8a6ff} .tok-identifier{color:#dcebf7} .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.mapping-card{padding:18px 20px} .mapping-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;flex-wrap:wrap} .mapping-asset{font-weight:700;font-size:16px} .mapping-flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:#39556e} .mapping-flow code{font-size:13px;background:#eef5fa;padding:6px 9px;border-radius:6px} .mapping-meta{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin:16px 0 0} .mapping-meta strong{color:#415b72} .mapping-detail{margin-top:17px;border-top:1px solid #e3edf4;padding-top:13px} .mapping-detail summary{cursor:pointer;color:#1769aa;font-weight:650} .mapping-detail table{margin-top:13px;box-shadow:none} .mapping-detail pre{font-size:12px;margin-bottom:0}
+.transaction-flow{display:grid;grid-template-columns:minmax(150px,1fr) 46px minmax(150px,1fr) 46px minmax(150px,1fr);gap:8px;align-items:center;margin:18px 0} .flow-node{border:1px solid #c9dce9;border-radius:11px;background:#f8fbfd;padding:13px 14px;min-height:72px} .flow-node.bridge{background:#edf8fb;border-color:#a9dce4} .flow-node small{display:block;color:#6a7e91;text-transform:uppercase;letter-spacing:.6px;font-size:10px;margin-bottom:6px} .flow-node code{font-size:12px;word-break:break-word} .flow-arrow{text-align:center;color:#1faabd;font-size:22px} .mapping-badges{display:flex;gap:7px;flex-wrap:wrap} .mapping-badge{background:#eef3f7;color:#4a6175;border-radius:7px;padding:5px 8px;font-size:11px} .mapping-badge strong{color:#183f5d}
+.gap-list{display:grid;gap:10px} .gap-row{display:grid;grid-template-columns:minmax(200px,1fr) 2fr auto;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px 15px} .gap-row p{margin:0;color:var(--muted);font-size:13px} .gap-tags{display:flex;gap:5px;flex-wrap:wrap}
+.nav-more{position:relative} .nav-more>summary{list-style:none;color:#c9e7f5;padding:8px 11px;border-radius:8px;font-size:13px;cursor:pointer} .nav-more>summary::-webkit-details-marker{display:none} .nav-more>summary:after{content:" ▾";font-size:10px} .nav-more[open]>summary,.nav-more>summary:hover,.nav-more>summary.active{background:#ffffff18;color:#fff} .nav-menu{position:absolute;right:0;top:42px;min-width:180px;background:#0c263d;border:1px solid #346078;border-radius:10px;padding:7px;box-shadow:0 14px 32px #03111f66;display:grid;z-index:10} .nav-menu a{display:block}
+.advanced{margin-top:18px} .advanced summary{cursor:pointer;font-size:18px;font-weight:700;color:var(--ink);outline:none} .advanced summary::marker{color:var(--cyan)} .advanced[open] summary{margin-bottom:16px}
+.danger{color:#b42318;font-weight:650} .ok{color:#067647;font-weight:650} .status-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 10px;background:#edf2f7;color:#526173;font-size:12px;font-weight:750;border:1px solid transparent} .status-badge:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor} .status-badge.ok{background:#e5f7ef;color:#067647;border-color:#bee8d5} .status-badge.warn{background:#fff3d9;color:#9a5b00;border-color:#f1ddb3} .status-badge.info{background:#e8f2ff;color:#175ea8;border-color:#c7dcf5} .status-badge.danger{background:#fff0ee;color:#b42318;border-color:#f4c7c1} .status-badge.muted{background:#eef2f6;color:#667587;border-color:#d9e0e7}
+.asset-header{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:18px} .asset-kicker{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px} .asset-subline{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:13px} .asset-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap} .asset-actions form{margin:0} .secondary-button{display:inline-flex;align-items:center;padding:9px 12px;border:1px solid #b9cede;border-radius:8px;background:#fff;color:#155f99;text-decoration:none;font-weight:700;font-size:13px} .secondary-button:hover{background:#eff7fd;border-color:#8fb9d8}
+.readiness-banner{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:flex-start;border-radius:14px;padding:17px 19px;margin:18px 0;border:1px solid} .readiness-banner strong{display:block;margin-bottom:4px} .readiness-banner p{margin:0;color:#42566a} .readiness-banner.ok{background:#effaf5;border-color:#bfe5d5} .readiness-banner.info{background:#eef6ff;border-color:#c6dcf5} .readiness-banner.warn{background:#fff8e8;border-color:#efd9a7} .readiness-banner.danger{background:#fff1ef;border-color:#f0c5bf} .readiness-banner.muted{background:#f3f5f7;border-color:#dce2e8}
+.asset-tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-top:24px;overflow-x:auto} .asset-tab{border:0;border-bottom:3px solid transparent;border-radius:8px 8px 0 0;background:transparent;color:#53677b;box-shadow:none;padding:11px 15px;white-space:nowrap} .asset-tab:hover{filter:none;background:#e9f3fa;color:#174f7d} .asset-tab[aria-selected="true"]{color:#0d5b91;background:#fff;border-bottom-color:var(--cyan)} .tab-panel{padding-top:18px} .tab-panel[hidden]{display:none}
+.doc-layout{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:22px;align-items:start} .markdown-body{background:#fff;border:1px solid var(--line);border-radius:15px;padding:28px 32px;box-shadow:0 8px 24px #173b5d0c;min-width:0} .markdown-body>h1:first-child{margin-top:0} .markdown-body h1{font-size:29px;border-bottom:1px solid #e5edf4;padding-bottom:12px;margin:0 0 22px} .markdown-body h2{font-size:21px;margin:30px 0 12px;padding-top:3px} .markdown-body h3{font-size:17px;margin:24px 0 9px} .markdown-body p,.markdown-body li{font-size:15px;line-height:1.75;color:#34495e} .markdown-body p{margin:10px 0} .markdown-body ul,.markdown-body ol{padding-left:24px} .markdown-body li+li{margin-top:5px} .markdown-body code{background:#edf5fa;border:1px solid #d9e8f1;border-radius:5px;padding:2px 5px;font-size:.92em} .markdown-body pre code{background:transparent;border:0;padding:0;color:#d9eaf5} .markdown-body blockquote{margin:15px 0;padding:10px 15px;border-left:4px solid var(--cyan);background:#eef8fb;color:#375a6d} .md-table-wrap{overflow-x:auto;margin:16px 0} .markdown-body table{box-shadow:none} .doc-toc{position:sticky;top:98px;background:#f8fbfd;border:1px solid var(--line);border-radius:13px;padding:17px} .doc-toc strong{display:block;margin-bottom:10px;font-size:13px;text-transform:uppercase;letter-spacing:.7px;color:#4e657a} .doc-toc a{display:block;padding:5px 0;color:#49677f;text-decoration:none;font-size:13px;line-height:1.35} .doc-toc a.sub{padding-left:12px} .doc-toc a:hover{color:#0d6ea6}
+.knowledge-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px} .empty-note{padding:13px 15px;border:1px dashed #bed0df;border-radius:10px;background:#f8fbfd;color:var(--muted)} .file-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px} .file-card{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:15px 16px;border:1px solid var(--line);background:#fff;border-radius:11px;text-decoration:none} .file-card:hover{border-color:#91c8dc;background:#f5fbfe} .file-card code{word-break:break-all} .file-type{font-size:11px;text-transform:uppercase;color:#60758a;background:#edf3f7;border-radius:6px;padding:4px 7px}
+ .document-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px} .document-toolbar .actions{display:flex;gap:8px;align-items:center} .copy-button{padding:7px 10px;font-size:12px;box-shadow:none} .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.template-hero:after{content:"RTL / REVIEW"} .template-intro{max-width:780px} .template-workflow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0 28px} .template-step{position:relative;padding:20px 20px 18px 58px;min-height:142px} .template-step-number{position:absolute;left:18px;top:19px;width:27px;height:27px;border-radius:8px;display:grid;place-items:center;background:#e4f5f8;color:#087586;font:800 12px Consolas,monospace;border:1px solid #b8e4e8} .template-step h3{margin:0 0 7px;font-size:17px} .template-step p{margin:0;color:var(--muted);font-size:13px;line-height:1.65} .template-overview td:first-child{font-weight:750;white-space:nowrap;color:#174f72} .template-overview td:nth-child(2){color:#40576b;line-height:1.55} .template-actions{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin:12px 0} .template-actions p{margin:0} .template-copy-panel{margin-top:20px;padding:0;overflow:hidden} .template-copy-panel summary{cursor:pointer;padding:17px 20px;font-weight:750;color:#174f72;background:#f5f9fc} .template-copy-panel[open] summary{border-bottom:1px solid var(--line)} .template-copy-panel pre{margin:0;border:0;border-radius:0;max-height:520px;white-space:pre;line-height:1.4}
+.readme-editor{display:grid;gap:12px;margin:20px 0} .readme-editor textarea{min-height:560px;font:14px/1.6 Consolas,"Cascadia Code",monospace;color:#dbeaf4;background:#0b172a;border-color:#244c69;padding:18px;tab-size:4} .suggestion-box{grid-column:1/-1;background:#f7fafc;border:1px dashed #c7d8e4;border-radius:9px;padding:11px 12px} .suggestion-box strong{display:block;font-size:12px;color:#5a7084;margin-bottom:7px} .suggestion-chip{background:#e6f2fb;color:#17648a;border:1px solid #c7e5f0;border-radius:999px;padding:5px 9px;margin:2px;font-size:11px;font-weight:650;box-shadow:none} .suggestion-chip:hover{filter:none;background:#d5edf8}
+header nav a.active{background:#ffffff18;color:#fff;box-shadow:inset 0 0 0 1px #72d9e450}
+@media(max-width:1050px){.filter-panel form{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){.doc-layout{grid-template-columns:1fr}.doc-toc{position:static;order:-1}.knowledge-grid{grid-template-columns:1fr}.asset-header{flex-direction:column}.transaction-flow{grid-template-columns:1fr}.flow-arrow{transform:rotate(90deg)}.template-workflow{grid-template-columns:1fr}}
+ @media(max-width:700px){header{padding:14px 16px;align-items:flex-start;gap:10px;flex-direction:column}main{margin:22px auto;padding:0 14px}h1{font-size:25px}.hero{padding:24px}.hero h1{font-size:29px}.hero-actions{align-items:flex-start;flex-direction:column;gap:13px}table{font-size:13px;display:block;overflow-x:auto;white-space:nowrap}input{min-width:160px}.markdown-body{padding:21px 18px}.source-line:before{width:42px;margin-right:11px;padding-right:9px}.source-line{padding-right:20px}.code-frame pre{padding:4px 0}.code-header{padding:7px 12px}.filter-panel form{grid-template-columns:1fr}.asset-card-list{grid-template-columns:1fr}.gap-row{grid-template-columns:1fr}.nav-more{position:static}.nav-menu{position:static;box-shadow:none;margin-top:5px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style></head><body><a class="skip-link" href="#main-content">跳到主要内容</a><header><div class="brand"><span class="brand-mark" aria-hidden="true"></span><a class="nav" href="/chip-design/system-ip-hub/"><span class="brand-copy"><span>System IP Design Hub</span><small>RTL / DMA / AXI / PCIe / CXL</small></span></a></div><nav aria-label="主导航"><a href="/chip-design/system-ip-hub/assets">资产</a><a href="/chip-design/system-ip-hub/patterns">设计模式</a><a href="/chip-design/system-ip-hub/problems">问题索引</a><a href="/chip-design/system-ip-hub/mappings">Bridge Mapping</a><details class="nav-more"><summary>工具</summary><div class="nav-menu"><a href="/chip-design/system-ip-hub/templates/rtl-module-design-review">RTL 设计模板</a><a href="/chip-design/system-ip-hub/import">导入 RTL</a><a href="/chip-design/system-ip-hub/protocols">协议索引</a><a href="/chip-design/system-ip-hub/dependencies">依赖关系</a><a href="/chip-design/system-ip-hub/report">待完善项</a></div></details></nav></header><style>.local-only{display:none!important}</style><div style='max-width:1320px;margin:12px auto 0;padding:9px 28px;border:1px solid #b9dce5;border-radius:9px;background:#e9f8fb;color:#216477;font-size:13px'>GitHub Pages 静态快照：用于浏览和检索设计资产；导入、编辑、删除请使用本地服务。</div><main id="main-content"><section class='hero template-hero'><div class='eyebrow'>KNOWLEDGE TEMPLATE / RTL DESIGN</div><h1>RTL模块设计与复盘模板</h1><p class='template-intro'>用一套固定的工程结构，记录模块为什么这样设计、RTL 如何实现、如何证明它在边界条件下仍然正确，以及下次复用时必须知道什么。</p><div class='hero-actions'><a class='hero-button' href='#template-body'>阅读完整模板</a><button class='copy-button' type='button' data-copy-target='#rtl-template-source'>复制 Markdown 模板</button></div></section>
+<div class='section-title'><h2>怎样使用这份模板</h2></div><div class='template-workflow'><article class='card template-step'><span class='template-step-number'>01</span><h3>设计前</h3><p>先写清目标、非目标、接口契约和架构不变式，作为 RTL 实现的输入。</p></article><article class='card template-step'><span class='template-step-number'>02</span><h3>实现中</h3><p>同步补充核心逻辑、边界处理和性能取舍，让文档与代码决策保持一致。</p></article><article class='card template-step'><span class='template-step-number'>03</span><h3>验证后</h3><p>用可复查的测试、断言和问题根因更新结论，沉淀成下一个模块可复用的经验。</p></article></div>
+<div class='section-title'><h2>章节总览</h2></div><table class='template-overview'><thead><tr><th>章节</th><th>需要记录的内容</th></tr></thead><tbody><tr><td>1. 模块概述</td><td>功能、应用场景、设计目标与非目标</td></tr><tr><td>2. 接口定义</td><td>时钟、复位、输入输出、握手与稳定性约束</td></tr><tr><td>3. 架构设计</td><td>数据通路、控制通路、状态机与不变式</td></tr><tr><td>4. 关键 RTL 实现</td><td>核心逻辑、参数化、边界处理与实现取舍</td></tr><tr><td>5. 时序与性能</td><td>关键路径、吞吐率、延迟、面积与功耗权衡</td></tr><tr><td>6. 验证方案</td><td>基本场景、边界与并发、断言、覆盖与结果证据</td></tr><tr><td>7. 设计经验与复盘</td><td>问题、根因、解决方法、可改进点与复用结论</td></tr></tbody></table>
+<div class='section-title'><h2>完整模板</h2></div><div class='template-actions'><p class='muted'>保留可证明的事实；未定义的协议语义、位宽和性能数据应明确标记为待确认。</p><button class='copy-button' type='button' data-copy-target='#rtl-template-source'>复制</button></div><div class='doc-layout' id='template-body'><article class='markdown-body'><h1 id='rtl-模块设计与复盘'>RTL 模块设计与复盘</h1><blockquote>模块名称：<code>&lt;module_name&gt;</code></blockquote><blockquote>版本：<code>&lt;version&gt;</code></blockquote><blockquote>作者：<code>&lt;owner&gt;</code></blockquote><blockquote>最近更新：<code>&lt;YYYY-MM-DD&gt;</code></blockquote><blockquote>当前状态：<code>Draft / Review / Ready / Deprecated</code></blockquote><h2 id='1-模块概述'>1. 模块概述</h2><h3 id='1-1-功能说明'>1.1 功能说明</h3><ul><li>模块解决什么问题？</li><li>输入事务经过该模块后产生什么结果？</li><li>它在系统中的上游、下游和边界分别是什么？</li></ul><h3 id='1-2-应用场景'>1.2 应用场景</h3><ul><li>典型使用位置：<code>&lt;DMA / AXI / PCIe / CXL / 通用控制路径&gt;</code></li><li>适用条件：<code>&lt;时钟、带宽、协议或资源约束&gt;</code></li><li>不适用场景：<code>&lt;明确列出复用边界&gt;</code></li></ul><h3 id='1-3-设计目标与非目标'>1.3 设计目标与非目标</h3><div class='md-table-wrap'><table><thead><tr><th>类型</th><th>内容</th><th>验收标准</th></tr></thead><tbody><tr><td>功能目标</td><td><code>&lt;必须实现的行为&gt;</code></td><td><code>&lt;可检查的结果&gt;</code></td></tr><tr><td>性能目标</td><td><code>&lt;吞吐率、延迟或频率目标&gt;</code></td><td><code>&lt;量化指标&gt;</code></td></tr><tr><td>可靠性目标</td><td><code>&lt;错误检测、恢复或保护&gt;</code></td><td><code>&lt;断言或测试结果&gt;</code></td></tr><tr><td>非目标</td><td><code>&lt;本版本明确不支持的能力&gt;</code></td><td><code>不应被调用者假设</code></td></tr></tbody></table></div><h2 id='2-接口定义'>2. 接口定义</h2><h3 id='2-1-时钟与复位'>2.1 时钟与复位</h3><div class='md-table-wrap'><table><thead><tr><th>信号</th><th>类型</th><th>有效方式</th><th>说明</th></tr></thead><tbody><tr><td><code>&lt;clk&gt;</code></td><td>Clock</td><td><code>&lt;posedge/negedge&gt;</code></td><td><code>&lt;频率或时钟域&gt;</code></td></tr><tr><td><code>&lt;rst_n&gt;</code></td><td>Reset</td><td><code>&lt;同步/异步，低有效&gt;</code></td><td><code>&lt;复位与释放要求&gt;</code></td></tr></tbody></table></div><p>记录复位后各状态寄存器、输出 valid、计数器和缓存的初始值。</p><h3 id='2-2-端口定义'>2.2 端口定义</h3><div class='md-table-wrap'><table><thead><tr><th>端口</th><th>方向</th><th>位宽</th><th>协议/时序</th><th>说明</th></tr></thead><tbody><tr><td><code>&lt;signal&gt;</code></td><td><code>input/output</code></td><td><code>&lt;N&gt;</code></td><td><code>&lt;ready-valid / pulse / level&gt;</code></td><td><code>&lt;语义&gt;</code></td></tr></tbody></table></div><h3 id='2-3-握手与稳定性约束'>2.3 握手与稳定性约束</h3><ul><li>真实事务接受条件：<code>fire = valid &amp;&amp; ready</code>。</li><li>backpressure 期间哪些 payload 必须保持稳定？</li><li>valid、ready、credit、request、response 之间是否存在组合依赖？</li><li>是否允许同周期接收与发送、push 与 pop、allocate 与 release？</li><li>请求、数据和响应是否可能独立到达？如何重新配对？</li></ul><h2 id='3-架构设计'>3. 架构设计</h2><h3 id='3-1-模块框图'>3.1 模块框图</h3><pre class='md-code' data-language='text'><code>Upstream -&gt; Input Buffer -&gt; Control / Scheduler -&gt; Datapath -&gt; Output Buffer -&gt; Downstream
+                             |                    |
+                             +-&gt; Status/Error ----+</code></pre><p>使用实际模块名称替换框图，并标出寄存切分点、队列、跨时钟边界和反馈路径。</p><h3 id='3-2-数据通路'>3.2 数据通路</h3><ul><li>数据宽度与格式转换：<code>&lt;输入格式 -&gt; 内部格式 -&gt; 输出格式&gt;</code></li><li>buffer 深度、旁路条件和数据保持策略。</li><li>burst、packet、descriptor 或 flit 的拆分与合并规则。</li><li>首拍、中间拍、末拍和单拍事务分别如何处理？</li></ul><h3 id='3-3-控制通路与状态机'>3.3 控制通路与状态机</h3><div class='md-table-wrap'><table><thead><tr><th>状态</th><th>进入条件</th><th>状态行为</th><th>退出条件</th><th>异常处理</th></tr></thead><tbody><tr><td><code>&lt;IDLE&gt;</code></td><td><code>&lt;condition&gt;</code></td><td><code>&lt;actions&gt;</code></td><td><code>&lt;condition&gt;</code></td><td><code>&lt;recovery&gt;</code></td></tr></tbody></table></div><p>记录每个状态寄存器由哪个真实事件推进，避免只根据 <code>valid</code> 或请求电平更新状态。</p><h3 id='3-4-关键不变量'>3.4 关键不变量</h3><ul><li>数据不丢失、不重复、不乱序的条件。</li><li>计数器、指针、credit 和 outstanding 的合法范围。</li><li>grant、select、valid 等 one-hot/one-hot0 要求。</li><li>命令、数据、响应之间必须保持的对应关系。</li></ul><h2 id='4-关键-rtl-实现'>4. 关键 RTL 实现</h2><h3 id='4-1-核心逻辑'>4.1 核心逻辑</h3><pre class='md-code' data-language='systemverilog'><code>// 只保留最能表达设计意图的核心片段，并说明它对应的协议规则。
+wire fire = valid &amp;&amp; ready;</code></pre><h3 id='4-2-参数化设计'>4.2 参数化设计</h3><div class='md-table-wrap'><table><thead><tr><th>参数</th><th>默认值</th><th>合法范围</th><th>对位宽/容量/时序的影响</th></tr></thead><tbody><tr><td><code>&lt;PARAM&gt;</code></td><td><code>&lt;value&gt;</code></td><td><code>&lt;constraint&gt;</code></td><td><code>&lt;impact&gt;</code></td></tr></tbody></table></div><p>记录 <code>$clog2</code>、非 2 的幂深度、零宽度、最大值以及参数组合限制。</p><h3 id='4-3-边界与异常处理'>4.3 边界与异常处理</h3><ul><li>FIFO empty/full、almost-full、同周期 push/pop。</li><li>counter overflow/underflow、credit 耗尽与归还。</li><li>burst 边界、地址对齐、最大长度和 4 KB 边界。</li><li>timeout、abort、错误响应和复位中断事务。</li><li>输入非法或协议违例时，模块是阻止、丢弃、报错还是继续？</li></ul><h3 id='4-4-实现取舍'>4.4 实现取舍</h3><div class='md-table-wrap'><table><thead><tr><th>方案</th><th>优点</th><th>缺点</th><th>采用/放弃原因</th></tr></thead><tbody><tr><td><code>&lt;方案 A&gt;</code></td><td><code>&lt;...&gt;</code></td><td><code>&lt;...&gt;</code></td><td><code>&lt;...&gt;</code></td></tr></tbody></table></div><h2 id='5-时序与性能'>5. 时序与性能</h2><h3 id='5-1-性能模型'>5.1 性能模型</h3><div class='md-table-wrap'><table><thead><tr><th>指标</th><th>目标</th><th>当前结果</th><th>测量条件</th></tr></thead><tbody><tr><td>吞吐率</td><td><code>&lt;transactions/cycle 或 bytes/cycle&gt;</code></td><td><code>&lt;...&gt;</code></td><td><code>&lt;持续流/无反压&gt;</code></td></tr><tr><td>首事务延迟</td><td><code>&lt;cycles&gt;</code></td><td><code>&lt;...&gt;</code></td><td><code>&lt;输入 fire 到输出 fire&gt;</code></td></tr><tr><td>稳态延迟</td><td><code>&lt;cycles&gt;</code></td><td><code>&lt;...&gt;</code></td><td><code>&lt;pipeline 条件&gt;</code></td></tr><tr><td>最大 outstanding</td><td><code>&lt;count&gt;</code></td><td><code>&lt;...&gt;</code></td><td><code>&lt;参数/资源限制&gt;</code></td></tr></tbody></table></div><p>明确区分接口每周期打包能力、AXI outstanding 数量和端到端有效吞吐率。</p><h3 id='5-2-关键路径'>5.2 关键路径</h3><ul><li>预计关键组合路径：<code>&lt;ready 链 / priority encode / compare / address calculation&gt;</code></li><li>是否存在 ready-valid 组合环路？</li><li>哪些位置可以增加寄存切片或 skid buffer？</li><li>参数增大时，扇出、比较树和 mux 深度如何变化？</li></ul><h3 id='5-3-面积与功耗权衡'>5.3 面积与功耗权衡</h3><ul><li>FF、RAM、FIFO、CAM、计数器和比较器的主要资源来源。</li><li>clock enable、数据门控和无效翻转控制。</li><li>为更高频率增加寄存器后，对面积和延迟的影响。</li></ul><h2 id='6-验证方案'>6. 验证方案</h2><h3 id='6-1-基础测试'>6.1 基础测试</h3><ul><li>复位进入、复位释放及复位过程中存在事务。</li><li>单事务、连续事务、间歇事务。</li><li>上游连续 valid、下游连续 backpressure。</li><li>最小参数、默认参数和最大目标参数。</li></ul><h3 id='6-2-边界与并发场景'>6.2 边界与并发场景</h3><ul><li>空/满边界与同周期增减事件。</li><li>单拍、首拍、中间拍、末拍和跨边界事务。</li><li>多请求竞争、响应乱序或独立通道停顿。</li><li>timeout、abort、错误注入和恢复路径。</li></ul><h3 id='6-3-断言'>6.3 断言</h3><pre class='md-code' data-language='systemverilog'><code>// 示例：反压期间 payload 必须稳定
+assert property (@(posedge clk) disable iff (!rst_n)
+    valid &amp;&amp; !ready |=&gt; valid &amp;&amp; $stable(payload));</code></pre><p>建议覆盖：状态合法、计数范围、one-hot、请求最终完成、无丢失/重复、握手时序和复位行为。</p><h3 id='6-4-覆盖与结果'>6.4 覆盖与结果</h3><div class='md-table-wrap'><table><thead><tr><th>项目</th><th>方法</th><th>通过标准</th><th>结果/报告</th></tr></thead><tbody><tr><td>语法/Lint</td><td><code>&lt;tool/command&gt;</code></td><td><code>0 error</code></td><td><code>&lt;link/path&gt;</code></td></tr><tr><td>仿真</td><td><code>&lt;testbench&gt;</code></td><td><code>&lt;cases passed&gt;</code></td><td><code>&lt;link/path&gt;</code></td></tr><tr><td>断言</td><td><code>&lt;SVA/formal&gt;</code></td><td><code>&lt;properties passed&gt;</code></td><td><code>&lt;link/path&gt;</code></td></tr><tr><td>综合</td><td><code>&lt;target/library&gt;</code></td><td><code>&lt;timing/area goal&gt;</code></td><td><code>&lt;link/path&gt;</code></td></tr></tbody></table></div><h2 id='7-设计经验与复盘'>7. 设计经验与复盘</h2><h3 id='7-1-问题记录'>7.1 问题记录</h3><div class='md-table-wrap'><table><thead><tr><th>现象</th><th>根因</th><th>修复方法</th><th>验证证据</th><th>可复用经验</th></tr></thead><tbody><tr><td><code>&lt;symptom&gt;</code></td><td><code>&lt;root cause&gt;</code></td><td><code>&lt;fix&gt;</code></td><td><code>&lt;test/assertion&gt;</code></td><td><code>&lt;pattern&gt;</code></td></tr></tbody></table></div><h3 id='7-2-容易出错的地方'>7.2 容易出错的地方</h3><ul><li><code>&lt;协议理解偏差&gt;</code></li><li><code>&lt;同周期事件优先级&gt;</code></li><li><code>&lt;位宽、符号扩展或边界计算&gt;</code></li><li><code>&lt;CDC、复位释放或时序假设&gt;</code></li></ul><h3 id='7-3-后续改进'>7.3 后续改进</h3><ul><li>当前实现仍有哪些限制？</li><li>哪些优化需要新的接口契约或性能目标？</li><li>哪些经验应沉淀为设计模式、问题索引或独立基础组件？</li></ul><h3 id='7-4-复用结论'>7.4 复用结论</h3><div class='md-table-wrap'><table><thead><tr><th>项目</th><th>结论</th></tr></thead><tbody><tr><td>复用状态</td><td><code>Ready / Constrained / Needs Fix / Experimental</code></td></tr><tr><td>使用前提</td><td><code>&lt;参数、协议、时钟或系统约束&gt;</code></td></tr><tr><td>禁止事项</td><td><code>&lt;明确不能这样使用&gt;</code></td></tr><tr><td>关联资产</td><td><code>&lt;模块、模式、问题索引&gt;</code></td></tr></tbody></table></div></article><aside class='doc-toc'><strong>模板目录</strong><a class='' href='#1-模块概述'>1. 模块概述</a><a class='sub' href='#1-1-功能说明'>1.1 功能说明</a><a class='sub' href='#1-2-应用场景'>1.2 应用场景</a><a class='sub' href='#1-3-设计目标与非目标'>1.3 设计目标与非目标</a><a class='' href='#2-接口定义'>2. 接口定义</a><a class='sub' href='#2-1-时钟与复位'>2.1 时钟与复位</a><a class='sub' href='#2-2-端口定义'>2.2 端口定义</a><a class='sub' href='#2-3-握手与稳定性约束'>2.3 握手与稳定性约束</a><a class='' href='#3-架构设计'>3. 架构设计</a><a class='sub' href='#3-1-模块框图'>3.1 模块框图</a><a class='sub' href='#3-2-数据通路'>3.2 数据通路</a><a class='sub' href='#3-3-控制通路与状态机'>3.3 控制通路与状态机</a><a class='sub' href='#3-4-关键不变量'>3.4 关键不变量</a><a class='' href='#4-关键-rtl-实现'>4. 关键 RTL 实现</a><a class='sub' href='#4-1-核心逻辑'>4.1 核心逻辑</a><a class='sub' href='#4-2-参数化设计'>4.2 参数化设计</a><a class='sub' href='#4-3-边界与异常处理'>4.3 边界与异常处理</a><a class='sub' href='#4-4-实现取舍'>4.4 实现取舍</a><a class='' href='#5-时序与性能'>5. 时序与性能</a><a class='sub' href='#5-1-性能模型'>5.1 性能模型</a><a class='sub' href='#5-2-关键路径'>5.2 关键路径</a><a class='sub' href='#5-3-面积与功耗权衡'>5.3 面积与功耗权衡</a><a class='' href='#6-验证方案'>6. 验证方案</a><a class='sub' href='#6-1-基础测试'>6.1 基础测试</a><a class='sub' href='#6-2-边界与并发场景'>6.2 边界与并发场景</a><a class='sub' href='#6-3-断言'>6.3 断言</a><a class='sub' href='#6-4-覆盖与结果'>6.4 覆盖与结果</a><a class='' href='#7-设计经验与复盘'>7. 设计经验与复盘</a><a class='sub' href='#7-1-问题记录'>7.1 问题记录</a><a class='sub' href='#7-2-容易出错的地方'>7.2 容易出错的地方</a><a class='sub' href='#7-3-后续改进'>7.3 后续改进</a><a class='sub' href='#7-4-复用结论'>7.4 复用结论</a></aside></div>
+<details class='card template-copy-panel'><summary>查看可复制的 Markdown 源文</summary><pre><code id='rtl-template-source'># RTL 模块设计与复盘
+
+&gt; 模块名称：`&lt;module_name&gt;`  
+&gt; 版本：`&lt;version&gt;`  
+&gt; 作者：`&lt;owner&gt;`  
+&gt; 最近更新：`&lt;YYYY-MM-DD&gt;`  
+&gt; 当前状态：`Draft / Review / Ready / Deprecated`
+
+## 1. 模块概述
+
+### 1.1 功能说明
+
+- 模块解决什么问题？
+- 输入事务经过该模块后产生什么结果？
+- 它在系统中的上游、下游和边界分别是什么？
+
+### 1.2 应用场景
+
+- 典型使用位置：`&lt;DMA / AXI / PCIe / CXL / 通用控制路径&gt;`
+- 适用条件：`&lt;时钟、带宽、协议或资源约束&gt;`
+- 不适用场景：`&lt;明确列出复用边界&gt;`
+
+### 1.3 设计目标与非目标
+
+| 类型 | 内容 | 验收标准 |
+| --- | --- | --- |
+| 功能目标 | `&lt;必须实现的行为&gt;` | `&lt;可检查的结果&gt;` |
+| 性能目标 | `&lt;吞吐率、延迟或频率目标&gt;` | `&lt;量化指标&gt;` |
+| 可靠性目标 | `&lt;错误检测、恢复或保护&gt;` | `&lt;断言或测试结果&gt;` |
+| 非目标 | `&lt;本版本明确不支持的能力&gt;` | `不应被调用者假设` |
+
+## 2. 接口定义
+
+### 2.1 时钟与复位
+
+| 信号 | 类型 | 有效方式 | 说明 |
+| --- | --- | --- | --- |
+| `&lt;clk&gt;` | Clock | `&lt;posedge/negedge&gt;` | `&lt;频率或时钟域&gt;` |
+| `&lt;rst_n&gt;` | Reset | `&lt;同步/异步，低有效&gt;` | `&lt;复位与释放要求&gt;` |
+
+记录复位后各状态寄存器、输出 valid、计数器和缓存的初始值。
+
+### 2.2 端口定义
+
+| 端口 | 方向 | 位宽 | 协议/时序 | 说明 |
+| --- | --- | --- | --- | --- |
+| `&lt;signal&gt;` | `input/output` | `&lt;N&gt;` | `&lt;ready-valid / pulse / level&gt;` | `&lt;语义&gt;` |
+
+### 2.3 握手与稳定性约束
+
+- 真实事务接受条件：`fire = valid &amp;&amp; ready`。
+- backpressure 期间哪些 payload 必须保持稳定？
+- valid、ready、credit、request、response 之间是否存在组合依赖？
+- 是否允许同周期接收与发送、push 与 pop、allocate 与 release？
+- 请求、数据和响应是否可能独立到达？如何重新配对？
+
+## 3. 架构设计
+
+### 3.1 模块框图
+
+```text
+Upstream -&gt; Input Buffer -&gt; Control / Scheduler -&gt; Datapath -&gt; Output Buffer -&gt; Downstream
+                             |                    |
+                             +-&gt; Status/Error ----+
+```
+
+使用实际模块名称替换框图，并标出寄存切分点、队列、跨时钟边界和反馈路径。
+
+### 3.2 数据通路
+
+- 数据宽度与格式转换：`&lt;输入格式 -&gt; 内部格式 -&gt; 输出格式&gt;`
+- buffer 深度、旁路条件和数据保持策略。
+- burst、packet、descriptor 或 flit 的拆分与合并规则。
+- 首拍、中间拍、末拍和单拍事务分别如何处理？
+
+### 3.3 控制通路与状态机
+
+| 状态 | 进入条件 | 状态行为 | 退出条件 | 异常处理 |
+| --- | --- | --- | --- | --- |
+| `&lt;IDLE&gt;` | `&lt;condition&gt;` | `&lt;actions&gt;` | `&lt;condition&gt;` | `&lt;recovery&gt;` |
+
+记录每个状态寄存器由哪个真实事件推进，避免只根据 `valid` 或请求电平更新状态。
+
+### 3.4 关键不变量
+
+- 数据不丢失、不重复、不乱序的条件。
+- 计数器、指针、credit 和 outstanding 的合法范围。
+- grant、select、valid 等 one-hot/one-hot0 要求。
+- 命令、数据、响应之间必须保持的对应关系。
+
+## 4. 关键 RTL 实现
+
+### 4.1 核心逻辑
+
+```systemverilog
+// 只保留最能表达设计意图的核心片段，并说明它对应的协议规则。
+wire fire = valid &amp;&amp; ready;
+```
+
+### 4.2 参数化设计
+
+| 参数 | 默认值 | 合法范围 | 对位宽/容量/时序的影响 |
+| --- | --- | --- | --- |
+| `&lt;PARAM&gt;` | `&lt;value&gt;` | `&lt;constraint&gt;` | `&lt;impact&gt;` |
+
+记录 `$clog2`、非 2 的幂深度、零宽度、最大值以及参数组合限制。
+
+### 4.3 边界与异常处理
+
+- FIFO empty/full、almost-full、同周期 push/pop。
+- counter overflow/underflow、credit 耗尽与归还。
+- burst 边界、地址对齐、最大长度和 4 KB 边界。
+- timeout、abort、错误响应和复位中断事务。
+- 输入非法或协议违例时，模块是阻止、丢弃、报错还是继续？
+
+### 4.4 实现取舍
+
+| 方案 | 优点 | 缺点 | 采用/放弃原因 |
+| --- | --- | --- | --- |
+| `&lt;方案 A&gt;` | `&lt;...&gt;` | `&lt;...&gt;` | `&lt;...&gt;` |
+
+## 5. 时序与性能
+
+### 5.1 性能模型
+
+| 指标 | 目标 | 当前结果 | 测量条件 |
+| --- | --- | --- | --- |
+| 吞吐率 | `&lt;transactions/cycle 或 bytes/cycle&gt;` | `&lt;...&gt;` | `&lt;持续流/无反压&gt;` |
+| 首事务延迟 | `&lt;cycles&gt;` | `&lt;...&gt;` | `&lt;输入 fire 到输出 fire&gt;` |
+| 稳态延迟 | `&lt;cycles&gt;` | `&lt;...&gt;` | `&lt;pipeline 条件&gt;` |
+| 最大 outstanding | `&lt;count&gt;` | `&lt;...&gt;` | `&lt;参数/资源限制&gt;` |
+
+明确区分接口每周期打包能力、AXI outstanding 数量和端到端有效吞吐率。
+
+### 5.2 关键路径
+
+- 预计关键组合路径：`&lt;ready 链 / priority encode / compare / address calculation&gt;`
+- 是否存在 ready-valid 组合环路？
+- 哪些位置可以增加寄存切片或 skid buffer？
+- 参数增大时，扇出、比较树和 mux 深度如何变化？
+
+### 5.3 面积与功耗权衡
+
+- FF、RAM、FIFO、CAM、计数器和比较器的主要资源来源。
+- clock enable、数据门控和无效翻转控制。
+- 为更高频率增加寄存器后，对面积和延迟的影响。
+
+## 6. 验证方案
+
+### 6.1 基础测试
+
+- 复位进入、复位释放及复位过程中存在事务。
+- 单事务、连续事务、间歇事务。
+- 上游连续 valid、下游连续 backpressure。
+- 最小参数、默认参数和最大目标参数。
+
+### 6.2 边界与并发场景
+
+- 空/满边界与同周期增减事件。
+- 单拍、首拍、中间拍、末拍和跨边界事务。
+- 多请求竞争、响应乱序或独立通道停顿。
+- timeout、abort、错误注入和恢复路径。
+
+### 6.3 断言
+
+```systemverilog
+// 示例：反压期间 payload 必须稳定
+assert property (@(posedge clk) disable iff (!rst_n)
+    valid &amp;&amp; !ready |=&gt; valid &amp;&amp; $stable(payload));
+```
+
+建议覆盖：状态合法、计数范围、one-hot、请求最终完成、无丢失/重复、握手时序和复位行为。
+
+### 6.4 覆盖与结果
+
+| 项目 | 方法 | 通过标准 | 结果/报告 |
+| --- | --- | --- | --- |
+| 语法/Lint | `&lt;tool/command&gt;` | `0 error` | `&lt;link/path&gt;` |
+| 仿真 | `&lt;testbench&gt;` | `&lt;cases passed&gt;` | `&lt;link/path&gt;` |
+| 断言 | `&lt;SVA/formal&gt;` | `&lt;properties passed&gt;` | `&lt;link/path&gt;` |
+| 综合 | `&lt;target/library&gt;` | `&lt;timing/area goal&gt;` | `&lt;link/path&gt;` |
+
+## 7. 设计经验与复盘
+
+### 7.1 问题记录
+
+| 现象 | 根因 | 修复方法 | 验证证据 | 可复用经验 |
+| --- | --- | --- | --- | --- |
+| `&lt;symptom&gt;` | `&lt;root cause&gt;` | `&lt;fix&gt;` | `&lt;test/assertion&gt;` | `&lt;pattern&gt;` |
+
+### 7.2 容易出错的地方
+
+- `&lt;协议理解偏差&gt;`
+- `&lt;同周期事件优先级&gt;`
+- `&lt;位宽、符号扩展或边界计算&gt;`
+- `&lt;CDC、复位释放或时序假设&gt;`
+
+### 7.3 后续改进
+
+- 当前实现仍有哪些限制？
+- 哪些优化需要新的接口契约或性能目标？
+- 哪些经验应沉淀为设计模式、问题索引或独立基础组件？
+
+### 7.4 复用结论
+
+| 项目 | 结论 |
+| --- | --- |
+| 复用状态 | `Ready / Constrained / Needs Fix / Experimental` |
+| 使用前提 | `&lt;参数、协议、时钟或系统约束&gt;` |
+| 禁止事项 | `&lt;明确不能这样使用&gt;` |
+| 关联资产 | `&lt;模块、模式、问题索引&gt;` |
+</code></pre></details></main><script>
+document.querySelectorAll('.asset-tab').forEach((button)=>button.addEventListener('click',()=>{
+  const group=button.closest('[data-tabs]');
+  group.querySelectorAll('.asset-tab').forEach((item)=>item.setAttribute('aria-selected',String(item===button)));
+  group.querySelectorAll('.tab-panel').forEach((panel)=>panel.hidden=panel.id!==button.dataset.tab);
+}));
+document.querySelectorAll('[data-copy-target]').forEach((button)=>button.addEventListener('click',async()=>{
+  const target=document.querySelector(button.dataset.copyTarget);
+  if(!target)return;
+  try{await navigator.clipboard.writeText(target.textContent||'');button.textContent='已复制';setTimeout(()=>button.textContent='复制',1400)}catch(error){button.textContent='复制失败'}
+}));
+document.querySelectorAll('[data-add-target]').forEach((button)=>button.addEventListener('click',()=>{
+  const target=document.querySelector(button.dataset.addTarget);if(!target)return;
+  const values=target.value.split(/\r?\n/).map((item)=>item.trim()).filter(Boolean);
+  if(!values.includes(button.dataset.value))values.push(button.dataset.value);
+  target.value=values.join('\n');target.focus();
+}));
+document.querySelectorAll('[role="tablist"]').forEach((list)=>list.addEventListener('keydown',(event)=>{
+  if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+  const tabs=[...list.querySelectorAll('[role="tab"]')];const current=tabs.indexOf(document.activeElement);if(current<0)return;
+  event.preventDefault();let next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(current+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;tabs[next].focus();tabs[next].click();
+}));
+const path=window.location.pathname;
+document.querySelectorAll('header nav a').forEach((link)=>{const href=link.getAttribute('href');if(href!=='/'&&path.startsWith(href)){link.classList.add('active');const menu=link.closest('.nav-more');if(menu)menu.querySelector('summary').classList.add('active')}});
+</script></body></html>
