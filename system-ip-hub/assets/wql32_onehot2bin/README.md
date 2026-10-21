@@ -2,7 +2,7 @@
 
 ## 当前结论
 
-2026-10-21 已替换有偏移和越界的分段切片实现，保持 `onehot2bin/i_bitmap/o_binary` 接口。当前状态为 **Constrained**：实际 RTL 多参数展开和表达式模型通过；尚未执行 RTL 动态仿真与综合时序评估。
+2026-10-21 已替换有偏移和越界的分段切片实现，保持 `onehot2bin/i_bitmap/o_binary` 接口。当前状态为 **Constrained**：实际 RTL 多参数展开、表达式模型及 Icarus 动态仿真通过；未进行综合时序评估。
 
 ## 功能与输入约定
 
@@ -40,7 +40,7 @@ CAM 如允许重复 key，必须先定义 multi-match 的处理规则；直接�
 
 - pyslang 12.0.0：实际 RTL 与 `tb_encoder.sv` 在 1/2/3/8/9/16/253/256/257/384/512 等 11 种宽度下展开，无编译错误。
 - Python 表达式模型：14 种输入宽度、最小与加宽输出索引，遍历零输入及每个单独置位的位置，与整数索引参考值比较。
-- 自检 testbench 已完成静态编译；当前无 Icarus/vvp，尚未执行 RTL 动态仿真。
+- Icarus Verilog/vvp 已实际执行自检 testbench，11 种宽度全部通过。
 - 不将非法 multi-hot 的输出解释为 priority encoder 结果。
 
 项目根目录可运行：`python -m unittest discover -s tests -p test_rtl_priority_repairs.py -v`。

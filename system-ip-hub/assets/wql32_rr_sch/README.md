@@ -2,7 +2,7 @@
 
 ## 当前结论
 
-2026-10-21 已修复请求前缀掩码、masked request 有效判断，以及暂停时 grant 仍有效的问题。当前状态为 **Constrained**：实际 RTL 参数展开和算法模型通过；尚未执行 RTL 动态仿真及综合检查。
+2026-10-21 已修复请求前缀掩码、masked request 有效判断，以及暂停时 grant 仍有效的问题。当前状态为 **Constrained**：实际 RTL 参数展开、算法模型及 Icarus 动态仿真通过；未进行综合检查。
 
 ## 接口与服务语义
 
@@ -43,6 +43,6 @@
 - pyslang 12.0.0：实际 RTL 与 `tb_scheduler.sv` 在 N=1/3/5/64 下展开，无编译错误。
 - Python 模型：小端口数穷举每个优先位置、每种请求及暂停；4 种端口数各执行 2,000 步随机请求／暂停／复位，独立循环扫描算法作参考。
 - 持续全请求检查三轮顺序服务；已覆盖原始“仅 bit 1 请求却 grant=0”的反例。
-- 自检 testbench 已提供并完成静态编译，尚未运行 HDL 仿真；不表示综合或性能通过。
+- Icarus Verilog/vvp 已实际执行自检 testbench，N=1/3/5/64 全部通过；不表示综合或性能通过。
 
 项目根目录可运行：`python -m unittest discover -s tests -p test_rtl_priority_repairs.py -v`。

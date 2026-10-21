@@ -45,19 +45,23 @@ header nav a.active{background:#ffffff18;color:#fff;box-shadow:inset 0 0 0 1px #
  @media(max-width:700px){header{padding:14px 16px;align-items:flex-start;gap:10px;flex-direction:column}main{margin:22px auto;padding:0 14px}h1{font-size:25px}.hero{padding:24px}.hero h1{font-size:29px}.hero-actions{align-items:flex-start;flex-direction:column;gap:13px}table{font-size:13px;display:block;overflow-x:auto;white-space:nowrap}input{min-width:160px}.markdown-body{padding:21px 18px}.source-line:before{width:42px;margin-right:11px;padding-right:9px}.source-line{padding-right:20px}.code-frame pre{padding:4px 0}.code-header{padding:7px 12px}.filter-panel form{grid-template-columns:1fr}.asset-card-list{grid-template-columns:1fr}.gap-row{grid-template-columns:1fr}.nav-more{position:static}.nav-menu{position:static;box-shadow:none;margin-top:5px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style></head><body><a class="skip-link" href="#main-content">跳到主要内容</a><header><div class="brand"><span class="brand-mark" aria-hidden="true"></span><a class="nav" href="/chip-design/system-ip-hub/"><span class="brand-copy"><span>System IP Design Hub</span><small>RTL / DMA / AXI / PCIe / CXL</small></span></a></div><nav aria-label="主导航"><a href="/chip-design/system-ip-hub/assets/">资产</a><a href="/chip-design/system-ip-hub/patterns/">设计模式</a><a href="/chip-design/system-ip-hub/problems/">问题索引</a><a href="/chip-design/system-ip-hub/mappings/">Bridge Mapping</a><details class="nav-more"><summary>工具</summary><div class="nav-menu"><a href="/chip-design/system-ip-hub/templates/rtl-module-design-review/">RTL 设计模板</a><a href="/chip-design/system-ip-hub/import/">本地维护</a><a href="/chip-design/system-ip-hub/protocols/">协议索引</a><a href="/chip-design/system-ip-hub/dependencies/">依赖关系</a><a href="/chip-design/system-ip-hub/report/">待完善项</a></div></details></nav></header><style>.snapshot-only{display:inline!important}a.secondary-button.snapshot-only{display:inline-flex!important}</style><div style='max-width:1320px;margin:12px auto 0;padding:9px 28px;border:1px solid #b9dce5;border-radius:9px;background:#e9f8fb;color:#216477;font-size:13px'>公开资产库 · 支持搜索与筛选 · 更新资产请查看 <a href='/chip-design/system-ip-hub/import/'>本地维护说明</a></div><main id="main-content"><p><a href='/chip-design/system-ip-hub/assets/'>← 返回资产库</a></p>
-<div class='asset-header'><div><div class='asset-kicker'><span class='eyebrow'>DESIGN ASSET</span><span class="status-badge danger" title="修复后再复用">Needs Fix</span></div><h1>双写单读 FIFO (2w1r_fifo.v)</h1><div class='asset-subline'><code>wql32_2w1r_fifo</code><span>fifo</span></div></div><div class='asset-actions'></div></div>
-<div class='readiness-banner danger'><span><span class="status-badge danger" title="修复后再复用">Needs Fix</span></span><div><strong>修复后再复用</strong><p>该文件表达了“每周期最多写入两项、读取一项”的 FIFO 结构，但当前源码存在语法和边界控制问题，不能直接编译或集成。建议将它作为双写 FIFO 的设计草稿，修复后再复用。</p></div></div>
-<div class='grid'><div class='card'><h3>用途</h3><p>支持两个写入端口和一个读取端口的参数化 FIFO。</p></div><div class='card'><h3>协议</h3><p><span class="pill">ready-valid</span></p></div><div class='card'><h3>标签</h3><p><span class="pill">arbitration</span> <span class="pill">fifo</span> <span class="pill">multi-write</span> <span class="pill">single-read</span></p></div></div>
+<div class='asset-header'><div><div class='asset-kicker'><span class='eyebrow'>DESIGN ASSET</span><span class="status-badge info" title="满足约束后复用">Constrained</span></div><h1>双写单读 FIFO (2w1r_fifo.v)</h1><div class='asset-subline'><code>wql32_2w1r_fifo</code><span>vlocal-fix-20261021</span><span>fifo</span></div></div><div class='asset-actions'></div></div>
+<div class='readiness-banner info'><span><span class="status-badge info" title="满足约束后复用">Constrained</span></span><div><strong>满足约束后复用</strong><p>2026-10-21 修复双写地址、剩余容量判断、端口 1 单写、非法操作保护及非 2 的幂回绕。状态 Constrained，实际 RTL 仿真通过。</p></div></div>
+<div class='grid'><div class='card'><h3>用途</h3><p>支持两个写入端口和一个读取端口的参数化 FIFO。</p></div><div class='card'><h3>协议</h3><p><span class="pill">FIFO enable</span></p></div><div class='card'><h3>标签</h3><p><span class="pill">arbitration</span> <span class="pill">fifo</span> <span class="pill">multi-write</span> <span class="pill">single-read</span></p></div></div>
 <section data-tabs><div class='asset-tabs' role='tablist' aria-label='资产详情'><button class='asset-tab' type='button' role='tab' aria-selected='true' data-tab='asset-doc'>设计说明</button><button class='asset-tab' type='button' role='tab' aria-selected='false' data-tab='asset-interface'>接口</button><button class='asset-tab' type='button' role='tab' aria-selected='false' data-tab='asset-source'>源码</button><button class='asset-tab' type='button' role='tab' aria-selected='false' data-tab='asset-knowledge'>设计知识</button></div>
-<div class='tab-panel' id='asset-doc' role='tabpanel'><div class='doc-layout'><article class='markdown-body'><h1 id='双写单读-fifo'>双写单读 FIFO</h1><h2 id='当前结论'>当前结论</h2><p>该文件表达了“每周期最多写入两项、读取一项”的 FIFO 结构，但当前源码存在语法和边界控制问题，<strong>不能直接编译或集成</strong>。建议将它作为双写 FIFO 的设计草稿，修复后再复用。</p><h2 id='预期功能'>预期功能</h2><ul><li><code>i_we_0/i_wdata_0</code>：写端口 0。</li><li><code>i_we_1/i_wdata_1</code>：写端口 1。</li><li>两个写端口同周期有效时，端口 0 写当前写指针，端口 1 写下一地址。</li><li><code>i_re</code>：读取一项，<code>o_rdata</code> 为当前读指针指向的组合读数据。</li><li><code>o_full/o_afull/o_empty</code>：容量状态。</li><li><code>o_overflow/o_underflow</code>：非法写入和读取指示。</li></ul><h2 id='参数'>参数</h2><ul><li><code>FIFO_WIDTH</code>：每项数据宽度。</li><li><code>FIFO_DEPTH</code>：存储深度。</li><li><code>AFULL_DEPTH</code>：almost-full 阈值。</li><li><code>FIFO_NAME</code>：预留的日志名称，当前 RTL 未使用。</li></ul><h2 id='已知问题'>已知问题</h2><ol><li>模块名 <code>2wlr_fifo</code> 以数字开头，不是合法的普通 Verilog 标识符。</li><li><code>fifo_cnt_delta</code> 使用圆括号表示拼接，语法应为花括号拼接。</li><li>读写指针依据原始 enable 推进，没有使用 full/empty 条件进行保护。</li><li>满状态继续写或空状态继续读时，计数器和指针仍会变化，overflow/underflow 只是告警，不能保护状态。</li><li>双写时没有检查剩余空间是否至少为 2，剩余一个 entry 时可能越界写入。</li><li>指针依赖自然回绕，实际使用要求 <code>FIFO_DEPTH</code> 为 2 的幂。</li></ol><h2 id='修复建议'>修复建议</h2><p>将写入数计算为 0/1/2，并根据可用空间生成实际 <code>write_accept_count</code>；读指针、写指针和计数器只能由真实接受的读写事件推进。双写边界需要单独覆盖“剩余 0、1、2 个 entry”三种情况。</p></article><aside class='doc-toc'><strong>文档目录</strong><a class='' href='#当前结论'>当前结论</a><a class='' href='#预期功能'>预期功能</a><a class='' href='#参数'>参数</a><a class='' href='#已知问题'>已知问题</a><a class='' href='#修复建议'>修复建议</a></aside></div></div>
+<div class='tab-panel' id='asset-doc' role='tabpanel'><div class='doc-layout'><article class='markdown-body'><h1 id='双写单读-fifo'>双写单读 FIFO</h1><h2 id='当前结论'>当前结论</h2><p>2026-10-21 修复双写地址、剩余容量判断、端口 1 单写、非法操作保护及非 2 的幂回绕。状态 <strong>Constrained</strong>，实际 RTL 仿真通过。</p><h2 id='接口与参数'>接口与参数</h2><p>模块名 fifo_2w1r 不变；单时钟、低有效同步复位。FIFO_WIDTH &gt;= 1、FIFO_DEPTH &gt;= 1，AFULL_DEPTH 建议在 0 到深度之间，FIFO_NAME 未使用。组合输出队首，消费者在有效读的上升沿采样，空或复位时输出零。</p><p>两个写端没有单独 accept/ready，采用<strong>整批接受或整批拒绝</strong>契约，不能隐式部分接收。</p><h2 id='接受条件与顺序'>接受条件与顺序</h2><pre class='md-code' data-language='text'><code>read_fire = i_rst_n &amp;&amp; i_re &amp;&amp; !o_empty
+requested_writes = i_we_0 + i_we_1
+available_slots = FIFO_DEPTH - occupancy + read_fire
+accept_group = i_rst_n &amp;&amp; requested_writes != 0
+               &amp;&amp; requested_writes &lt;= available_slots</code></pre><ul><li>双写且空间足够：端口 0 在前，端口 1 在后。</li><li>仅端口 1 写：直接使用当前尾地址，不留空洞。</li><li>空间不足容纳整批：两路均拒绝，overflow=1；调用者重试整个批次。</li><li>满且同时读：只释放一个名额，可接受单写，不能接受双写。</li><li>空且同时读写：读拒绝、underflow=1；可接受放得下的写批次，不支持旁路。</li><li>深度 1 支持单写，始终拒绝双写。</li><li>o_full 只表示完全占满，不代表一定能接收双写；告警为组合输出，不是粘滞位。</li></ul><h2 id='架构与修复'>架构与修复</h2><p>指针逐步显式回绕，第二笔使用下一合法地址，占用更新为“旧占用 - 实际读 + 实际接受笔数”。复位清控制状态，不清阵列。若替换为 SRAM，需重新处理端口数量、读写冲突及读延迟。</p><h2 id='验证记录'>验证记录</h2><p>Icarus Verilog 执行 tb/tb_fifos.sv，联合检查 basic_fifo，深度 1/2/3/8/9，每组 3,000 次随机操作，覆盖端口 1 单写、批次拒绝、满读写、回绕、告警及复位。独立队列核对顺序与占用，pyslang 12.0.0 展开通过。</p><p>旧版本手工验证结果保存在 verification_history，不自动继承到修复版。当前未执行 formal、综合、时序或性能签核。</p></article><aside class='doc-toc'><strong>文档目录</strong><a class='' href='#当前结论'>当前结论</a><a class='' href='#接口与参数'>接口与参数</a><a class='' href='#接受条件与顺序'>接受条件与顺序</a><a class='' href='#架构与修复'>架构与修复</a><a class='' href='#验证记录'>验证记录</a></aside></div></div>
 <div class='tab-panel' id='asset-interface' role='tabpanel' hidden><div class='card'><div class='section-title'><h2>RTL Interface</h2></div><p class='muted'>Module <code>fifo_2w1r</code> · 4 parameters · 13 ports</p><h3>Parameters</h3><table><tr><th>Parameter</th><th>Default</th><th>Description</th></tr><tr><td><code>FIFO_WIDTH</code></td><td><code>16</code></td><td>—</td></tr><tr><td><code>FIFO_DEPTH</code></td><td><code>8</code></td><td>—</td></tr><tr><td><code>AFULL_DEPTH</code></td><td><code>6</code></td><td>—</td></tr><tr><td><code>FIFO_NAME</code></td><td><code>&quot;&quot;</code></td><td>—</td></tr></table><h3 style='margin-top:22px'>Ports</h3><table><tr><th>Port</th><th>Direction</th><th>Width</th><th>Description</th></tr><tr><td><code>i_we_0</code></td><td>input</td><td><code>1 bit</code></td><td>—</td></tr><tr><td><code>i_wdata_0</code></td><td>input</td><td><code>[FIFO_WIDTH-1:0]</code></td><td>—</td></tr><tr><td><code>i_we_1</code></td><td>input</td><td><code>1 bit</code></td><td>—</td></tr><tr><td><code>i_wdata_1</code></td><td>input</td><td><code>[FIFO_WIDTH-1:0]</code></td><td>—</td></tr><tr><td><code>i_re</code></td><td>input</td><td><code>1 bit</code></td><td>—</td></tr><tr><td><code>o_rdata</code></td><td>output</td><td><code>[FIFO_WIDTH-1:0]</code></td><td>—</td></tr><tr><td><code>o_full</code></td><td>output</td><td><code>1 bit</code></td><td>—</td></tr><tr><td><code>o_afull</code></td><td>output</td><td><code>1 bit</code></td><td>—</td></tr><tr><td><code>o_empty</code></td><td>output</td><td><code>1 bit</code></td><td>—</td></tr><tr><td><code>o_overflow</code></td><td>output</td><td><code>1 bit</code></td><td>—</td></tr><tr><td><code>o_underflow</code></td><td>output</td><td><code>1 bit</code></td><td>—</td></tr><tr><td><code>i_clk</code></td><td>input</td><td><code>1 bit</code></td><td>—</td></tr><tr><td><code>i_rst_n</code></td><td>input</td><td><code>1 bit</code></td><td>—</td></tr></table></div></div>
-<div class='tab-panel' id='asset-source' role='tabpanel' hidden><div class='document-toolbar'><div><h2 style='margin:0'>本地文件</h2><span class='muted'>点击文件进入带行号的阅读视图</span></div></div><div class='file-grid'><a class='file-card' href='/chip-design/system-ip-hub/assets/wql32_2w1r_fifo/file/2w1r_fifo.v/'><code>2w1r_fifo.v</code><span class='file-type'>v</span></a></div></div>
-<div class='tab-panel' id='asset-knowledge' role='tabpanel' hidden><div class='knowledge-grid'><div class='card'><h3>Features</h3><span class="pill">支持双写</span> <span class="pill">支持将满将空指示</span></div><div class='card'><h3>Design Patterns</h3><div class='empty-note'>尚未关联设计模式。</div></div><div class='card'><h3>Problem Index</h3><div class='empty-note'>尚未关联问题索引。</div></div></div><div class='card' style='margin-top:14px'><h2>使用限制</h2><ul><li>需明确双写冲突、写指针加二和满边界处理。</li><li>需要考虑双写要预留至少两个空间，防止溢出</li></ul><h2>依赖</h2><ul><li class='muted'>无</li></ul></div></div></section>
+<div class='tab-panel' id='asset-source' role='tabpanel' hidden><div class='document-toolbar'><div><h2 style='margin:0'>本地文件</h2><span class='muted'>点击文件进入带行号的阅读视图</span></div></div><div class='file-grid'><a class='file-card' href='/chip-design/system-ip-hub/assets/wql32_2w1r_fifo/file/2w1r_fifo.v/'><code>2w1r_fifo.v</code><span class='file-type'>v</span></a><a class='file-card' href='/chip-design/system-ip-hub/assets/wql32_2w1r_fifo/file/tb%5Ctb_fifos.sv/'><code>tb\tb_fifos.sv</code><span class='file-type'>sv</span></a></div></div>
+<div class='tab-panel' id='asset-knowledge' role='tabpanel' hidden><div class='knowledge-grid'><div class='card'><h3>Features</h3><span class="pill">双写端口 0 优先入队</span> <span class="pill">端口 1 独立写不留空洞</span> <span class="pill">整批容量检查与拒绝</span> <span class="pill">非 2 的幂深度显式回绕</span></div><div class='card'><h3>Design Patterns</h3><a class='pill' href='/chip-design/system-ip-hub/patterns/?q=FIFO%20buffering'>FIFO buffering</a></div><div class='card'><h3>Problem Index</h3><a class='pill' href='/chip-design/system-ip-hub/problems/?q=FIFO%20overflow%20and%20underflow'>FIFO overflow and underflow</a> <a class='pill' href='/chip-design/system-ip-hub/problems/?q=multi-write%20acceptance'>multi-write acceptance</a></div></div><div class='card' style='margin-top:14px'><h2>使用限制</h2><ul><li>FIFO_WIDTH &gt;= 1、FIFO_DEPTH &gt;= 1；双写按整批接受或拒绝。</li><li>两个写端无单独 accept；空间不足时调用者需重试整批。</li><li>满且读只释放一个名额；空读不旁路；未进行综合或 STA。</li></ul><h2>依赖</h2><ul><li class='muted'>无</li></ul></div></div></section>
 <details class='card advanced'><summary>Advanced Metadata</summary><p class='muted'>原始 metadata 配置，仅用于调试、脚本处理和 schema 检查。</p><pre>{
   &quot;schema_version&quot;: 1,
   &quot;name&quot;: &quot;wql32_2w1r_fifo&quot;,
   &quot;display_name&quot;: &quot;双写单读 FIFO (2w1r_fifo.v)&quot;,
-  &quot;version&quot;: &quot;source&quot;,
+  &quot;version&quot;: &quot;local-fix-20261021&quot;,
   &quot;kind&quot;: &quot;rtl_component&quot;,
   &quot;category&quot;: &quot;fifo&quot;,
   &quot;description&quot;: &quot;支持两个写入端口和一个读取端口的参数化 FIFO。&quot;,
@@ -68,26 +72,55 @@ header nav a.active{background:#ffffff18;color:#fff;box-shadow:inset 0 0 0 1px #
     &quot;arbitration&quot;
   ],
   &quot;protocols&quot;: [
-    &quot;ready-valid&quot;
+    &quot;FIFO enable&quot;
   ],
   &quot;limitations&quot;: [
-    &quot;需明确双写冲突、写指针加二和满边界处理。&quot;,
-    &quot;需要考虑双写要预留至少两个空间，防止溢出&quot;
+    &quot;FIFO_WIDTH &gt;= 1、FIFO_DEPTH &gt;= 1；双写按整批接受或拒绝。&quot;,
+    &quot;两个写端无单独 accept；空间不足时调用者需重试整批。&quot;,
+    &quot;满且读只释放一个名额；空读不旁路；未进行综合或 STA。&quot;
   ],
   &quot;verification&quot;: {
     &quot;simulation&quot;: &quot;passed&quot;,
-    &quot;lint&quot;: &quot;passed&quot;,
-    &quot;synthesis&quot;: &quot;passed&quot;,
-    &quot;last_checked&quot;: &quot;2026/8/17&quot;
+    &quot;lint&quot;: &quot;not_run&quot;,
+    &quot;synthesis&quot;: &quot;not_run&quot;,
+    &quot;last_checked&quot;: &quot;2026-10-21&quot;
   },
   &quot;source_id&quot;: &quot;2w1r_fifo&quot;,
-  &quot;status&quot;: &quot;needs_fix&quot;,
+  &quot;status&quot;: &quot;constrained&quot;,
   &quot;features&quot;: [
-    &quot;支持双写&quot;,
-    &quot;支持将满将空指示&quot;
+    &quot;双写端口 0 优先入队&quot;,
+    &quot;端口 1 独立写不留空洞&quot;,
+    &quot;整批容量检查与拒绝&quot;,
+    &quot;非 2 的幂深度显式回绕&quot;
   ],
-  &quot;design_patterns&quot;: [],
-  &quot;problem_index&quot;: []
+  &quot;design_patterns&quot;: [
+    &quot;FIFO buffering&quot;
+  ],
+  &quot;problem_index&quot;: [
+    &quot;FIFO overflow and underflow&quot;,
+    &quot;multi-write acceptance&quot;
+  ],
+  &quot;verification_history&quot;: [
+    {
+      &quot;version&quot;: &quot;source&quot;,
+      &quot;reason&quot;: &quot;修复版不继承旧源码的手工验证状态&quot;,
+      &quot;verification&quot;: {
+        &quot;simulation&quot;: &quot;passed&quot;,
+        &quot;lint&quot;: &quot;passed&quot;,
+        &quot;cdc&quot;: &quot;not_applicable&quot;,
+        &quot;formal&quot;: &quot;passed&quot;,
+        &quot;synthesis&quot;: &quot;passed&quot;,
+        &quot;performance&quot;: &quot;passed&quot;,
+        &quot;last_checked&quot;: &quot;2026/8/17&quot;
+      }
+    }
+  ],
+  &quot;review&quot;: {
+    &quot;date&quot;: &quot;2026-10-21&quot;,
+    &quot;method&quot;: &quot;RTL 源码审查 + pyslang 参数展开 + Icarus 自检 RTL 仿真&quot;,
+    &quot;rtl_changed&quot;: true,
+    &quot;rtl_simulation&quot;: &quot;passed&quot;
+  }
 }</pre></details></main><script>
 document.querySelectorAll('.asset-tab').forEach((button)=>button.addEventListener('click',()=>{
   const group=button.closest('[data-tabs]');

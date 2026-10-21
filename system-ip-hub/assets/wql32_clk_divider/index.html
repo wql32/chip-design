@@ -45,19 +45,19 @@ header nav a.active{background:#ffffff18;color:#fff;box-shadow:inset 0 0 0 1px #
  @media(max-width:700px){header{padding:14px 16px;align-items:flex-start;gap:10px;flex-direction:column}main{margin:22px auto;padding:0 14px}h1{font-size:25px}.hero{padding:24px}.hero h1{font-size:29px}.hero-actions{align-items:flex-start;flex-direction:column;gap:13px}table{font-size:13px;display:block;overflow-x:auto;white-space:nowrap}input{min-width:160px}.markdown-body{padding:21px 18px}.source-line:before{width:42px;margin-right:11px;padding-right:9px}.source-line{padding-right:20px}.code-frame pre{padding:4px 0}.code-header{padding:7px 12px}.filter-panel form{grid-template-columns:1fr}.asset-card-list{grid-template-columns:1fr}.gap-row{grid-template-columns:1fr}.nav-more{position:static}.nav-menu{position:static;box-shadow:none;margin-top:5px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style></head><body><a class="skip-link" href="#main-content">跳到主要内容</a><header><div class="brand"><span class="brand-mark" aria-hidden="true"></span><a class="nav" href="/chip-design/system-ip-hub/"><span class="brand-copy"><span>System IP Design Hub</span><small>RTL / DMA / AXI / PCIe / CXL</small></span></a></div><nav aria-label="主导航"><a href="/chip-design/system-ip-hub/assets/">资产</a><a href="/chip-design/system-ip-hub/patterns/">设计模式</a><a href="/chip-design/system-ip-hub/problems/">问题索引</a><a href="/chip-design/system-ip-hub/mappings/">Bridge Mapping</a><details class="nav-more"><summary>工具</summary><div class="nav-menu"><a href="/chip-design/system-ip-hub/templates/rtl-module-design-review/">RTL 设计模板</a><a href="/chip-design/system-ip-hub/import/">本地维护</a><a href="/chip-design/system-ip-hub/protocols/">协议索引</a><a href="/chip-design/system-ip-hub/dependencies/">依赖关系</a><a href="/chip-design/system-ip-hub/report/">待完善项</a></div></details></nav></header><style>.snapshot-only{display:inline!important}a.secondary-button.snapshot-only{display:inline-flex!important}</style><div style='max-width:1320px;margin:12px auto 0;padding:9px 28px;border:1px solid #b9dce5;border-radius:9px;background:#e9f8fb;color:#216477;font-size:13px'>公开资产库 · 支持搜索与筛选 · 更新资产请查看 <a href='/chip-design/system-ip-hub/import/'>本地维护说明</a></div><main id="main-content"><p><a href='/chip-design/system-ip-hub/assets/'>← 返回资产库</a></p>
-<div class='asset-header'><div><div class='asset-kicker'><span class='eyebrow'>DESIGN ASSET</span><span class="status-badge danger" title="修复后再复用">Needs Fix</span></div><h1>时钟分频器</h1><div class='asset-subline'><code>wql32_clk_divider</code><span>cdc</span></div></div><div class='asset-actions'></div></div>
-<div class='readiness-banner danger'><span><span class="status-badge danger" title="修复后再复用">Needs Fix</span></span><div><strong>修复后再复用</strong><p>偶数分频分支的设计思路可用，但需要满足严格参数约束并完成时钟实现检查；奇数分频分支存在多驱动和组合自反馈问题，当前版本不可直接综合使用。</p></div></div>
+<div class='asset-header'><div><div class='asset-kicker'><span class='eyebrow'>DESIGN ASSET</span><span class="status-badge info" title="满足约束后复用">Constrained</span></div><h1>时钟分频器</h1><div class='asset-subline'><code>wql32_clk_divider</code><span>vlocal-fix-20261021</span><span>cdc</span></div></div><div class='asset-actions'></div></div>
+<div class='readiness-banner info'><span><span class="status-badge info" title="满足约束后复用">Constrained</span></span><div><strong>满足约束后复用</strong><p>2026-10-21 修复奇数分频多过程驱动和输出自引用，使用独立正负沿寄存器组合波形。状态 Constrained：数字 RTL 仿真通过，不代表时钟实现签核。</p></div></div>
 <div class='grid'><div class='card'><h3>用途</h3><p>参数化时钟分频/节拍生成组件。</p></div><div class='card'><h3>协议</h3><p><span class="pill">clock</span></p></div><div class='card'><h3>标签</h3><p><span class="pill">clock</span> <span class="pill">divider</span> <span class="pill">timing</span></p></div></div>
 <section data-tabs><div class='asset-tabs' role='tablist' aria-label='资产详情'><button class='asset-tab' type='button' role='tab' aria-selected='true' data-tab='asset-doc'>设计说明</button><button class='asset-tab' type='button' role='tab' aria-selected='false' data-tab='asset-interface'>接口</button><button class='asset-tab' type='button' role='tab' aria-selected='false' data-tab='asset-source'>源码</button><button class='asset-tab' type='button' role='tab' aria-selected='false' data-tab='asset-knowledge'>设计知识</button></div>
-<div class='tab-panel' id='asset-doc' role='tabpanel'><div class='doc-layout'><article class='markdown-body'><h1 id='时钟分频器'>时钟分频器</h1><h2 id='当前结论'>当前结论</h2><p>偶数分频分支的设计思路可用，但需要满足严格参数约束并完成时钟实现检查；奇数分频分支存在多驱动和组合自反馈问题，当前版本不可直接综合使用。</p><h2 id='设计意图'>设计意图</h2><p>模块试图根据 <code>DIV_FACTOR</code> 和 <code>DIV_MODE</code> 生成输入时钟的整数分频时钟：</p><ul><li>偶数分频：计数到半周期后翻转输出。</li><li>奇数分频：分别在输入时钟不同边沿生成半周期波形，再组合得到近似 50% 占空比输出。</li><li><code>clk_en</code>：允许或暂停分频计数。</li></ul><h2 id='参数与约束'>参数与约束</h2><div class='md-table-wrap'><table><thead><tr><th>参数</th><th>含义</th><th>当前约束</th></tr></thead><tbody><tr><td><code>DIV_FACTOR</code></td><td>分频系数</td><td>偶数模式下应为大于等于 2 的偶数</td></tr><tr><td><code>DIV_MODE</code></td><td>偶数/奇数模式选择</td><td>奇数模式当前不可用</td></tr></tbody></table></div><p>偶数模式中，输出每经过 <code>DIV_FACTOR/2</code> 个输入时钟边沿翻转一次，因此完整周期为 <code>DIV_FACTOR</code> 个输入周期。<code>clk_en</code> 拉低后输出保持当前电平，而不是强制回到低电平。</p><h2 id='已知问题'>已知问题</h2><ul><li>奇数分频逻辑对 <code>clk_out</code> 存在多个过程赋值。</li><li>奇数分频的组合逻辑包含类似 <code>clk_out = clk_out | clk_half</code> 的自反馈，可能形成组合环路或仿真不收敛。</li><li>条件 generate 的写法依赖 SystemVerilog 编译模式，严格 Verilog 工具可能不接受。</li><li>参数未对非法值进行保护；<code>DIV_FACTOR</code> 过小会导致计数器宽度或终值异常。</li><li>生成的新时钟会引入新的 clock domain，必须补充 generated clock、时钟树和 STA 约束。</li></ul><h2 id='推荐用法'>推荐用法</h2><p>优先使用工艺库时钟分频单元、PLL/MMCM、全局时钟资源或 clock-enable 架构。若确实要使用 RTL 分频时钟，建议只保留并重写偶数分频分支，同时由后端确认时钟树实现方式。奇数分频应整体重构，不能在当前实现上直接启用。</p><h2 id='建议验证项'>建议验证项</h2><ol><li>对合法偶数分频系数检查周期、占空比和启停行为。</li><li>在计数临界点切换 <code>clk_en</code>，检查是否出现窄脉冲。</li><li>检查复位释放后的第一个输出边沿。</li><li>执行 lint、综合和组合环路检查。</li><li>为输出时钟建立 generated-clock 约束并执行 CDC/STA 分析。</li></ol></article><aside class='doc-toc'><strong>文档目录</strong><a class='' href='#当前结论'>当前结论</a><a class='' href='#设计意图'>设计意图</a><a class='' href='#参数与约束'>参数与约束</a><a class='' href='#已知问题'>已知问题</a><a class='' href='#推荐用法'>推荐用法</a><a class='' href='#建议验证项'>建议验证项</a></aside></div></div>
+<div class='tab-panel' id='asset-doc' role='tabpanel'><div class='doc-layout'><article class='markdown-body'><h1 id='可配置整数分频器'>可配置整数分频器</h1><h2 id='当前结论'>当前结论</h2><p>2026-10-21 修复奇数分频多过程驱动和输出自引用，使用独立正负沿寄存器组合波形。状态 <strong>Constrained</strong>：数字 RTL 仿真通过，不代表时钟实现签核。</p><h2 id='接口与配置'>接口与配置</h2><div class='md-table-wrap'><table><thead><tr><th>模式</th><th>合法参数</th></tr></thead><tbody><tr><td>DIV_MODE=0</td><td>DIV_FACTOR &gt;= 2 且为偶数</td></tr><tr><td>DIV_MODE=1</td><td>DIV_FACTOR &gt;= 3 且为奇数</td></tr><tr><td>其他模式或不匹配因子</td><td>输出固定零，不旁路</td></tr></tbody></table></div><p>clk_in 为输入时钟，rst_n 低有效异步复位，clk_en 在输入正沿采样。复位清计数和波形状态；释放需满足恢复/移除要求。</p><h2 id='波形与使能规则'>波形与使能规则</h2><p>偶数模式每 DIV_FACTOR/2 个被使能正沿翻转一次，禁止时保持计数与输出。</p><p>奇数模式正沿更新相位、clk_pos；紧随负沿按前一正沿采样的使能完成 clk_neg 更新，输出为两者 OR。<strong>禁止使能不会取消已采样的半周期动作</strong>，最后一个被允许正沿对应的负沿仍可能改变输出，之后保持。</p><p>连续使能且输入时钟理想占空比 50% 时，稳定输出周期为 DIV_FACTOR 个输入周期，占空比 50%。暂停可能停高或停低，不承诺暂停时占空比；异步复位可截断高脉冲。</p><h2 id='实现与使用限制'>实现与使用限制</h2><ul><li>clk_en 必须满足输入正沿采样时序，不接受任意异步控制。</li><li>不支持动态/非整数分频、旁路或无毛刺时钟切换。</li><li>正负沿路径只有半周期预算，实际门延迟影响脉宽和占空比。</li><li>作为真实时钟使用必须补 generated-clock、STA、最小脉宽、CTS 和复位检查，必要时替换为工艺认可时钟单元。</li><li>RTL 波形正确不能证明 OR 组合时钟在所有工艺与布线下安全。</li></ul><h2 id='验证记录'>验证记录</h2><p>Icarus Verilog 执行 tb/tb_divider.sv，偶数因子 2/4/8、奇数 3/5/7/9，以及非法 (因子,模式)=(1,1)/(3,0)/(2,1)/(5,2)，共 11 组。独立按有效输入边沿计算半周期波形，逐正负沿检查连续运行、300 次随机使能、暂停恢复和异步复位。pyslang 12.0.0 展开通过。</p><p>未执行综合、STA、CTS 或模拟脉宽验证。</p></article><aside class='doc-toc'><strong>文档目录</strong><a class='' href='#当前结论'>当前结论</a><a class='' href='#接口与配置'>接口与配置</a><a class='' href='#波形与使能规则'>波形与使能规则</a><a class='' href='#实现与使用限制'>实现与使用限制</a><a class='' href='#验证记录'>验证记录</a></aside></div></div>
 <div class='tab-panel' id='asset-interface' role='tabpanel' hidden><div class='card'><div class='section-title'><h2>RTL Interface</h2></div><p class='muted'>Module <code>clk_divider</code> · 2 parameters · 4 ports</p><h3>Parameters</h3><table><tr><th>Parameter</th><th>Default</th><th>Description</th></tr><tr><td><code>DIV_FACTOR</code></td><td><code>2</code></td><td>—</td></tr><tr><td><code>DIV_MODE</code></td><td><code>0</code></td><td>—</td></tr></table><h3 style='margin-top:22px'>Ports</h3><table><tr><th>Port</th><th>Direction</th><th>Width</th><th>Description</th></tr><tr><td><code>clk_in</code></td><td>input</td><td><code>1 bit</code></td><td>—</td></tr><tr><td><code>rst_n</code></td><td>input</td><td><code>1 bit</code></td><td>—</td></tr><tr><td><code>clk_en</code></td><td>input</td><td><code>1 bit</code></td><td>—</td></tr><tr><td><code>clk_out</code></td><td>output</td><td><code>1 bit</code></td><td>—</td></tr></table></div></div>
-<div class='tab-panel' id='asset-source' role='tabpanel' hidden><div class='document-toolbar'><div><h2 style='margin:0'>本地文件</h2><span class='muted'>点击文件进入带行号的阅读视图</span></div></div><div class='file-grid'><a class='file-card' href='/chip-design/system-ip-hub/assets/wql32_clk_divider/file/clk_divider.v/'><code>clk_divider.v</code><span class='file-type'>v</span></a></div></div>
-<div class='tab-panel' id='asset-knowledge' role='tabpanel' hidden><div class='knowledge-grid'><div class='card'><h3>Features</h3><div class='empty-note'>尚未记录 Feature。</div></div><div class='card'><h3>Design Patterns</h3><div class='empty-note'>尚未关联设计模式。</div></div><div class='card'><h3>Problem Index</h3><div class='empty-note'>尚未关联问题索引。</div></div></div><div class='card' style='margin-top:14px'><h2>使用限制</h2><ul><li>需结合目标工艺和时钟树策略确认是否允许逻辑分频时钟。</li></ul><h2>依赖</h2><ul><li class='muted'>无</li></ul></div></div></section>
+<div class='tab-panel' id='asset-source' role='tabpanel' hidden><div class='document-toolbar'><div><h2 style='margin:0'>本地文件</h2><span class='muted'>点击文件进入带行号的阅读视图</span></div></div><div class='file-grid'><a class='file-card' href='/chip-design/system-ip-hub/assets/wql32_clk_divider/file/clk_divider.v/'><code>clk_divider.v</code><span class='file-type'>v</span></a><a class='file-card' href='/chip-design/system-ip-hub/assets/wql32_clk_divider/file/tb%5Ctb_divider.sv/'><code>tb\tb_divider.sv</code><span class='file-type'>sv</span></a></div></div>
+<div class='tab-panel' id='asset-knowledge' role='tabpanel' hidden><div class='knowledge-grid'><div class='card'><h3>Features</h3><span class="pill">独立正负沿波形寄存器</span> <span class="pill">偶数与奇数整数分频</span> <span class="pill">采样使能暂停恢复</span> <span class="pill">非法配置确定零输出</span></div><div class='card'><h3>Design Patterns</h3><a class='pill' href='/chip-design/system-ip-hub/patterns/?q=Clock%20divider'>Clock divider</a></div><div class='card'><h3>Problem Index</h3><a class='pill' href='/chip-design/system-ip-hub/problems/?q=multiple%20drivers'>multiple drivers</a> <a class='pill' href='/chip-design/system-ip-hub/problems/?q=generated-clock%20implementation'>generated-clock implementation</a></div></div><div class='card' style='margin-top:14px'><h2>使用限制</h2><ul><li>偶数模式因子 &gt;= 2，奇数模式因子 &gt;= 3；非法配置输出零。</li><li>奇数模式按正沿采样使能，并完成对应负沿半周期；异步复位可截短脉冲。</li><li>真实时钟应用需 generated-clock/STA/CTS/脉宽检查，数字仿真不是时钟签核。</li></ul><h2>依赖</h2><ul><li class='muted'>无</li></ul></div></div></section>
 <details class='card advanced'><summary>Advanced Metadata</summary><p class='muted'>原始 metadata 配置，仅用于调试、脚本处理和 schema 检查。</p><pre>{
   &quot;schema_version&quot;: 1,
   &quot;name&quot;: &quot;wql32_clk_divider&quot;,
   &quot;display_name&quot;: &quot;时钟分频器&quot;,
-  &quot;version&quot;: &quot;source&quot;,
+  &quot;version&quot;: &quot;local-fix-20261021&quot;,
   &quot;kind&quot;: &quot;rtl_component&quot;,
   &quot;category&quot;: &quot;cdc&quot;,
   &quot;description&quot;: &quot;参数化时钟分频/节拍生成组件。&quot;,
@@ -70,15 +70,37 @@ header nav a.active{background:#ffffff18;color:#fff;box-shadow:inset 0 0 0 1px #
     &quot;clock&quot;
   ],
   &quot;limitations&quot;: [
-    &quot;需结合目标工艺和时钟树策略确认是否允许逻辑分频时钟。&quot;
+    &quot;偶数模式因子 &gt;= 2，奇数模式因子 &gt;= 3；非法配置输出零。&quot;,
+    &quot;奇数模式按正沿采样使能，并完成对应负沿半周期；异步复位可截短脉冲。&quot;,
+    &quot;真实时钟应用需 generated-clock/STA/CTS/脉宽检查，数字仿真不是时钟签核。&quot;
   ],
   &quot;verification&quot;: {
-    &quot;simulation&quot;: &quot;not_run&quot;,
+    &quot;simulation&quot;: &quot;passed&quot;,
     &quot;lint&quot;: &quot;not_run&quot;,
-    &quot;synthesis&quot;: &quot;not_run&quot;
+    &quot;synthesis&quot;: &quot;not_run&quot;,
+    &quot;last_checked&quot;: &quot;2026-10-21&quot;
   },
   &quot;source_id&quot;: &quot;clk_divider&quot;,
-  &quot;status&quot;: &quot;needs_fix&quot;
+  &quot;status&quot;: &quot;constrained&quot;,
+  &quot;features&quot;: [
+    &quot;独立正负沿波形寄存器&quot;,
+    &quot;偶数与奇数整数分频&quot;,
+    &quot;采样使能暂停恢复&quot;,
+    &quot;非法配置确定零输出&quot;
+  ],
+  &quot;design_patterns&quot;: [
+    &quot;Clock divider&quot;
+  ],
+  &quot;problem_index&quot;: [
+    &quot;multiple drivers&quot;,
+    &quot;generated-clock implementation&quot;
+  ],
+  &quot;review&quot;: {
+    &quot;date&quot;: &quot;2026-10-21&quot;,
+    &quot;method&quot;: &quot;RTL 源码审查 + pyslang 参数展开 + Icarus 自检 RTL 仿真&quot;,
+    &quot;rtl_changed&quot;: true,
+    &quot;rtl_simulation&quot;: &quot;passed&quot;
+  }
 }</pre></details></main><script>
 document.querySelectorAll('.asset-tab').forEach((button)=>button.addEventListener('click',()=>{
   const group=button.closest('[data-tabs]');

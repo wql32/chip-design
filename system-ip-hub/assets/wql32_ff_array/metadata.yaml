@@ -2,7 +2,7 @@
   "schema_version": 1,
   "name": "wql32_ff_array",
   "display_name": "FF 寄存器堆 (ff_arrary.v)",
-  "version": "source",
+  "version": "local-fix-20261021",
   "kind": "rtl_component",
   "category": "storage",
   "description": "基于触发器的参数化小容量存储阵列，支持输入/输出流水线选项。",
@@ -16,19 +16,39 @@
     "rtl"
   ],
   "limitations": [
-    "深度增大时需评估面积、功耗和组合读路径时序。"
+    "阵列不复位，必须先写后读；未初始化内容未定义。",
+    "FLOP_IN/FLOP_OUT 仅取 0/1，地址位宽须覆盖深度。",
+    "寄存读冲突取旧值，组合读写后反映新值；未综合或 STA。"
   ],
   "verification": {
-    "simulation": "not_run",
+    "simulation": "passed",
     "lint": "not_run",
     "cdc": "not_applicable",
     "formal": "not_run",
     "synthesis": "not_run",
-    "performance": "not_run"
+    "performance": "not_run",
+    "last_checked": "2026-10-21",
+    "notes": "pyslang 12.0.0 实际 RTL/自检 bench 参数展开通过；Icarus Verilog/vvp 实际运行对应参数回归并通过，具体范围见 README；未做综合、formal 或时序签核。"
   },
   "source_id": "ff_arrary",
-  "status": "needs_fix",
-  "features": [],
-  "design_patterns": [],
-  "problem_index": []
+  "status": "constrained",
+  "features": [
+    "完整输入级可选寄存",
+    "读输出级可选寄存",
+    "越界读零、越界写忽略",
+    "禁止读时寄存输出保持"
+  ],
+  "design_patterns": [
+    "Register array"
+  ],
+  "problem_index": [
+    "pipeline control and data alignment",
+    "read-write collision"
+  ],
+  "review": {
+    "date": "2026-10-21",
+    "method": "RTL 源码审查 + pyslang 参数展开 + Icarus 自检 RTL 仿真",
+    "rtl_changed": true,
+    "rtl_simulation": "passed"
+  }
 }

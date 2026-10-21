@@ -28,7 +28,7 @@
 
 - pyslang 12.0.0：与编码器 bench 一同展开，覆盖 2/3/8/9/16/253/256/257/384/512 等宽度，无编译错误。
 - Python 表达式模型：在宽度 2/3/4/8/9/12 下穷举共 4,892 个向量，检查两个输出与最低置位参考值一致。
-- 已提供零输入、全位置 one-hot、小宽度穷举和大宽度随机 multi-hot 的自检 testbench；只完成静态编译，尚未执行 RTL 仿真。
+- Icarus Verilog/vvp 已实际执行零输入、全位置 one-hot、小宽度穷举和大宽度随机 multi-hot 自检；与编码器联合的 10 种合法宽度全部通过（WIDTH=1 时不实例化本模块）。
 - 本次没有增加端口或声称支持默认参数下的 BITMAP_WIDTH=1。
 
 项目根目录可运行：`python -m unittest discover -s tests -p test_rtl_priority_repairs.py -v`。

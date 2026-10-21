@@ -2,7 +2,7 @@
 
 ## 当前结论
 
-2026-10-21 已修复请求沿检测、四相握手未回到空闲就接收下一项，以及目的端 valid 与数据错拍的问题。当前状态为 **Constrained**：实际 RTL 已通过 pyslang 语法／参数展开检查，周期模型通过；尚未运行 RTL 动态仿真、CDC 检查或综合签核。
+2026-10-21 已修复请求沿检测、四相握手未回到空闲就接收下一项，以及目的端 valid 与数据错拍的问题。当前状态为 **Constrained**：实际 RTL 已通过 pyslang 参数展开、周期模型及 Icarus 动态仿真；未进行 CDC 检查或综合签核。
 
 ## 功能与接口
 
@@ -45,7 +45,7 @@
 
 - pyslang 12.0.0：实际 RTL 与 `tb_handshake.sv` 的 4 组时钟参数展开，未发现编译错误。
 - Python 周期模型：5 组时钟比／相位（含同时边沿）、连续请求及 34 个协调复位切入点；以事务队列检查顺序、唯一性和有界完成。
-- 已提供自检 SystemVerilog testbench；当前环境未找到 Icarus/vvp，因此尚未执行 RTL 动态仿真。
+- Icarus Verilog/vvp 已实际执行自检 SystemVerilog testbench，4 组时钟配置全部通过。
 - 模型不模拟亚稳态，以上结果不代表 CDC 或 STA 签核。
 
 项目根目录可运行：`python -m unittest discover -s tests -p test_rtl_priority_repairs.py -v`。

@@ -45,131 +45,69 @@ header nav a.active{background:#ffffff18;color:#fff;box-shadow:inset 0 0 0 1px #
  @media(max-width:700px){header{padding:14px 16px;align-items:flex-start;gap:10px;flex-direction:column}main{margin:22px auto;padding:0 14px}h1{font-size:25px}.hero{padding:24px}.hero h1{font-size:29px}.hero-actions{align-items:flex-start;flex-direction:column;gap:13px}table{font-size:13px;display:block;overflow-x:auto;white-space:nowrap}input{min-width:160px}.markdown-body{padding:21px 18px}.source-line:before{width:42px;margin-right:11px;padding-right:9px}.source-line{padding-right:20px}.code-frame pre{padding:4px 0}.code-header{padding:7px 12px}.filter-panel form{grid-template-columns:1fr}.asset-card-list{grid-template-columns:1fr}.gap-row{grid-template-columns:1fr}.nav-more{position:static}.nav-menu{position:static;box-shadow:none;margin-top:5px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style></head><body><a class="skip-link" href="#main-content">跳到主要内容</a><header><div class="brand"><span class="brand-mark" aria-hidden="true"></span><a class="nav" href="/chip-design/system-ip-hub/"><span class="brand-copy"><span>System IP Design Hub</span><small>RTL / DMA / AXI / PCIe / CXL</small></span></a></div><nav aria-label="主导航"><a href="/chip-design/system-ip-hub/assets/">资产</a><a href="/chip-design/system-ip-hub/patterns/">设计模式</a><a href="/chip-design/system-ip-hub/problems/">问题索引</a><a href="/chip-design/system-ip-hub/mappings/">Bridge Mapping</a><details class="nav-more"><summary>工具</summary><div class="nav-menu"><a href="/chip-design/system-ip-hub/templates/rtl-module-design-review/">RTL 设计模板</a><a href="/chip-design/system-ip-hub/import/">本地维护</a><a href="/chip-design/system-ip-hub/protocols/">协议索引</a><a href="/chip-design/system-ip-hub/dependencies/">依赖关系</a><a href="/chip-design/system-ip-hub/report/">待完善项</a></div></details></nav></header><style>.snapshot-only{display:inline!important}a.secondary-button.snapshot-only{display:inline-flex!important}</style><div style='max-width:1320px;margin:12px auto 0;padding:9px 28px;border:1px solid #b9dce5;border-radius:9px;background:#e9f8fb;color:#216477;font-size:13px'>公开资产库 · 支持搜索与筛选 · 更新资产请查看 <a href='/chip-design/system-ip-hub/import/'>本地维护说明</a></div><main id="main-content"><p><a href='/chip-design/system-ip-hub/assets/wql32_2w1r_fifo/'>← 双写单读 FIFO (2w1r_fifo.v)</a></p>
-<div class='eyebrow'>SOURCE / RTL FILE</div><h1>2w1r_fifo.v</h1><div class='document-toolbar'><strong>wql32_2w1r_fifo</strong><div class='actions'><span class='muted'>126 lines · 3173 bytes · UTF-8</span><button class='copy-button' type='button' data-copy-target='#source-code'>复制</button></div></div><div class='code-frame'><div class='code-header'><span>2w1r_fifo.v</span><span class='language'>Verilog</span></div><pre><code class='source-code' id='source-code'><span class='source-line'> </span>
-<span class='source-line'><span class="tok-keyword">module</span> <span class="tok-identifier">fifo_2w1r</span></span>
-<span class='source-line'>#(</span>
-<span class='source-line'><span class="tok-keyword">parameter</span> <span class="tok-identifier">FIFO_WIDTH</span> = <span class="tok-number">16</span>        ,</span>
-<span class='source-line'><span class="tok-keyword">parameter</span> <span class="tok-identifier">FIFO_DEPTH</span> = <span class="tok-number">8</span>         ,</span>
-<span class='source-line'><span class="tok-keyword">parameter</span> <span class="tok-identifier">AFULL_DEPTH</span> = <span class="tok-number">6</span>        ,</span>
-<span class='source-line'><span class="tok-keyword">parameter</span> <span class="tok-identifier">FIFO_NAME</span>  = <span class="tok-string">&quot;&quot;</span>        <span class="tok-comment">// For error log print purpose</span></span>
-<span class='source-line'>)</span>
-<span class='source-line'>(</span>
-<span class='source-line'><span class="tok-identifier">input</span>              <span class="tok-identifier">i_we_0</span>        ,</span>
-<span class='source-line'><span class="tok-identifier">input</span>  [<span class="tok-identifier">FIFO_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">i_wdata_0</span>   ,</span>
-<span class='source-line'><span class="tok-identifier">input</span>              <span class="tok-identifier">i_we_1</span>        ,</span>
-<span class='source-line'><span class="tok-identifier">input</span>  [<span class="tok-identifier">FIFO_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">i_wdata_1</span>   ,</span>
-<span class='source-line'><span class="tok-identifier">input</span>              <span class="tok-identifier">i_re</span>          ,</span>
-<span class='source-line'><span class="tok-identifier">output</span> <span class="tok-keyword">wire</span> [<span class="tok-identifier">FIFO_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">o_rdata</span>      ,</span>
-<span class='source-line'><span class="tok-identifier">output</span> <span class="tok-keyword">wire</span>        <span class="tok-identifier">o_full</span>        ,</span>
-<span class='source-line'><span class="tok-identifier">output</span> <span class="tok-keyword">wire</span>        <span class="tok-identifier">o_afull</span>       ,<span class="tok-comment">//almost full</span></span>
-<span class='source-line'><span class="tok-identifier">output</span> <span class="tok-keyword">wire</span>        <span class="tok-identifier">o_empty</span>       ,</span>
-<span class='source-line'><span class="tok-identifier">output</span> <span class="tok-keyword">wire</span>        <span class="tok-identifier">o_overflow</span>    ,</span>
-<span class='source-line'><span class="tok-identifier">output</span> <span class="tok-keyword">wire</span>        <span class="tok-identifier">o_underflow</span>   ,</span>
-<span class='source-line'><span class="tok-identifier">input</span>              <span class="tok-identifier">i_clk</span>         ,</span>
-<span class='source-line'><span class="tok-identifier">input</span>              <span class="tok-identifier">i_rst_n</span></span>
+<div class='eyebrow'>SOURCE / RTL FILE</div><h1>2w1r_fifo.v</h1><div class='document-toolbar'><strong>wql32_2w1r_fifo</strong><div class='actions'><span class='muted'>64 lines · 2357 bytes · UTF-8</span><button class='copy-button' type='button' data-copy-target='#source-code'>复制</button></div></div><div class='code-frame'><div class='code-header'><span>2w1r_fifo.v</span><span class='language'>Verilog</span></div><pre><code class='source-code' id='source-code'><span class='source-line'><span class="tok-keyword">module</span> <span class="tok-identifier">fifo_2w1r</span> #(</span>
+<span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">FIFO_WIDTH</span> = <span class="tok-number">16</span>,</span>
+<span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">FIFO_DEPTH</span> = <span class="tok-number">8</span>,</span>
+<span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">AFULL_DEPTH</span> = <span class="tok-number">6</span>,</span>
+<span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">FIFO_NAME</span> = <span class="tok-string">&quot;&quot;</span></span>
+<span class='source-line'>)(</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> <span class="tok-identifier">i_we_0</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> [<span class="tok-identifier">FIFO_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">i_wdata_0</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> <span class="tok-identifier">i_we_1</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> [<span class="tok-identifier">FIFO_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">i_wdata_1</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> <span class="tok-identifier">i_re</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">output</span> <span class="tok-keyword">wire</span> [<span class="tok-identifier">FIFO_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">o_rdata</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">output</span> <span class="tok-keyword">wire</span> <span class="tok-identifier">o_full</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">output</span> <span class="tok-keyword">wire</span> <span class="tok-identifier">o_afull</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">output</span> <span class="tok-keyword">wire</span> <span class="tok-identifier">o_empty</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">output</span> <span class="tok-keyword">wire</span> <span class="tok-identifier">o_overflow</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">output</span> <span class="tok-keyword">wire</span> <span class="tok-identifier">o_underflow</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> <span class="tok-identifier">i_clk</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> <span class="tok-identifier">i_rst_n</span></span>
 <span class='source-line'>);</span>
+<span class='source-line'><span class="tok-keyword">localparam</span> <span class="tok-identifier">ADDR_WIDTH</span> = (<span class="tok-identifier">FIFO_DEPTH</span> &gt; <span class="tok-number">1</span>) ? <span class="tok-number">$clog2</span>(<span class="tok-identifier">FIFO_DEPTH</span>) : <span class="tok-number">1</span>;</span>
+<span class='source-line'><span class="tok-keyword">localparam</span> <span class="tok-identifier">COUNT_WIDTH</span> = (<span class="tok-identifier">FIFO_DEPTH</span> &gt; <span class="tok-number">1</span>) ? <span class="tok-number">$clog2</span>(<span class="tok-identifier">FIFO_DEPTH</span>+<span class="tok-number">1</span>) : <span class="tok-number">1</span>;</span>
+<span class='source-line'><span class="tok-identifier">reg</span> [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">fifo_rptr</span>, <span class="tok-identifier">fifo_wptr</span>;</span>
+<span class='source-line'><span class="tok-identifier">reg</span> [<span class="tok-identifier">COUNT_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">fifo_cnt</span>;</span>
+<span class='source-line'><span class="tok-identifier">reg</span> [<span class="tok-identifier">FIFO_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">reg_mem</span> [<span class="tok-number">0</span>:<span class="tok-identifier">FIFO_DEPTH</span>-<span class="tok-number">1</span>];</span>
+<span class='source-line'><span class="tok-keyword">wire</span> [<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">requested_writes</span> = {<span class="tok-number">1&#x27;b0</span>, <span class="tok-identifier">i_we_0</span>} + {<span class="tok-number">1&#x27;b0</span>, <span class="tok-identifier">i_we_1</span>};</span>
+<span class='source-line'><span class="tok-keyword">wire</span> <span class="tok-identifier">read_fire</span> = <span class="tok-identifier">i_rst_n</span> &amp;&amp; <span class="tok-identifier">i_re</span> &amp;&amp; !<span class="tok-identifier">o_empty</span>;</span>
+<span class='source-line'><span class="tok-keyword">wire</span> [<span class="tok-identifier">COUNT_WIDTH</span>:<span class="tok-number">0</span>] <span class="tok-identifier">available_slots</span> = <span class="tok-identifier">FIFO_DEPTH</span> - <span class="tok-identifier">fifo_cnt</span> + <span class="tok-identifier">read_fire</span>;</span>
+<span class='source-line'><span class="tok-comment">// No per-port accept signals exist: accept the complete write group or none.</span></span>
+<span class='source-line'><span class="tok-keyword">wire</span> <span class="tok-identifier">write_fire</span> = <span class="tok-identifier">i_rst_n</span> &amp;&amp; (<span class="tok-identifier">requested_writes</span> != <span class="tok-number">0</span>) &amp;&amp; (<span class="tok-identifier">requested_writes</span> &lt;= <span class="tok-identifier">available_slots</span>);</span>
+<span class='source-line'><span class="tok-keyword">wire</span> [<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">accepted_writes</span> = <span class="tok-identifier">write_fire</span> ? <span class="tok-identifier">requested_writes</span> : <span class="tok-number">2&#x27;b00</span>;</span>
 <span class='source-line'> </span>
-<span class='source-line'><span class="tok-comment">//=====================================================================</span></span>
-<span class='source-line'><span class="tok-comment">// PARAMETERS</span></span>
-<span class='source-line'><span class="tok-comment">//=====================================================================</span></span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-keyword">localparam</span> <span class="tok-identifier">ADDR_WIDTH</span> = <span class="tok-number">$clog2</span>(<span class="tok-identifier">FIFO_DEPTH</span>);</span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-comment">//=====================================================================</span></span>
-<span class='source-line'><span class="tok-comment">// INTERNAL SIGNALS</span></span>
-<span class='source-line'><span class="tok-comment">//=====================================================================</span></span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-identifier">reg</span>  [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">fifo_rptr</span>;</span>
-<span class='source-line'><span class="tok-identifier">reg</span>  [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">fifo_wptr</span>;</span>
-<span class='source-line'><span class="tok-identifier">reg</span>  [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">fifo_wptr_plus1</span>;</span>
-<span class='source-line'><span class="tok-identifier">reg</span>  [<span class="tok-identifier">FIFO_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">reg_mem</span> [<span class="tok-identifier">FIFO_DEPTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>];</span>
-<span class='source-line'><span class="tok-identifier">reg</span>  [<span class="tok-identifier">ADDR_WIDTH</span>:<span class="tok-number">0</span>]   <span class="tok-identifier">fifo_cnt</span>;</span>
-<span class='source-line'><span class="tok-keyword">wire</span>                  <span class="tok-identifier">fifo_cnt_upd</span>;</span>
-<span class='source-line'><span class="tok-keyword">wire</span> [<span class="tok-number">2</span>:<span class="tok-number">0</span>]            <span class="tok-identifier">fifo_cnt_delta</span>;</span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>  <span class="tok-keyword">if</span>(!<span class="tok-identifier">i_rst_n</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>    <span class="tok-identifier">fifo_rptr</span> &lt;= {<span class="tok-identifier">ADDR_WIDTH</span>{<span class="tok-number">1&#x27;b0</span>}};</span>
-<span class='source-line'>  <span class="tok-keyword">end</span></span>
-<span class='source-line'>  <span class="tok-keyword">else</span> <span class="tok-keyword">if</span>(<span class="tok-identifier">i_re</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>    <span class="tok-identifier">fifo_rptr</span> &lt;= <span class="tok-identifier">fifo_rptr</span> + <span class="tok-number">1&#x27;b1</span>;</span>
-<span class='source-line'>  <span class="tok-keyword">end</span></span>
-<span class='source-line'>  <span class="tok-keyword">else</span> ;</span>
-<span class='source-line'><span class="tok-keyword">end</span></span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>  <span class="tok-keyword">if</span>(!<span class="tok-identifier">i_rst_n</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>    <span class="tok-identifier">fifo_wptr</span> &lt;= {<span class="tok-identifier">ADDR_WIDTH</span>{<span class="tok-number">1&#x27;b0</span>}};</span>
-<span class='source-line'>  <span class="tok-keyword">end</span></span>
-<span class='source-line'>  <span class="tok-keyword">else</span> <span class="tok-keyword">begin</span></span>
-<span class='source-line'>    <span class="tok-keyword">case</span>({<span class="tok-identifier">i_we_1</span>, <span class="tok-identifier">i_we_0</span>})</span>
-<span class='source-line'>    <span class="tok-number">2&#x27;b01</span>, <span class="tok-number">2&#x27;b10</span>: <span class="tok-keyword">begin</span></span>
-<span class='source-line'>      <span class="tok-identifier">fifo_wptr</span> &lt;= <span class="tok-identifier">fifo_wptr</span> + <span class="tok-number">2&#x27;h1</span>;</span>
+<span class='source-line'><span class="tok-keyword">function</span> [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">next_ptr</span>;</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">ptr</span>;</span>
+<span class='source-line'>    <span class="tok-keyword">begin</span></span>
+<span class='source-line'>        <span class="tok-identifier">next_ptr</span> = (<span class="tok-identifier">ptr</span> == <span class="tok-identifier">FIFO_DEPTH</span>-<span class="tok-number">1</span>) ? {<span class="tok-identifier">ADDR_WIDTH</span>{<span class="tok-number">1&#x27;b0</span>}} : <span class="tok-identifier">ptr</span> + <span class="tok-number">1&#x27;b1</span>;</span>
 <span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'>    <span class="tok-number">2&#x27;b11</span>: <span class="tok-keyword">begin</span></span>
-<span class='source-line'>      <span class="tok-identifier">fifo_wptr</span> &lt;= <span class="tok-identifier">fifo_wptr</span> + <span class="tok-number">2&#x27;h2</span>;</span>
-<span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'>    <span class="tok-keyword">default</span>: ;</span>
-<span class='source-line'>    <span class="tok-keyword">endcase</span></span>
-<span class='source-line'>  <span class="tok-keyword">end</span></span>
-<span class='source-line'><span class="tok-keyword">end</span></span>
+<span class='source-line'><span class="tok-keyword">endfunction</span></span>
+<span class='source-line'><span class="tok-keyword">wire</span> [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">fifo_wptr_plus1</span> = <span class="tok-identifier">next_ptr</span>(<span class="tok-identifier">fifo_wptr</span>);</span>
 <span class='source-line'> </span>
 <span class='source-line'><span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>  <span class="tok-keyword">if</span>(!<span class="tok-identifier">i_rst_n</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>    <span class="tok-identifier">fifo_wptr_plus1</span> &lt;= {{(<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>){<span class="tok-number">1&#x27;b0</span>}}, <span class="tok-number">1&#x27;b1</span>};</span>
-<span class='source-line'>  <span class="tok-keyword">end</span></span>
-<span class='source-line'>  <span class="tok-keyword">else</span> <span class="tok-keyword">begin</span></span>
-<span class='source-line'>    <span class="tok-keyword">case</span>({<span class="tok-identifier">i_we_1</span>, <span class="tok-identifier">i_we_0</span>})</span>
-<span class='source-line'>    <span class="tok-number">2&#x27;b01</span>, <span class="tok-number">2&#x27;b10</span>: <span class="tok-keyword">begin</span></span>
-<span class='source-line'>      <span class="tok-identifier">fifo_wptr_plus1</span> &lt;= <span class="tok-identifier">fifo_wptr_plus1</span> + <span class="tok-number">2&#x27;h1</span>;</span>
+<span class='source-line'>    <span class="tok-keyword">if</span> (!<span class="tok-identifier">i_rst_n</span>) <span class="tok-keyword">begin</span></span>
+<span class='source-line'>        <span class="tok-identifier">fifo_rptr</span> &lt;= <span class="tok-number">0</span>;</span>
+<span class='source-line'>        <span class="tok-identifier">fifo_wptr</span> &lt;= <span class="tok-number">0</span>;</span>
+<span class='source-line'>        <span class="tok-identifier">fifo_cnt</span> &lt;= <span class="tok-number">0</span>;</span>
+<span class='source-line'>    <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">begin</span></span>
+<span class='source-line'>        <span class="tok-keyword">if</span> (<span class="tok-identifier">read_fire</span>) <span class="tok-identifier">fifo_rptr</span> &lt;= <span class="tok-identifier">next_ptr</span>(<span class="tok-identifier">fifo_rptr</span>);</span>
+<span class='source-line'>        <span class="tok-keyword">if</span> (<span class="tok-identifier">write_fire</span>) <span class="tok-keyword">begin</span></span>
+<span class='source-line'>            <span class="tok-identifier">reg_mem</span>[<span class="tok-identifier">fifo_wptr</span>] &lt;= <span class="tok-identifier">i_we_0</span> ? <span class="tok-identifier">i_wdata_0</span> : <span class="tok-identifier">i_wdata_1</span>;</span>
+<span class='source-line'>            <span class="tok-keyword">if</span> (<span class="tok-identifier">requested_writes</span> == <span class="tok-number">2</span>) <span class="tok-identifier">reg_mem</span>[<span class="tok-identifier">fifo_wptr_plus1</span>] &lt;= <span class="tok-identifier">i_wdata_1</span>;</span>
+<span class='source-line'>            <span class="tok-identifier">fifo_wptr</span> &lt;= (<span class="tok-identifier">requested_writes</span> == <span class="tok-number">2</span>) ? <span class="tok-identifier">next_ptr</span>(<span class="tok-identifier">fifo_wptr_plus1</span>) : <span class="tok-identifier">fifo_wptr_plus1</span>;</span>
+<span class='source-line'>        <span class="tok-keyword">end</span></span>
+<span class='source-line'>        <span class="tok-identifier">fifo_cnt</span> &lt;= <span class="tok-identifier">fifo_cnt</span> - <span class="tok-identifier">read_fire</span> + <span class="tok-identifier">accepted_writes</span>;</span>
 <span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'>    <span class="tok-number">2&#x27;b11</span>: <span class="tok-keyword">begin</span></span>
-<span class='source-line'>      <span class="tok-identifier">fifo_wptr_plus1</span> &lt;= <span class="tok-identifier">fifo_wptr_plus1</span> + <span class="tok-number">2&#x27;h2</span>;</span>
-<span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'>    <span class="tok-keyword">default</span>: ;</span>
-<span class='source-line'>    <span class="tok-keyword">endcase</span></span>
-<span class='source-line'>  <span class="tok-keyword">end</span></span>
 <span class='source-line'><span class="tok-keyword">end</span></span>
 <span class='source-line'> </span>
-<span class='source-line'><span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>  <span class="tok-keyword">case</span>({<span class="tok-identifier">i_we_1</span>, <span class="tok-identifier">i_we_0</span>})</span>
-<span class='source-line'>  <span class="tok-number">2&#x27;b01</span>: <span class="tok-keyword">begin</span></span>
-<span class='source-line'>    <span class="tok-identifier">reg_mem</span>[<span class="tok-identifier">fifo_wptr</span>] &lt;= <span class="tok-identifier">i_wdata_0</span>;</span>
-<span class='source-line'>  <span class="tok-keyword">end</span></span>
-<span class='source-line'>  <span class="tok-number">2&#x27;b10</span>: <span class="tok-keyword">begin</span></span>
-<span class='source-line'>    <span class="tok-identifier">reg_mem</span>[<span class="tok-identifier">fifo_wptr</span>] &lt;= <span class="tok-identifier">i_wdata_1</span>;</span>
-<span class='source-line'>  <span class="tok-keyword">end</span></span>
-<span class='source-line'>  <span class="tok-number">2&#x27;b11</span>: <span class="tok-keyword">begin</span></span>
-<span class='source-line'>    <span class="tok-identifier">reg_mem</span>[<span class="tok-identifier">fifo_wptr</span>] &lt;= <span class="tok-identifier">i_wdata_0</span>;</span>
-<span class='source-line'>    <span class="tok-identifier">reg_mem</span>[<span class="tok-identifier">fifo_wptr_plus1</span>] &lt;= <span class="tok-identifier">i_wdata_1</span>;</span>
-<span class='source-line'>  <span class="tok-keyword">end</span></span>
-<span class='source-line'>  <span class="tok-keyword">default</span>: ;</span>
-<span class='source-line'>  <span class="tok-keyword">endcase</span></span>
-<span class='source-line'><span class="tok-keyword">end</span></span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">fifo_cnt_upd</span> = <span class="tok-identifier">i_we_1</span> || <span class="tok-identifier">i_we_0</span> || <span class="tok-identifier">i_re</span>;</span>
-<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">fifo_cnt_delta</span> = {<span class="tok-number">2&#x27;b0</span>, <span class="tok-identifier">i_we_1</span>} + {<span class="tok-number">2&#x27;b0</span>, <span class="tok-identifier">i_we_0</span>} - {<span class="tok-number">2&#x27;b0</span>, <span class="tok-identifier">i_re</span>};</span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>  <span class="tok-keyword">if</span>(!<span class="tok-identifier">i_rst_n</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>    <span class="tok-identifier">fifo_cnt</span> &lt;= {<span class="tok-identifier">ADDR_WIDTH</span>{<span class="tok-number">1&#x27;b0</span>}};</span>
-<span class='source-line'>  <span class="tok-keyword">end</span></span>
-<span class='source-line'>  <span class="tok-keyword">else</span> <span class="tok-keyword">if</span>(<span class="tok-identifier">fifo_cnt_upd</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>    <span class="tok-identifier">fifo_cnt</span> &lt;= <span class="tok-identifier">fifo_cnt</span> + {{(<span class="tok-identifier">ADDR_WIDTH</span>+<span class="tok-number">1</span>-<span class="tok-number">2</span>){<span class="tok-identifier">fifo_cnt_delta</span>[<span class="tok-number">2</span>]}}, {<span class="tok-identifier">fifo_cnt_delta</span>[<span class="tok-number">1</span>:<span class="tok-number">0</span>]}};</span>
-<span class='source-line'>  <span class="tok-keyword">end</span></span>
-<span class='source-line'>  <span class="tok-keyword">else</span> ;</span>
-<span class='source-line'><span class="tok-keyword">end</span></span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">o_rdata</span> = <span class="tok-identifier">reg_mem</span>[<span class="tok-identifier">fifo_rptr</span>];</span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">o_empty</span> = <span class="tok-identifier">fifo_cnt</span> == {(<span class="tok-identifier">ADDR_WIDTH</span>+<span class="tok-number">1</span>){<span class="tok-number">1&#x27;b0</span>}};</span>
-<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">o_full</span> = <span class="tok-identifier">fifo_cnt</span> &gt;= <span class="tok-identifier">FIFO_DEPTH</span>;</span>
-<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">o_afull</span> = <span class="tok-identifier">fifo_cnt</span> &gt;= <span class="tok-identifier">AFULL_DEPTH</span>;</span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">o_overflow</span> = (<span class="tok-identifier">i_we_0</span> || <span class="tok-identifier">i_we_1</span>) &amp;&amp; <span class="tok-identifier">o_full</span>;</span>
-<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">o_underflow</span> = <span class="tok-identifier">i_re</span> &amp;&amp; <span class="tok-identifier">o_empty</span>;</span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-keyword">endmodule</span> </span></code></pre></div></main><script>
+<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">o_empty</span> = (<span class="tok-identifier">fifo_cnt</span> == <span class="tok-number">0</span>);</span>
+<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">o_full</span> = (<span class="tok-identifier">fifo_cnt</span> == <span class="tok-identifier">FIFO_DEPTH</span>);</span>
+<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">o_afull</span> = (<span class="tok-identifier">fifo_cnt</span> &gt;= <span class="tok-identifier">AFULL_DEPTH</span>);</span>
+<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">o_rdata</span> = (<span class="tok-identifier">i_rst_n</span> &amp;&amp; !<span class="tok-identifier">o_empty</span>) ? <span class="tok-identifier">reg_mem</span>[<span class="tok-identifier">fifo_rptr</span>] : {<span class="tok-identifier">FIFO_WIDTH</span>{<span class="tok-number">1&#x27;b0</span>}};</span>
+<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">o_overflow</span> = <span class="tok-identifier">i_rst_n</span> &amp;&amp; (<span class="tok-identifier">requested_writes</span> != <span class="tok-number">0</span>) &amp;&amp; !<span class="tok-identifier">write_fire</span>;</span>
+<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">o_underflow</span> = <span class="tok-identifier">i_rst_n</span> &amp;&amp; <span class="tok-identifier">i_re</span> &amp;&amp; !<span class="tok-identifier">read_fire</span>;</span>
+<span class='source-line'><span class="tok-keyword">endmodule</span></span></code></pre></div></main><script>
 document.querySelectorAll('.asset-tab').forEach((button)=>button.addEventListener('click',()=>{
   const group=button.closest('[data-tabs]');
   group.querySelectorAll('.asset-tab').forEach((item)=>item.setAttribute('aria-selected',String(item===button)));

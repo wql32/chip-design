@@ -45,171 +45,97 @@ header nav a.active{background:#ffffff18;color:#fff;box-shadow:inset 0 0 0 1px #
  @media(max-width:700px){header{padding:14px 16px;align-items:flex-start;gap:10px;flex-direction:column}main{margin:22px auto;padding:0 14px}h1{font-size:25px}.hero{padding:24px}.hero h1{font-size:29px}.hero-actions{align-items:flex-start;flex-direction:column;gap:13px}table{font-size:13px;display:block;overflow-x:auto;white-space:nowrap}input{min-width:160px}.markdown-body{padding:21px 18px}.source-line:before{width:42px;margin-right:11px;padding-right:9px}.source-line{padding-right:20px}.code-frame pre{padding:4px 0}.code-header{padding:7px 12px}.filter-panel form{grid-template-columns:1fr}.asset-card-list{grid-template-columns:1fr}.gap-row{grid-template-columns:1fr}.nav-more{position:static}.nav-menu{position:static;box-shadow:none;margin-top:5px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style></head><body><a class="skip-link" href="#main-content">跳到主要内容</a><header><div class="brand"><span class="brand-mark" aria-hidden="true"></span><a class="nav" href="/chip-design/system-ip-hub/"><span class="brand-copy"><span>System IP Design Hub</span><small>RTL / DMA / AXI / PCIe / CXL</small></span></a></div><nav aria-label="主导航"><a href="/chip-design/system-ip-hub/assets/">资产</a><a href="/chip-design/system-ip-hub/patterns/">设计模式</a><a href="/chip-design/system-ip-hub/problems/">问题索引</a><a href="/chip-design/system-ip-hub/mappings/">Bridge Mapping</a><details class="nav-more"><summary>工具</summary><div class="nav-menu"><a href="/chip-design/system-ip-hub/templates/rtl-module-design-review/">RTL 设计模板</a><a href="/chip-design/system-ip-hub/import/">本地维护</a><a href="/chip-design/system-ip-hub/protocols/">协议索引</a><a href="/chip-design/system-ip-hub/dependencies/">依赖关系</a><a href="/chip-design/system-ip-hub/report/">待完善项</a></div></details></nav></header><style>.snapshot-only{display:inline!important}a.secondary-button.snapshot-only{display:inline-flex!important}</style><div style='max-width:1320px;margin:12px auto 0;padding:9px 28px;border:1px solid #b9dce5;border-radius:9px;background:#e9f8fb;color:#216477;font-size:13px'>公开资产库 · 支持搜索与筛选 · 更新资产请查看 <a href='/chip-design/system-ip-hub/import/'>本地维护说明</a></div><main id="main-content"><p><a href='/chip-design/system-ip-hub/assets/wql32_ff_cam/'>← FF 内容寻址存储器 (ff_cam.v)</a></p>
-<div class='eyebrow'>SOURCE / RTL FILE</div><h1>ff_cam.v</h1><div class='document-toolbar'><strong>wql32_ff_cam</strong><div class='actions'><span class='muted'>167 lines · 4291 bytes · UTF-8</span><button class='copy-button' type='button' data-copy-target='#source-code'>复制</button></div></div><div class='code-frame'><div class='code-header'><span>ff_cam.v</span><span class='language'>Verilog</span></div><pre><code class='source-code' id='source-code'><span class='source-line'><span class="tok-keyword">module</span> <span class="tok-identifier">ff_cam</span> #(</span>
-<span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">DATA_WIDTH</span>  = <span class="tok-number">24</span>,</span>
+<div class='eyebrow'>SOURCE / RTL FILE</div><h1>ff_cam.v</h1><div class='document-toolbar'><strong>wql32_ff_cam</strong><div class='actions'><span class='muted'>93 lines · 3341 bytes · UTF-8</span><button class='copy-button' type='button' data-copy-target='#source-code'>复制</button></div></div><div class='code-frame'><div class='code-header'><span>ff_cam.v</span><span class='language'>Verilog</span></div><pre><code class='source-code' id='source-code'><span class='source-line'><span class="tok-keyword">module</span> <span class="tok-identifier">ff_cam</span> #(</span>
+<span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">DATA_WIDTH</span> = <span class="tok-number">24</span>,</span>
 <span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">ARRAY_DEPTH</span> = <span class="tok-number">9</span>,</span>
-<span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">ADDR_WIDTH</span>  = <span class="tok-number">$clog2</span>(<span class="tok-identifier">ARRAY_DEPTH</span>),</span>
-<span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">FLOP_IN</span>     = <span class="tok-number">0</span>,</span>
-<span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">FLOP_OUT</span>    = <span class="tok-number">0</span>,</span>
+<span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">ADDR_WIDTH</span> = (<span class="tok-identifier">ARRAY_DEPTH</span> &gt; <span class="tok-number">1</span>) ? <span class="tok-number">$clog2</span>(<span class="tok-identifier">ARRAY_DEPTH</span>) : <span class="tok-number">1</span>,</span>
+<span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">FLOP_IN</span> = <span class="tok-number">0</span>,</span>
+<span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">FLOP_OUT</span> = <span class="tok-number">0</span>,</span>
 <span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">END_OF_LIST</span> = <span class="tok-number">0</span></span>
 <span class='source-line'>)(</span>
-<span class='source-line'>    <span class="tok-identifier">input</span>  <span class="tok-identifier">i_clk</span>,</span>
-<span class='source-line'>    <span class="tok-identifier">input</span>  <span class="tok-identifier">i_rst_n</span>,</span>
-<span class='source-line'> </span>
-<span class='source-line'>    <span class="tok-identifier">input</span>                    <span class="tok-identifier">i_wen</span>,</span>
-<span class='source-line'>    <span class="tok-identifier">input</span>  [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>]  <span class="tok-identifier">i_waddr</span>,</span>
-<span class='source-line'>    <span class="tok-identifier">input</span>  [<span class="tok-identifier">DATA_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>]  <span class="tok-identifier">i_wdata</span>,</span>
-<span class='source-line'> </span>
-<span class='source-line'>    <span class="tok-identifier">input</span>                    <span class="tok-identifier">i_ren</span>,</span>
-<span class='source-line'>    <span class="tok-identifier">input</span>  [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>]  <span class="tok-identifier">i_raddr</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> <span class="tok-identifier">i_clk</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> <span class="tok-identifier">i_rst_n</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> <span class="tok-identifier">i_wen</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">i_waddr</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> [<span class="tok-identifier">DATA_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">i_wdata</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> <span class="tok-identifier">i_ren</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">i_raddr</span>,</span>
 <span class='source-line'>    <span class="tok-identifier">output</span> <span class="tok-identifier">reg</span> [<span class="tok-identifier">DATA_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">o_rdata</span>,</span>
-<span class='source-line'> </span>
-<span class='source-line'>    <span class="tok-identifier">input</span>                    <span class="tok-identifier">i_cen</span>,</span>
-<span class='source-line'>    <span class="tok-identifier">input</span>  [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>]  <span class="tok-identifier">i_caddr</span>,</span>
-<span class='source-line'> </span>
-<span class='source-line'>    <span class="tok-identifier">input</span>                    <span class="tok-identifier">i_sen</span>,</span>
-<span class='source-line'>    <span class="tok-identifier">input</span>  [<span class="tok-identifier">DATA_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>]  <span class="tok-identifier">i_skey</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> <span class="tok-identifier">i_cen</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">i_caddr</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> <span class="tok-identifier">i_sen</span>,</span>
+<span class='source-line'>    <span class="tok-identifier">input</span> [<span class="tok-identifier">DATA_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">i_skey</span>,</span>
 <span class='source-line'>    <span class="tok-identifier">output</span> <span class="tok-identifier">reg</span> [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">o_saddr</span></span>
 <span class='source-line'>);</span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-comment">// 寄存器数组，每个元素包含 {valid, data}</span></span>
 <span class='source-line'><span class="tok-identifier">reg</span> [<span class="tok-identifier">DATA_WIDTH</span>:<span class="tok-number">0</span>] <span class="tok-identifier">ff_array</span> [<span class="tok-number">0</span>:<span class="tok-identifier">ARRAY_DEPTH</span>-<span class="tok-number">1</span>];</span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-comment">// 内部信号</span></span>
 <span class='source-line'><span class="tok-identifier">reg</span> <span class="tok-identifier">wen</span>, <span class="tok-identifier">ren</span>, <span class="tok-identifier">cen</span>, <span class="tok-identifier">sen</span>;</span>
 <span class='source-line'><span class="tok-identifier">reg</span> [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">waddr</span>, <span class="tok-identifier">raddr</span>, <span class="tok-identifier">caddr</span>;</span>
-<span class='source-line'><span class="tok-identifier">reg</span> [<span class="tok-identifier">DATA_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">wdata</span>, <span class="tok-identifier">rdata</span>, <span class="tok-identifier">skey</span>;</span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-keyword">wire</span> [<span class="tok-identifier">ARRAY_DEPTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">wen_bitmap</span>;</span>
-<span class='source-line'><span class="tok-keyword">wire</span> [<span class="tok-identifier">ARRAY_DEPTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">ren_bitmap</span>;</span>
-<span class='source-line'><span class="tok-keyword">wire</span> [<span class="tok-identifier">ARRAY_DEPTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">cen_bitmap</span>;</span>
+<span class='source-line'><span class="tok-identifier">reg</span> [<span class="tok-identifier">DATA_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">wdata</span>, <span class="tok-identifier">skey</span>, <span class="tok-identifier">rdata</span>;</span>
+<span class='source-line'><span class="tok-identifier">reg</span> [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">saddr</span>;</span>
 <span class='source-line'><span class="tok-keyword">wire</span> [<span class="tok-identifier">ARRAY_DEPTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] <span class="tok-identifier">cmp_bitmap</span>;</span>
-<span class='source-line'><span class="tok-keyword">wire</span> [<span class="tok-identifier">ADDR_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>]  <span class="tok-identifier">saddr</span>;</span>
-<span class='source-line'><span class="tok-identifier">integer</span> <span class="tok-identifier">read_idx</span>;</span>
+<span class='source-line'><span class="tok-identifier">integer</span> <span class="tok-identifier">read_idx</span>, <span class="tok-identifier">search_idx</span>;</span>
 <span class='source-line'><span class="tok-keyword">genvar</span> <span class="tok-identifier">array_idx</span>;</span>
-<span class='source-line'><span class="tok-keyword">genvar</span> <span class="tok-identifier">compare_idx</span>;</span>
 <span class='source-line'> </span>
-<span class='source-line'><span class="tok-comment">// 输入寄存器控制</span></span>
 <span class='source-line'><span class="tok-keyword">generate</span></span>
-<span class='source-line'><span class="tok-keyword">if</span> (<span class="tok-identifier">FLOP_IN</span> == <span class="tok-number">1</span>) <span class="tok-keyword">begin</span> : <span class="tok-identifier">GEN_FLOP_IN</span></span>
-<span class='source-line'>    <span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>        <span class="tok-keyword">if</span> (!<span class="tok-identifier">i_rst_n</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>            <span class="tok-identifier">wen</span> &lt;= <span class="tok-number">1&#x27;b0</span>;</span>
-<span class='source-line'>            <span class="tok-identifier">ren</span> &lt;= <span class="tok-number">1&#x27;b0</span>;</span>
-<span class='source-line'>            <span class="tok-identifier">cen</span> &lt;= <span class="tok-number">1&#x27;b0</span>;</span>
-<span class='source-line'>            <span class="tok-identifier">sen</span> &lt;= <span class="tok-number">1&#x27;b0</span>;</span>
-<span class='source-line'>        <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">begin</span></span>
-<span class='source-line'>            <span class="tok-identifier">wen</span> &lt;= <span class="tok-identifier">i_wen</span>;</span>
-<span class='source-line'>            <span class="tok-identifier">ren</span> &lt;= <span class="tok-identifier">i_ren</span>;</span>
-<span class='source-line'>            <span class="tok-identifier">cen</span> &lt;= <span class="tok-identifier">i_cen</span>;</span>
-<span class='source-line'>            <span class="tok-identifier">sen</span> &lt;= <span class="tok-identifier">i_sen</span>;</span>
+<span class='source-line'>    <span class="tok-keyword">if</span> (<span class="tok-identifier">FLOP_IN</span> == <span class="tok-number">1</span>) <span class="tok-keyword">begin</span> : <span class="tok-identifier">GEN_FLOP_IN</span></span>
+<span class='source-line'>        <span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
+<span class='source-line'>            <span class="tok-keyword">if</span> (!<span class="tok-identifier">i_rst_n</span>) <span class="tok-keyword">begin</span></span>
+<span class='source-line'>                <span class="tok-identifier">wen</span> &lt;= <span class="tok-number">0</span>; <span class="tok-identifier">ren</span> &lt;= <span class="tok-number">0</span>; <span class="tok-identifier">cen</span> &lt;= <span class="tok-number">0</span>; <span class="tok-identifier">sen</span> &lt;= <span class="tok-number">0</span>;</span>
+<span class='source-line'>                <span class="tok-identifier">waddr</span> &lt;= <span class="tok-number">0</span>; <span class="tok-identifier">raddr</span> &lt;= <span class="tok-number">0</span>; <span class="tok-identifier">caddr</span> &lt;= <span class="tok-number">0</span>;</span>
+<span class='source-line'>                <span class="tok-identifier">wdata</span> &lt;= <span class="tok-number">0</span>; <span class="tok-identifier">skey</span> &lt;= <span class="tok-number">0</span>;</span>
+<span class='source-line'>            <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">begin</span></span>
+<span class='source-line'>                <span class="tok-identifier">wen</span> &lt;= <span class="tok-identifier">i_wen</span>; <span class="tok-identifier">ren</span> &lt;= <span class="tok-identifier">i_ren</span>; <span class="tok-identifier">cen</span> &lt;= <span class="tok-identifier">i_cen</span>; <span class="tok-identifier">sen</span> &lt;= <span class="tok-identifier">i_sen</span>;</span>
+<span class='source-line'>                <span class="tok-identifier">waddr</span> &lt;= <span class="tok-identifier">i_waddr</span>; <span class="tok-identifier">raddr</span> &lt;= <span class="tok-identifier">i_raddr</span>; <span class="tok-identifier">caddr</span> &lt;= <span class="tok-identifier">i_caddr</span>;</span>
+<span class='source-line'>                <span class="tok-identifier">wdata</span> &lt;= <span class="tok-identifier">i_wdata</span>; <span class="tok-identifier">skey</span> &lt;= <span class="tok-identifier">i_skey</span>;</span>
+<span class='source-line'>            <span class="tok-keyword">end</span></span>
+<span class='source-line'>        <span class="tok-keyword">end</span></span>
+<span class='source-line'>    <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">begin</span> : <span class="tok-identifier">GEN_NON_FLOP_IN</span></span>
+<span class='source-line'>        <span class="tok-keyword">always</span> @(*) <span class="tok-keyword">begin</span></span>
+<span class='source-line'>            <span class="tok-identifier">wen</span> = <span class="tok-identifier">i_wen</span>; <span class="tok-identifier">ren</span> = <span class="tok-identifier">i_ren</span>; <span class="tok-identifier">cen</span> = <span class="tok-identifier">i_cen</span>; <span class="tok-identifier">sen</span> = <span class="tok-identifier">i_sen</span>;</span>
+<span class='source-line'>            <span class="tok-identifier">waddr</span> = <span class="tok-identifier">i_waddr</span>; <span class="tok-identifier">raddr</span> = <span class="tok-identifier">i_raddr</span>; <span class="tok-identifier">caddr</span> = <span class="tok-identifier">i_caddr</span>;</span>
+<span class='source-line'>            <span class="tok-identifier">wdata</span> = <span class="tok-identifier">i_wdata</span>; <span class="tok-identifier">skey</span> = <span class="tok-identifier">i_skey</span>;</span>
 <span class='source-line'>        <span class="tok-keyword">end</span></span>
 <span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'> </span>
-<span class='source-line'>    <span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>        <span class="tok-keyword">if</span> (<span class="tok-identifier">i_wen</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>            <span class="tok-identifier">waddr</span> &lt;= <span class="tok-identifier">i_waddr</span>;</span>
-<span class='source-line'>            <span class="tok-identifier">wdata</span> &lt;= <span class="tok-identifier">i_wdata</span>;</span>
+<span class='source-line'>    <span class="tok-keyword">for</span> (<span class="tok-identifier">array_idx</span> = <span class="tok-number">0</span>; <span class="tok-identifier">array_idx</span> &lt; <span class="tok-identifier">ARRAY_DEPTH</span>; <span class="tok-identifier">array_idx</span> = <span class="tok-identifier">array_idx</span>+<span class="tok-number">1</span>) <span class="tok-keyword">begin</span> : <span class="tok-identifier">GEN_FF_ARRAY</span></span>
+<span class='source-line'>        <span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
+<span class='source-line'>            <span class="tok-keyword">if</span> (!<span class="tok-identifier">i_rst_n</span>) <span class="tok-identifier">ff_array</span>[<span class="tok-identifier">array_idx</span>] &lt;= <span class="tok-number">0</span>;</span>
+<span class='source-line'>            <span class="tok-comment">// Preserve the original write-over-clear priority at the same entry.</span></span>
+<span class='source-line'>            <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> (<span class="tok-identifier">wen</span> &amp;&amp; <span class="tok-identifier">waddr</span> == <span class="tok-identifier">array_idx</span>) <span class="tok-identifier">ff_array</span>[<span class="tok-identifier">array_idx</span>] &lt;= {<span class="tok-number">1&#x27;b1</span>, <span class="tok-identifier">wdata</span>};</span>
+<span class='source-line'>            <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> (<span class="tok-identifier">cen</span> &amp;&amp; <span class="tok-identifier">caddr</span> == <span class="tok-identifier">array_idx</span>) <span class="tok-identifier">ff_array</span>[<span class="tok-identifier">array_idx</span>] &lt;= <span class="tok-number">0</span>;</span>
 <span class='source-line'>        <span class="tok-keyword">end</span></span>
+<span class='source-line'>        <span class="tok-keyword">assign</span> <span class="tok-identifier">cmp_bitmap</span>[<span class="tok-identifier">array_idx</span>] = <span class="tok-identifier">i_rst_n</span> &amp;&amp; <span class="tok-identifier">sen</span> &amp;&amp; <span class="tok-identifier">ff_array</span>[<span class="tok-identifier">array_idx</span>][<span class="tok-identifier">DATA_WIDTH</span>]</span>
+<span class='source-line'>            &amp;&amp; (<span class="tok-identifier">ff_array</span>[<span class="tok-identifier">array_idx</span>][<span class="tok-identifier">DATA_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>] == <span class="tok-identifier">skey</span>);</span>
 <span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'> </span>
-<span class='source-line'>    <span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>        <span class="tok-keyword">if</span> (<span class="tok-identifier">i_ren</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>            <span class="tok-identifier">raddr</span> &lt;= <span class="tok-identifier">i_raddr</span>;</span>
-<span class='source-line'>        <span class="tok-keyword">end</span></span>
-<span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'> </span>
-<span class='source-line'>    <span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>        <span class="tok-keyword">if</span> (<span class="tok-identifier">i_cen</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>            <span class="tok-identifier">caddr</span> &lt;= <span class="tok-identifier">i_caddr</span>;</span>
-<span class='source-line'>        <span class="tok-keyword">end</span></span>
-<span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'> </span>
-<span class='source-line'>    <span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>        <span class="tok-keyword">if</span> (<span class="tok-identifier">i_sen</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>            <span class="tok-identifier">skey</span> &lt;= <span class="tok-identifier">i_skey</span>;</span>
-<span class='source-line'>        <span class="tok-keyword">end</span></span>
-<span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'><span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">begin</span> : <span class="tok-identifier">GEN_NON_FLOP_IN</span></span>
-<span class='source-line'>    <span class="tok-keyword">always</span> @(*) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>        <span class="tok-identifier">wen</span>   = <span class="tok-identifier">i_wen</span>;</span>
-<span class='source-line'>        <span class="tok-identifier">waddr</span> = <span class="tok-identifier">i_waddr</span>;</span>
-<span class='source-line'>        <span class="tok-identifier">wdata</span> = <span class="tok-identifier">i_wdata</span>;</span>
-<span class='source-line'>        <span class="tok-identifier">ren</span>   = <span class="tok-identifier">i_ren</span>;</span>
-<span class='source-line'>        <span class="tok-identifier">raddr</span> = <span class="tok-identifier">i_raddr</span>;</span>
-<span class='source-line'>        <span class="tok-identifier">cen</span>   = <span class="tok-identifier">i_cen</span>;</span>
-<span class='source-line'>        <span class="tok-identifier">caddr</span> = <span class="tok-identifier">i_caddr</span>;</span>
-<span class='source-line'>        <span class="tok-identifier">sen</span>   = <span class="tok-identifier">i_sen</span>;</span>
-<span class='source-line'>        <span class="tok-identifier">skey</span>  = <span class="tok-identifier">i_skey</span>;</span>
-<span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'><span class="tok-keyword">end</span></span>
 <span class='source-line'><span class="tok-keyword">endgenerate</span></span>
 <span class='source-line'> </span>
-<span class='source-line'><span class="tok-comment">// 位图控制信号</span></span>
-<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">wen_bitmap</span> = <span class="tok-identifier">ren</span> ? ({{(<span class="tok-identifier">ARRAY_DEPTH</span>-<span class="tok-number">1</span>){<span class="tok-number">1&#x27;b0</span>}}, <span class="tok-identifier">wen</span>} &lt;&lt; <span class="tok-identifier">waddr</span>) : <span class="tok-number">0</span>;</span>
-<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">ren_bitmap</span> = <span class="tok-identifier">ren</span> ? ({{(<span class="tok-identifier">ARRAY_DEPTH</span>-<span class="tok-number">1</span>){<span class="tok-number">1&#x27;b0</span>}}, <span class="tok-number">1&#x27;b1</span>} &lt;&lt; <span class="tok-identifier">raddr</span>) : <span class="tok-number">0</span>;</span>
-<span class='source-line'><span class="tok-keyword">assign</span> <span class="tok-identifier">cen_bitmap</span> = <span class="tok-identifier">cen</span> ? ({{(<span class="tok-identifier">ARRAY_DEPTH</span>-<span class="tok-number">1</span>){<span class="tok-number">1&#x27;b0</span>}}, <span class="tok-number">1&#x27;b1</span>} &lt;&lt; <span class="tok-identifier">caddr</span>) : <span class="tok-number">0</span>;</span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-comment">// 寄存器数组写入/清除逻辑</span></span>
-<span class='source-line'><span class="tok-keyword">generate</span></span>
-<span class='source-line'><span class="tok-keyword">for</span> (<span class="tok-identifier">array_idx</span> = <span class="tok-number">0</span>; <span class="tok-identifier">array_idx</span> &lt; <span class="tok-identifier">ARRAY_DEPTH</span>; <span class="tok-identifier">array_idx</span> = <span class="tok-identifier">array_idx</span> + <span class="tok-number">1</span>) <span class="tok-keyword">begin</span> : <span class="tok-identifier">GEN_FF_ARRAY</span></span>
-<span class='source-line'>    <span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>        <span class="tok-keyword">if</span> (!<span class="tok-identifier">i_rst_n</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>            <span class="tok-identifier">ff_array</span>[<span class="tok-identifier">array_idx</span>] &lt;= {<span class="tok-number">1&#x27;b0</span>, {<span class="tok-identifier">DATA_WIDTH</span>{<span class="tok-number">1&#x27;b0</span>}}};</span>
-<span class='source-line'>        <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> (<span class="tok-identifier">wen_bitmap</span>[<span class="tok-identifier">array_idx</span>]) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>            <span class="tok-identifier">ff_array</span>[<span class="tok-identifier">array_idx</span>] &lt;= {<span class="tok-number">1&#x27;b1</span>, <span class="tok-identifier">wdata</span>};</span>
-<span class='source-line'>        <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> (<span class="tok-identifier">cen_bitmap</span>[<span class="tok-identifier">array_idx</span>]) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>            <span class="tok-identifier">ff_array</span>[<span class="tok-identifier">array_idx</span>] &lt;= {<span class="tok-number">1&#x27;b0</span>, {<span class="tok-identifier">DATA_WIDTH</span>{<span class="tok-number">1&#x27;b0</span>}}};</span>
-<span class='source-line'>        <span class="tok-keyword">end</span></span>
-<span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'><span class="tok-keyword">end</span></span>
-<span class='source-line'><span class="tok-keyword">endgenerate</span></span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-comment">// 读数据逻辑</span></span>
 <span class='source-line'><span class="tok-keyword">always</span> @(*) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>    <span class="tok-identifier">rdata</span> = {<span class="tok-identifier">DATA_WIDTH</span>{<span class="tok-number">1&#x27;b0</span>}};</span>
-<span class='source-line'>    <span class="tok-keyword">for</span> (<span class="tok-identifier">read_idx</span> = <span class="tok-number">0</span>; <span class="tok-identifier">read_idx</span> &lt; <span class="tok-identifier">ARRAY_DEPTH</span>; <span class="tok-identifier">read_idx</span> = <span class="tok-identifier">read_idx</span> + <span class="tok-number">1</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>        <span class="tok-keyword">if</span> (<span class="tok-identifier">ren_bitmap</span>[<span class="tok-identifier">read_idx</span>])</span>
-<span class='source-line'>            <span class="tok-identifier">rdata</span> = <span class="tok-identifier">ff_array</span>[<span class="tok-identifier">read_idx</span>][<span class="tok-number">0</span> +: <span class="tok-identifier">DATA_WIDTH</span>];</span>
-<span class='source-line'>    <span class="tok-keyword">end</span></span>
+<span class='source-line'>    <span class="tok-identifier">rdata</span> = <span class="tok-number">0</span>;</span>
+<span class='source-line'>    <span class="tok-keyword">for</span> (<span class="tok-identifier">read_idx</span> = <span class="tok-number">0</span>; <span class="tok-identifier">read_idx</span> &lt; <span class="tok-identifier">ARRAY_DEPTH</span>; <span class="tok-identifier">read_idx</span> = <span class="tok-identifier">read_idx</span>+<span class="tok-number">1</span>)</span>
+<span class='source-line'>        <span class="tok-keyword">if</span> (<span class="tok-identifier">i_rst_n</span> &amp;&amp; <span class="tok-identifier">ren</span> &amp;&amp; <span class="tok-identifier">raddr</span> == <span class="tok-identifier">read_idx</span> &amp;&amp; <span class="tok-identifier">ff_array</span>[<span class="tok-identifier">read_idx</span>][<span class="tok-identifier">DATA_WIDTH</span>])</span>
+<span class='source-line'>            <span class="tok-identifier">rdata</span> = <span class="tok-identifier">ff_array</span>[<span class="tok-identifier">read_idx</span>][<span class="tok-identifier">DATA_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>];</span>
 <span class='source-line'><span class="tok-keyword">end</span></span>
 <span class='source-line'> </span>
-<span class='source-line'><span class="tok-comment">// 输出寄存器控制</span></span>
+<span class='source-line'><span class="tok-comment">// Explicit LSB-first priority also defines duplicate-key behavior.</span></span>
+<span class='source-line'><span class="tok-keyword">always</span> @(*) <span class="tok-keyword">begin</span></span>
+<span class='source-line'>    <span class="tok-identifier">saddr</span> = <span class="tok-number">0</span>;</span>
+<span class='source-line'>    <span class="tok-keyword">for</span> (<span class="tok-identifier">search_idx</span> = <span class="tok-identifier">ARRAY_DEPTH</span>-<span class="tok-number">1</span>; <span class="tok-identifier">search_idx</span> &gt;= <span class="tok-number">0</span>; <span class="tok-identifier">search_idx</span> = <span class="tok-identifier">search_idx</span>-<span class="tok-number">1</span>)</span>
+<span class='source-line'>        <span class="tok-keyword">if</span> (<span class="tok-identifier">cmp_bitmap</span>[<span class="tok-identifier">search_idx</span>]) <span class="tok-identifier">saddr</span> = <span class="tok-identifier">search_idx</span>;</span>
+<span class='source-line'><span class="tok-keyword">end</span></span>
+<span class='source-line'> </span>
 <span class='source-line'><span class="tok-keyword">generate</span></span>
-<span class='source-line'><span class="tok-keyword">if</span> (<span class="tok-identifier">FLOP_OUT</span> == <span class="tok-number">1</span>) <span class="tok-keyword">begin</span> : <span class="tok-identifier">GEN_FLOP_OUT</span></span>
-<span class='source-line'>    <span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>        <span class="tok-keyword">if</span> (<span class="tok-identifier">ren</span>)</span>
-<span class='source-line'>            <span class="tok-identifier">o_rdata</span> &lt;= <span class="tok-identifier">rdata</span>;</span>
+<span class='source-line'>    <span class="tok-keyword">if</span> (<span class="tok-identifier">FLOP_OUT</span> == <span class="tok-number">1</span>) <span class="tok-keyword">begin</span> : <span class="tok-identifier">GEN_FLOP_OUT</span></span>
+<span class='source-line'>        <span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
+<span class='source-line'>            <span class="tok-keyword">if</span> (!<span class="tok-identifier">i_rst_n</span>) <span class="tok-keyword">begin</span> <span class="tok-identifier">o_rdata</span> &lt;= <span class="tok-number">0</span>; <span class="tok-identifier">o_saddr</span> &lt;= <span class="tok-number">0</span>; <span class="tok-keyword">end</span></span>
+<span class='source-line'>            <span class="tok-keyword">else</span> <span class="tok-keyword">begin</span></span>
+<span class='source-line'>                <span class="tok-keyword">if</span> (<span class="tok-identifier">ren</span>) <span class="tok-identifier">o_rdata</span> &lt;= <span class="tok-identifier">rdata</span>;</span>
+<span class='source-line'>                <span class="tok-keyword">if</span> (<span class="tok-identifier">sen</span>) <span class="tok-identifier">o_saddr</span> &lt;= <span class="tok-identifier">saddr</span>;</span>
+<span class='source-line'>            <span class="tok-keyword">end</span></span>
+<span class='source-line'>        <span class="tok-keyword">end</span></span>
+<span class='source-line'>    <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">begin</span> : <span class="tok-identifier">GEN_NON_FLOP_OUT</span></span>
+<span class='source-line'>        <span class="tok-keyword">always</span> @(*) <span class="tok-keyword">begin</span> <span class="tok-identifier">o_rdata</span> = <span class="tok-identifier">rdata</span>; <span class="tok-identifier">o_saddr</span> = <span class="tok-identifier">saddr</span>; <span class="tok-keyword">end</span></span>
 <span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'> </span>
-<span class='source-line'>    <span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">i_clk</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>        <span class="tok-keyword">if</span> (<span class="tok-identifier">sen</span>)</span>
-<span class='source-line'>            <span class="tok-identifier">o_saddr</span> &lt;= <span class="tok-identifier">saddr</span>;</span>
-<span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'><span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">begin</span> : <span class="tok-identifier">GEN_NON_FLOP_OUT</span></span>
-<span class='source-line'>    <span class="tok-keyword">always</span> @(*) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>        <span class="tok-identifier">o_rdata</span> = <span class="tok-identifier">rdata</span>;</span>
-<span class='source-line'>        <span class="tok-keyword">if</span> (<span class="tok-identifier">sen</span>)</span>
-<span class='source-line'>            <span class="tok-identifier">o_saddr</span> = <span class="tok-identifier">saddr</span>;</span>
-<span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'><span class="tok-keyword">end</span></span>
 <span class='source-line'><span class="tok-keyword">endgenerate</span></span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-comment">// 比较逻辑（CAM 功能）</span></span>
-<span class='source-line'><span class="tok-keyword">generate</span></span>
-<span class='source-line'><span class="tok-keyword">for</span> (<span class="tok-identifier">compare_idx</span> = <span class="tok-number">0</span>; <span class="tok-identifier">compare_idx</span> &lt; <span class="tok-identifier">ARRAY_DEPTH</span>; <span class="tok-identifier">compare_idx</span> = <span class="tok-identifier">compare_idx</span> + <span class="tok-number">1</span>) <span class="tok-keyword">begin</span> : <span class="tok-identifier">GEN_CONTENT_CMP</span></span>
-<span class='source-line'>    <span class="tok-keyword">assign</span> <span class="tok-identifier">cmp_bitmap</span>[<span class="tok-identifier">compare_idx</span>] = <span class="tok-identifier">ff_array</span>[<span class="tok-identifier">compare_idx</span>][<span class="tok-identifier">DATA_WIDTH</span>] &amp;&amp; (<span class="tok-identifier">ff_array</span>[<span class="tok-identifier">compare_idx</span>][<span class="tok-number">0</span> +: <span class="tok-identifier">DATA_WIDTH</span>] == <span class="tok-identifier">skey</span>);</span>
-<span class='source-line'><span class="tok-keyword">end</span></span>
-<span class='source-line'><span class="tok-keyword">endgenerate</span></span>
-<span class='source-line'> </span>
-<span class='source-line'><span class="tok-comment">// 将匹配结果转换为地址</span></span>
-<span class='source-line'><span class="tok-identifier">idh_onehot2bin</span> #(</span>
-<span class='source-line'>    .<span class="tok-identifier">BITMAP_WIDTH</span>(<span class="tok-identifier">ARRAY_DEPTH</span>)</span>
-<span class='source-line'>) <span class="tok-identifier">u_onehot2bin</span> (</span>
-<span class='source-line'>    .<span class="tok-identifier">i_bitmap</span>(<span class="tok-identifier">cmp_bitmap</span>),</span>
-<span class='source-line'>    .<span class="tok-identifier">o_bin</span>   (<span class="tok-identifier">saddr</span>)</span>
-<span class='source-line'>);</span>
-<span class='source-line'> </span>
+<span class='source-line'><span class="tok-comment">// Legacy interface has no match-valid output: no hit and address 0 both encode 0.</span></span>
 <span class='source-line'><span class="tok-keyword">endmodule</span></span></code></pre></div></main><script>
 document.querySelectorAll('.asset-tab').forEach((button)=>button.addEventListener('click',()=>{
   const group=button.closest('[data-tabs]');

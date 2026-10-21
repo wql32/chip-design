@@ -19,17 +19,17 @@
     "BITMAP_WIDTH >= 1；BIN_WIDTH >= max(1, ceil(log2(BITMAP_WIDTH)))。",
     "输入必须为 one-hot0；multi-hot 不提供优先级语义。",
     "零输入与 bit 0 命中均输出 0，需要有效性时由调用者使用 |i_bitmap。",
-    "已通过静态编译与表达式模型；尚未执行 RTL 动态仿真或综合时序检查。"
+    "已通过静态展开、参考模型及 Icarus RTL 动态仿真；未完成综合/时序或 CDC 签核。"
   ],
   "verification": {
-    "simulation": "not_run",
+    "simulation": "passed",
     "lint": "not_run",
     "cdc": "not_applicable",
     "formal": "not_run",
     "synthesis": "not_run",
     "performance": "not_run",
     "last_checked": "2026-10-21",
-    "notes": "pyslang 12.0.0 静态编译与参数展开检查通过；Python 表达式/周期模型通过。自检 RTL testbench 已静态编译，但 Icarus/vvp 不可用，尚未运行 RTL 动态仿真；lint/综合/CDC 签核未完成。"
+    "notes": "pyslang 12.0.0 参数展开通过；Python 独立参考模型通过；Icarus Verilog/vvp 已实际执行自检 RTL testbench 并通过，范围见 README。未完成 lint、formal、综合、CDC 或 STA 签核。"
   },
   "source_id": "onehot2bin",
   "status": "constrained",
@@ -46,8 +46,8 @@
   ],
   "review": {
     "date": "2026-10-21",
-    "method": "RTL 源码审查 + pyslang 参数展开 + 独立参考模型回归",
+    "method": "RTL 源码审查 + pyslang 参数展开 + 独立参考模型 + Icarus RTL 自检仿真",
     "rtl_changed": true,
-    "rtl_simulation": "not_run"
+    "rtl_simulation": "passed"
   }
 }

@@ -1,166 +1,92 @@
 module ff_cam #(
-    parameter DATA_WIDTH  = 24,
+    parameter DATA_WIDTH = 24,
     parameter ARRAY_DEPTH = 9,
-    parameter ADDR_WIDTH  = $clog2(ARRAY_DEPTH),
-    parameter FLOP_IN     = 0,
-    parameter FLOP_OUT    = 0,
+    parameter ADDR_WIDTH = (ARRAY_DEPTH > 1) ? $clog2(ARRAY_DEPTH) : 1,
+    parameter FLOP_IN = 0,
+    parameter FLOP_OUT = 0,
     parameter END_OF_LIST = 0
 )(
-    input  i_clk,
-    input  i_rst_n,
-
-    input                    i_wen,
-    input  [ADDR_WIDTH-1:0]  i_waddr,
-    input  [DATA_WIDTH-1:0]  i_wdata,
-
-    input                    i_ren,
-    input  [ADDR_WIDTH-1:0]  i_raddr,
+    input i_clk,
+    input i_rst_n,
+    input i_wen,
+    input [ADDR_WIDTH-1:0] i_waddr,
+    input [DATA_WIDTH-1:0] i_wdata,
+    input i_ren,
+    input [ADDR_WIDTH-1:0] i_raddr,
     output reg [DATA_WIDTH-1:0] o_rdata,
-
-    input                    i_cen,
-    input  [ADDR_WIDTH-1:0]  i_caddr,
-
-    input                    i_sen,
-    input  [DATA_WIDTH-1:0]  i_skey,
+    input i_cen,
+    input [ADDR_WIDTH-1:0] i_caddr,
+    input i_sen,
+    input [DATA_WIDTH-1:0] i_skey,
     output reg [ADDR_WIDTH-1:0] o_saddr
 );
-
-// 寄存器数组，每个元素包含 {valid, data}
 reg [DATA_WIDTH:0] ff_array [0:ARRAY_DEPTH-1];
-
-// 内部信号
 reg wen, ren, cen, sen;
 reg [ADDR_WIDTH-1:0] waddr, raddr, caddr;
-reg [DATA_WIDTH-1:0] wdata, rdata, skey;
-
-wire [ARRAY_DEPTH-1:0] wen_bitmap;
-wire [ARRAY_DEPTH-1:0] ren_bitmap;
-wire [ARRAY_DEPTH-1:0] cen_bitmap;
+reg [DATA_WIDTH-1:0] wdata, skey, rdata;
+reg [ADDR_WIDTH-1:0] saddr;
 wire [ARRAY_DEPTH-1:0] cmp_bitmap;
-wire [ADDR_WIDTH-1:0]  saddr;
-integer read_idx;
+integer read_idx, search_idx;
 genvar array_idx;
-genvar compare_idx;
 
-// 输入寄存器控制
 generate
-if (FLOP_IN == 1) begin : GEN_FLOP_IN
-    always @(posedge i_clk) begin
-        if (!i_rst_n) begin
-            wen <= 1'b0;
-            ren <= 1'b0;
-            cen <= 1'b0;
-            sen <= 1'b0;
-        end else begin
-            wen <= i_wen;
-            ren <= i_ren;
-            cen <= i_cen;
-            sen <= i_sen;
+    if (FLOP_IN == 1) begin : GEN_FLOP_IN
+        always @(posedge i_clk) begin
+            if (!i_rst_n) begin
+                wen <= 0; ren <= 0; cen <= 0; sen <= 0;
+                waddr <= 0; raddr <= 0; caddr <= 0;
+                wdata <= 0; skey <= 0;
+            end else begin
+                wen <= i_wen; ren <= i_ren; cen <= i_cen; sen <= i_sen;
+                waddr <= i_waddr; raddr <= i_raddr; caddr <= i_caddr;
+                wdata <= i_wdata; skey <= i_skey;
+            end
+        end
+    end else begin : GEN_NON_FLOP_IN
+        always @(*) begin
+            wen = i_wen; ren = i_ren; cen = i_cen; sen = i_sen;
+            waddr = i_waddr; raddr = i_raddr; caddr = i_caddr;
+            wdata = i_wdata; skey = i_skey;
         end
     end
-
-    always @(posedge i_clk) begin
-        if (i_wen) begin
-            waddr <= i_waddr;
-            wdata <= i_wdata;
+    for (array_idx = 0; array_idx < ARRAY_DEPTH; array_idx = array_idx+1) begin : GEN_FF_ARRAY
+        always @(posedge i_clk) begin
+            if (!i_rst_n) ff_array[array_idx] <= 0;
+            // Preserve the original write-over-clear priority at the same entry.
+            else if (wen && waddr == array_idx) ff_array[array_idx] <= {1'b1, wdata};
+            else if (cen && caddr == array_idx) ff_array[array_idx] <= 0;
         end
+        assign cmp_bitmap[array_idx] = i_rst_n && sen && ff_array[array_idx][DATA_WIDTH]
+            && (ff_array[array_idx][DATA_WIDTH-1:0] == skey);
     end
-
-    always @(posedge i_clk) begin
-        if (i_ren) begin
-            raddr <= i_raddr;
-        end
-    end
-
-    always @(posedge i_clk) begin
-        if (i_cen) begin
-            caddr <= i_caddr;
-        end
-    end
-
-    always @(posedge i_clk) begin
-        if (i_sen) begin
-            skey <= i_skey;
-        end
-    end
-end else begin : GEN_NON_FLOP_IN
-    always @(*) begin
-        wen   = i_wen;
-        waddr = i_waddr;
-        wdata = i_wdata;
-        ren   = i_ren;
-        raddr = i_raddr;
-        cen   = i_cen;
-        caddr = i_caddr;
-        sen   = i_sen;
-        skey  = i_skey;
-    end
-end
 endgenerate
 
-// 位图控制信号
-assign wen_bitmap = ren ? ({{(ARRAY_DEPTH-1){1'b0}}, wen} << waddr) : 0;
-assign ren_bitmap = ren ? ({{(ARRAY_DEPTH-1){1'b0}}, 1'b1} << raddr) : 0;
-assign cen_bitmap = cen ? ({{(ARRAY_DEPTH-1){1'b0}}, 1'b1} << caddr) : 0;
-
-// 寄存器数组写入/清除逻辑
-generate
-for (array_idx = 0; array_idx < ARRAY_DEPTH; array_idx = array_idx + 1) begin : GEN_FF_ARRAY
-    always @(posedge i_clk) begin
-        if (!i_rst_n) begin
-            ff_array[array_idx] <= {1'b0, {DATA_WIDTH{1'b0}}};
-        end else if (wen_bitmap[array_idx]) begin
-            ff_array[array_idx] <= {1'b1, wdata};
-        end else if (cen_bitmap[array_idx]) begin
-            ff_array[array_idx] <= {1'b0, {DATA_WIDTH{1'b0}}};
-        end
-    end
-end
-endgenerate
-
-// 读数据逻辑
 always @(*) begin
-    rdata = {DATA_WIDTH{1'b0}};
-    for (read_idx = 0; read_idx < ARRAY_DEPTH; read_idx = read_idx + 1) begin
-        if (ren_bitmap[read_idx])
-            rdata = ff_array[read_idx][0 +: DATA_WIDTH];
-    end
+    rdata = 0;
+    for (read_idx = 0; read_idx < ARRAY_DEPTH; read_idx = read_idx+1)
+        if (i_rst_n && ren && raddr == read_idx && ff_array[read_idx][DATA_WIDTH])
+            rdata = ff_array[read_idx][DATA_WIDTH-1:0];
 end
 
-// 输出寄存器控制
+// Explicit LSB-first priority also defines duplicate-key behavior.
+always @(*) begin
+    saddr = 0;
+    for (search_idx = ARRAY_DEPTH-1; search_idx >= 0; search_idx = search_idx-1)
+        if (cmp_bitmap[search_idx]) saddr = search_idx;
+end
+
 generate
-if (FLOP_OUT == 1) begin : GEN_FLOP_OUT
-    always @(posedge i_clk) begin
-        if (ren)
-            o_rdata <= rdata;
+    if (FLOP_OUT == 1) begin : GEN_FLOP_OUT
+        always @(posedge i_clk) begin
+            if (!i_rst_n) begin o_rdata <= 0; o_saddr <= 0; end
+            else begin
+                if (ren) o_rdata <= rdata;
+                if (sen) o_saddr <= saddr;
+            end
+        end
+    end else begin : GEN_NON_FLOP_OUT
+        always @(*) begin o_rdata = rdata; o_saddr = saddr; end
     end
-
-    always @(posedge i_clk) begin
-        if (sen)
-            o_saddr <= saddr;
-    end
-end else begin : GEN_NON_FLOP_OUT
-    always @(*) begin
-        o_rdata = rdata;
-        if (sen)
-            o_saddr = saddr;
-    end
-end
 endgenerate
-
-// 比较逻辑（CAM 功能）
-generate
-for (compare_idx = 0; compare_idx < ARRAY_DEPTH; compare_idx = compare_idx + 1) begin : GEN_CONTENT_CMP
-    assign cmp_bitmap[compare_idx] = ff_array[compare_idx][DATA_WIDTH] && (ff_array[compare_idx][0 +: DATA_WIDTH] == skey);
-end
-endgenerate
-
-// 将匹配结果转换为地址
-idh_onehot2bin #(
-    .BITMAP_WIDTH(ARRAY_DEPTH)
-) u_onehot2bin (
-    .i_bitmap(cmp_bitmap),
-    .o_bin   (saddr)
-);
-
+// Legacy interface has no match-valid output: no hit and address 0 both encode 0.
 endmodule
