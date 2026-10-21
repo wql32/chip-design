@@ -2,7 +2,7 @@
   "schema_version": 1,
   "name": "wql32_onehot2bin",
   "display_name": "One-hot 转二进制编码器 (onehot2bin.v)",
-  "version": "source",
+  "version": "local-fix-20261021",
   "kind": "rtl_component",
   "category": "codec",
   "description": "将 One-hot/bitmap 输入编码为二进制索引。",
@@ -16,7 +16,10 @@
     "rtl"
   ],
   "limitations": [
-    "需明确多位同时有效和全零输入的处理方式。"
+    "BITMAP_WIDTH >= 1；BIN_WIDTH >= max(1, ceil(log2(BITMAP_WIDTH)))。",
+    "输入必须为 one-hot0；multi-hot 不提供优先级语义。",
+    "零输入与 bit 0 命中均输出 0，需要有效性时由调用者使用 |i_bitmap。",
+    "已通过静态编译与表达式模型；尚未执行 RTL 动态仿真或综合时序检查。"
   ],
   "verification": {
     "simulation": "not_run",
@@ -24,11 +27,27 @@
     "cdc": "not_applicable",
     "formal": "not_run",
     "synthesis": "not_run",
-    "performance": "not_run"
+    "performance": "not_run",
+    "last_checked": "2026-10-21",
+    "notes": "pyslang 12.0.0 静态编译与参数展开检查通过；Python 表达式/周期模型通过。自检 RTL testbench 已静态编译，但 Icarus/vvp 不可用，尚未运行 RTL 动态仿真；lint/综合/CDC 签核未完成。"
   },
   "source_id": "onehot2bin",
-  "status": "needs_fix",
-  "features": [],
-  "design_patterns": [],
-  "problem_index": []
+  "status": "constrained",
+  "features": [
+    "严格 one-hot/one-hot0 到二进制索引编码",
+    "支持 BITMAP_WIDTH=1 和非 2 的幂位宽",
+    "按常量索引位构造 OR 归约，消除分段切片越界"
+  ],
+  "design_patterns": [
+    "One-hot encoding"
+  ],
+  "problem_index": [
+    "Invalid one-hot input and priority behavior"
+  ],
+  "review": {
+    "date": "2026-10-21",
+    "method": "RTL 源码审查 + pyslang 参数展开 + 独立参考模型回归",
+    "rtl_changed": true,
+    "rtl_simulation": "not_run"
+  }
 }

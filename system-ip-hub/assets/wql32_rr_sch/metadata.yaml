@@ -1,1 +1,54 @@
-{"schema_version":1,"name":"wql32_rr_sch","display_name":"轮询调度器 (rr_sch.v)","version":"source","kind":"rtl_component","category":"arbiter","description":"面向多请求源的轮询调度器，支持请求推进和公平服务。","tags":["round-robin","scheduler","fairness","request"],"protocols":["ready-valid"],"limitations":["需明确调度推进条件、请求保持和 backpressure 下的公平性。"],"verification":{"simulation":"not_run","lint":"not_run","cdc":"not_applicable","formal":"not_run","synthesis":"not_run","performance":"not_run"},"source_id":"rr_sch","status":"needs_fix"}
+{
+  "schema_version": 1,
+  "name": "wql32_rr_sch",
+  "display_name": "轮询调度器 (rr_sch.v)",
+  "version": "local-fix-20261021",
+  "kind": "rtl_component",
+  "category": "arbiter",
+  "description": "面向多请求源的轮询调度器，支持请求推进和公平服务。",
+  "tags": [
+    "round-robin",
+    "scheduler",
+    "fairness",
+    "request"
+  ],
+  "protocols": [
+    "rtl"
+  ],
+  "limitations": [
+    "REQ_NUM >= 1，支持非 2 的幂；i_sch_en 表示本周期实际接受一次服务。",
+    "o_gnt_vld 保持旧向量接口，但不是每端口有效 bitmap。",
+    "没有独立 ready 或 pending grant；需要保持授权时必须增加外部逻辑。",
+    "已通过静态编译与算法模型；尚未执行 RTL 动态仿真、综合或时序检查。"
+  ],
+  "verification": {
+    "simulation": "not_run",
+    "lint": "not_run",
+    "cdc": "not_applicable",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run",
+    "last_checked": "2026-10-21",
+    "notes": "pyslang 12.0.0 静态编译与参数展开检查通过；Python 表达式/周期模型通过。自检 RTL testbench 已静态编译，但 Icarus/vvp 不可用，尚未运行 RTL 动态仿真；lint/综合/CDC 签核未完成。"
+  },
+  "source_id": "rr_sch",
+  "status": "constrained",
+  "features": [
+    "last-grant mask 与回绕优先选择",
+    "仅在 i_sch_en 且存在请求时推进轮询",
+    "暂停时 grant/valid 均为零",
+    "保留向量 o_gnt_vld，只有 bit 0 为标量有效位"
+  ],
+  "design_patterns": [
+    "Round-robin arbitration"
+  ],
+  "problem_index": [
+    "Fairness, starvation and grant timing"
+  ],
+  "review": {
+    "date": "2026-10-21",
+    "method": "RTL 源码审查 + pyslang 参数展开 + 独立参考模型回归",
+    "rtl_changed": true,
+    "rtl_simulation": "not_run"
+  }
+}

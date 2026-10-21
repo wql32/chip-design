@@ -45,7 +45,7 @@ header nav a.active{background:#ffffff18;color:#fff;box-shadow:inset 0 0 0 1px #
  @media(max-width:700px){header{padding:14px 16px;align-items:flex-start;gap:10px;flex-direction:column}main{margin:22px auto;padding:0 14px}h1{font-size:25px}.hero{padding:24px}.hero h1{font-size:29px}.hero-actions{align-items:flex-start;flex-direction:column;gap:13px}table{font-size:13px;display:block;overflow-x:auto;white-space:nowrap}input{min-width:160px}.markdown-body{padding:21px 18px}.source-line:before{width:42px;margin-right:11px;padding-right:9px}.source-line{padding-right:20px}.code-frame pre{padding:4px 0}.code-header{padding:7px 12px}.filter-panel form{grid-template-columns:1fr}.asset-card-list{grid-template-columns:1fr}.gap-row{grid-template-columns:1fr}.nav-more{position:static}.nav-menu{position:static;box-shadow:none;margin-top:5px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 </style></head><body><a class="skip-link" href="#main-content">跳到主要内容</a><header><div class="brand"><span class="brand-mark" aria-hidden="true"></span><a class="nav" href="/chip-design/system-ip-hub/"><span class="brand-copy"><span>System IP Design Hub</span><small>RTL / DMA / AXI / PCIe / CXL</small></span></a></div><nav aria-label="主导航"><a href="/chip-design/system-ip-hub/assets/">资产</a><a href="/chip-design/system-ip-hub/patterns/">设计模式</a><a href="/chip-design/system-ip-hub/problems/">问题索引</a><a href="/chip-design/system-ip-hub/mappings/">Bridge Mapping</a><details class="nav-more"><summary>工具</summary><div class="nav-menu"><a href="/chip-design/system-ip-hub/templates/rtl-module-design-review/">RTL 设计模板</a><a href="/chip-design/system-ip-hub/import/">本地维护</a><a href="/chip-design/system-ip-hub/protocols/">协议索引</a><a href="/chip-design/system-ip-hub/dependencies/">依赖关系</a><a href="/chip-design/system-ip-hub/report/">待完善项</a></div></details></nav></header><style>.snapshot-only{display:inline!important}a.secondary-button.snapshot-only{display:inline-flex!important}</style><div style='max-width:1320px;margin:12px auto 0;padding:9px 28px;border:1px solid #b9dce5;border-radius:9px;background:#e9f8fb;color:#216477;font-size:13px'>公开资产库 · 支持搜索与筛选 · 更新资产请查看 <a href='/chip-design/system-ip-hub/import/'>本地维护说明</a></div><main id="main-content"><p><a href='/chip-design/system-ip-hub/assets/wql32_handshake_sync/'>← 4 相握手同步器</a></p>
-<div class='eyebrow'>SOURCE / RTL FILE</div><h1>handshake_sync.v</h1><div class='document-toolbar'><strong>wql32_handshake_sync</strong><div class='actions'><span class='muted'>76 lines · 2211 bytes · UTF-8</span><button class='copy-button' type='button' data-copy-target='#source-code'>复制</button></div></div><div class='code-frame'><div class='code-header'><span>handshake_sync.v</span><span class='language'>Verilog</span></div><pre><code class='source-code' id='source-code'><span class='source-line'><span class="tok-keyword">module</span> <span class="tok-identifier">handshake_sync</span> #(</span>
+<div class='eyebrow'>SOURCE / RTL FILE</div><h1>handshake_sync.v</h1><div class='document-toolbar'><strong>wql32_handshake_sync</strong><div class='actions'><span class='muted'>88 lines · 2797 bytes · UTF-8</span><button class='copy-button' type='button' data-copy-target='#source-code'>复制</button></div></div><div class='code-frame'><div class='code-header'><span>handshake_sync.v</span><span class='language'>Verilog</span></div><pre><code class='source-code' id='source-code'><span class='source-line'><span class="tok-keyword">module</span> <span class="tok-identifier">handshake_sync</span> #(</span>
 <span class='source-line'>    <span class="tok-keyword">parameter</span> <span class="tok-identifier">DATA_WIDTH</span> = <span class="tok-number">16</span></span>
 <span class='source-line'>)(</span>
 <span class='source-line'>    <span class="tok-identifier">input</span>  <span class="tok-keyword">wire</span>                  <span class="tok-identifier">src_clk</span>,</span>
@@ -68,7 +68,7 @@ header nav a.active{background:#ffffff18;color:#fff;box-shadow:inset 0 0 0 1px #
 <span class='source-line'>        <span class="tok-keyword">if</span> (!<span class="tok-identifier">src_rst_n</span>) <span class="tok-keyword">begin</span></span>
 <span class='source-line'>            <span class="tok-identifier">req</span>      &lt;= <span class="tok-number">1&#x27;b0</span>;</span>
 <span class='source-line'>            <span class="tok-identifier">data_reg</span> &lt;= <span class="tok-number">0</span>;</span>
-<span class='source-line'>        <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> (<span class="tok-identifier">src_vld</span> &amp;&amp; !<span class="tok-identifier">req</span>) <span class="tok-keyword">begin</span></span>
+<span class='source-line'>        <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> (<span class="tok-identifier">src_vld</span> &amp;&amp; <span class="tok-identifier">src_ready</span>) <span class="tok-keyword">begin</span></span>
 <span class='source-line'>            <span class="tok-identifier">data_reg</span> &lt;= <span class="tok-identifier">src_data</span>;</span>
 <span class='source-line'>            <span class="tok-identifier">req</span>      &lt;= <span class="tok-number">1&#x27;b1</span>;</span>
 <span class='source-line'>        <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> (<span class="tok-identifier">ack_sync</span>) <span class="tok-keyword">begin</span></span>
@@ -76,39 +76,50 @@ header nav a.active{background:#ffffff18;color:#fff;box-shadow:inset 0 0 0 1px #
 <span class='source-line'>        <span class="tok-keyword">end</span></span>
 <span class='source-line'>    <span class="tok-keyword">end</span></span>
 <span class='source-line'> </span>
-<span class='source-line'>    <span class="tok-keyword">assign</span> <span class="tok-identifier">src_ready</span> = !<span class="tok-identifier">req</span>;</span>
+<span class='source-line'>    <span class="tok-comment">// A new transfer must wait for both halves of the four-phase handshake.</span></span>
+<span class='source-line'>    <span class="tok-keyword">assign</span> <span class="tok-identifier">src_ready</span> = <span class="tok-identifier">src_rst_n</span> &amp;&amp; !<span class="tok-identifier">req</span> &amp;&amp; !<span class="tok-identifier">ack_sync</span>;</span>
 <span class='source-line'> </span>
-<span class='source-line'>    <span class="tok-identifier">reg</span>  <span class="tok-identifier">req_sync_0</span>, <span class="tok-identifier">req_sync_1</span>;</span>
+<span class='source-line'>    (* <span class="tok-identifier">ASYNC_REG</span> = <span class="tok-string">&quot;TRUE&quot;</span> *) <span class="tok-identifier">reg</span> <span class="tok-identifier">req_sync_0</span>, <span class="tok-identifier">req_sync_1</span>;</span>
+<span class='source-line'>    <span class="tok-identifier">reg</span> <span class="tok-identifier">req_sync_d</span>;</span>
 <span class='source-line'>    <span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">dst_clk</span> <span class="tok-keyword">or</span> <span class="tok-keyword">negedge</span> <span class="tok-identifier">dst_rst_n</span>) <span class="tok-keyword">begin</span></span>
 <span class='source-line'>        <span class="tok-keyword">if</span> (!<span class="tok-identifier">dst_rst_n</span>) <span class="tok-keyword">begin</span></span>
 <span class='source-line'>            <span class="tok-identifier">req_sync_0</span> &lt;= <span class="tok-number">1&#x27;b0</span>;</span>
 <span class='source-line'>            <span class="tok-identifier">req_sync_1</span> &lt;= <span class="tok-number">1&#x27;b0</span>;</span>
+<span class='source-line'>            <span class="tok-identifier">req_sync_d</span> &lt;= <span class="tok-number">1&#x27;b0</span>;</span>
 <span class='source-line'>        <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">begin</span></span>
 <span class='source-line'>            <span class="tok-identifier">req_sync_0</span> &lt;= <span class="tok-identifier">req</span>;</span>
 <span class='source-line'>            <span class="tok-identifier">req_sync_1</span> &lt;= <span class="tok-identifier">req_sync_0</span>;</span>
+<span class='source-line'>            <span class="tok-identifier">req_sync_d</span> &lt;= <span class="tok-identifier">req_sync_1</span>;</span>
 <span class='source-line'>        <span class="tok-keyword">end</span></span>
 <span class='source-line'>    <span class="tok-keyword">end</span></span>
-<span class='source-line'>    <span class="tok-keyword">wire</span> <span class="tok-identifier">req_pulse</span> = <span class="tok-identifier">req_sync_1</span> &amp;&amp; !<span class="tok-identifier">req_sync_0</span>;</span>
+<span class='source-line'>    <span class="tok-comment">// Only the second synchronizer stage participates in functional logic.</span></span>
+<span class='source-line'>    <span class="tok-keyword">wire</span> <span class="tok-identifier">req_pulse</span> = <span class="tok-identifier">req_sync_1</span> &amp;&amp; !<span class="tok-identifier">req_sync_d</span>;</span>
 <span class='source-line'> </span>
 <span class='source-line'>    <span class="tok-identifier">reg</span>                         <span class="tok-identifier">ack</span>;</span>
 <span class='source-line'>    <span class="tok-identifier">reg</span>  [<span class="tok-identifier">DATA_WIDTH</span>-<span class="tok-number">1</span>:<span class="tok-number">0</span>]       <span class="tok-identifier">dst_data_reg</span>;</span>
+<span class='source-line'>    <span class="tok-identifier">reg</span>                         <span class="tok-identifier">dst_vld_reg</span>;</span>
 <span class='source-line'> </span>
 <span class='source-line'>    <span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">dst_clk</span> <span class="tok-keyword">or</span> <span class="tok-keyword">negedge</span> <span class="tok-identifier">dst_rst_n</span>) <span class="tok-keyword">begin</span></span>
 <span class='source-line'>        <span class="tok-keyword">if</span> (!<span class="tok-identifier">dst_rst_n</span>) <span class="tok-keyword">begin</span></span>
 <span class='source-line'>            <span class="tok-identifier">ack</span>          &lt;= <span class="tok-number">1&#x27;b0</span>;</span>
 <span class='source-line'>            <span class="tok-identifier">dst_data_reg</span> &lt;= <span class="tok-number">0</span>;</span>
-<span class='source-line'>        <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> (<span class="tok-identifier">req_pulse</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>            <span class="tok-identifier">dst_data_reg</span> &lt;= <span class="tok-identifier">data_reg</span>;</span>
-<span class='source-line'>            <span class="tok-identifier">ack</span>          &lt;= <span class="tok-number">1&#x27;b1</span>;</span>
-<span class='source-line'>        <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> (!<span class="tok-identifier">req_sync_1</span>) <span class="tok-keyword">begin</span></span>
-<span class='source-line'>            <span class="tok-identifier">ack</span>          &lt;= <span class="tok-number">1&#x27;b0</span>;</span>
+<span class='source-line'>            <span class="tok-identifier">dst_vld_reg</span>  &lt;= <span class="tok-number">1&#x27;b0</span>;</span>
+<span class='source-line'>        <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">begin</span></span>
+<span class='source-line'>            <span class="tok-comment">// Register valid with data, so a consumer samples the same transfer.</span></span>
+<span class='source-line'>            <span class="tok-identifier">dst_vld_reg</span> &lt;= <span class="tok-identifier">req_pulse</span>;</span>
+<span class='source-line'>            <span class="tok-keyword">if</span> (<span class="tok-identifier">req_pulse</span>) <span class="tok-keyword">begin</span></span>
+<span class='source-line'>                <span class="tok-identifier">dst_data_reg</span> &lt;= <span class="tok-identifier">data_reg</span>;</span>
+<span class='source-line'>                <span class="tok-identifier">ack</span>          &lt;= <span class="tok-number">1&#x27;b1</span>;</span>
+<span class='source-line'>            <span class="tok-keyword">end</span> <span class="tok-keyword">else</span> <span class="tok-keyword">if</span> (!<span class="tok-identifier">req_sync_1</span>) <span class="tok-keyword">begin</span></span>
+<span class='source-line'>                <span class="tok-identifier">ack</span>          &lt;= <span class="tok-number">1&#x27;b0</span>;</span>
+<span class='source-line'>            <span class="tok-keyword">end</span></span>
 <span class='source-line'>        <span class="tok-keyword">end</span></span>
 <span class='source-line'>    <span class="tok-keyword">end</span></span>
 <span class='source-line'> </span>
-<span class='source-line'>    <span class="tok-keyword">assign</span> <span class="tok-identifier">dst_vld</span>  = <span class="tok-identifier">req_pulse</span>;</span>
+<span class='source-line'>    <span class="tok-keyword">assign</span> <span class="tok-identifier">dst_vld</span>  = <span class="tok-identifier">dst_vld_reg</span>;</span>
 <span class='source-line'>    <span class="tok-keyword">assign</span> <span class="tok-identifier">dst_data</span> = <span class="tok-identifier">dst_data_reg</span>;</span>
 <span class='source-line'> </span>
-<span class='source-line'>    <span class="tok-identifier">reg</span>  <span class="tok-identifier">ack_sync_0</span>, <span class="tok-identifier">ack_sync_1</span>;</span>
+<span class='source-line'>    (* <span class="tok-identifier">ASYNC_REG</span> = <span class="tok-string">&quot;TRUE&quot;</span> *) <span class="tok-identifier">reg</span> <span class="tok-identifier">ack_sync_0</span>, <span class="tok-identifier">ack_sync_1</span>;</span>
 <span class='source-line'>    <span class="tok-keyword">always</span> @(<span class="tok-keyword">posedge</span> <span class="tok-identifier">src_clk</span> <span class="tok-keyword">or</span> <span class="tok-keyword">negedge</span> <span class="tok-identifier">src_rst_n</span>) <span class="tok-keyword">begin</span></span>
 <span class='source-line'>        <span class="tok-keyword">if</span> (!<span class="tok-identifier">src_rst_n</span>) <span class="tok-keyword">begin</span></span>
 <span class='source-line'>            <span class="tok-identifier">ack_sync_0</span> &lt;= <span class="tok-number">1&#x27;b0</span>;</span>

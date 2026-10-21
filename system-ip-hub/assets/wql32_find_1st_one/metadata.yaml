@@ -16,7 +16,9 @@
     "rtl"
   ],
   "limitations": [
-    "需明确最低位/最高位优先级和无匹配时输出。"
+    "默认 BIN_WIDTH=$clog2(BITMAP_WIDTH)，要求 BITMAP_WIDTH >= 2 且 BIN_WIDTH 足够。",
+    "最低索引优先；二进制零同时表示无匹配和 bit 0，需要结合 |o_onehot。",
+    "大位宽优先路径需综合时序评估；尚未执行 RTL 动态仿真。"
   ],
   "verification": {
     "simulation": "not_run",
@@ -24,11 +26,27 @@
     "cdc": "not_applicable",
     "formal": "not_run",
     "synthesis": "not_run",
-    "performance": "not_run"
+    "performance": "not_run",
+    "last_checked": "2026-10-21",
+    "notes": "pyslang 12.0.0 静态编译与参数展开检查通过；Python 表达式/周期模型通过。自检 RTL testbench 已静态编译，但 Icarus/vvp 不可用，尚未运行 RTL 动态仿真；lint/综合/CDC 签核未完成。"
   },
   "source_id": "find_1st_one",
-  "status": "needs_fix",
-  "features": [],
-  "design_patterns": [],
-  "problem_index": []
+  "status": "constrained",
+  "features": [
+    "最低索引置位优先",
+    "同时输出 one-hot 与二进制索引",
+    "零输入输出零，可由 |o_onehot 判断有效"
+  ],
+  "design_patterns": [
+    "One-hot encoding"
+  ],
+  "problem_index": [
+    "Invalid one-hot input and priority behavior"
+  ],
+  "review": {
+    "date": "2026-10-21",
+    "method": "RTL 源码审查 + pyslang 参数展开 + 独立参考模型回归",
+    "rtl_changed": false,
+    "rtl_simulation": "not_run"
+  }
 }
