@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "name": "wql32_sync_fifo",
+  "display_name": "同步 FIFO（标准双端口）",
+  "version": "source",
+  "kind": "rtl_component",
+  "category": "fifo",
+  "description": "单时钟双端口同步 FIFO，支持 almost_full/almost_empty 阈值。",
+  "tags": [
+    "fifo",
+    "synchronous",
+    "almost-full",
+    "almost-empty"
+  ],
+  "protocols": [
+    "ready-valid"
+  ],
+  "limitations": [
+    "使用前需确认 DEPTH、指针回绕和读数据时序约束。"
+  ],
+  "verification": {
+    "simulation": "not_run",
+    "lint": "not_run",
+    "cdc": "not_applicable",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run"
+  },
+  "source_id": "sync_fifo",
+  "status": "constrained"
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "name": "async_fifo_sample",
+  "display_name": "Asynchronous FIFO (Generic Sample)",
+  "version": "1.0.0",
+  "kind": "component",
+  "category": "cdc_reset",
+  "description": "Generic asynchronous FIFO design asset card for buffering transactions across clock domains.",
+  "tags": ["fifo", "cdc", "buffer", "backpressure"],
+  "protocols": ["ready-valid"],
+  "features": ["independent_clocks", "gray_pointer", "full_empty_flags"],
+  "limitations": ["Depth is expected to be a power of two.", "Reset release must be synchronized per clock domain."],
+  "dependencies": [],
+  "verification": {
+    "simulation": "passed",
+    "lint": "passed",
+    "cdc": "reviewed",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run",
+    "last_checked": "2026-08-16"
+  },
+  "files": {"documents": ["README.md"]}
+}

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "name": "wql32_handshake_sync",
+  "display_name": "4 相握手同步器",
+  "version": "local-fix-20261021",
+  "kind": "rtl_component",
+  "category": "cdc",
+  "description": "用于跨时钟域可靠传输控制事件的握手同步器。",
+  "tags": [
+    "cdc",
+    "handshake",
+    "synchronizer",
+    "event"
+  ],
+  "protocols": [
+    "CDC"
+  ],
+  "limitations": [
+    "DATA_WIDTH >= 1；目的端无反压，必须接受单周期 dst_vld。",
+    "双域异步复位各自同步释放；运行中只保证协调复位，复位丢弃在途事务。",
+    "数据采用稳定保持 MCP CDC，必须补充约束与 CDC/STA 检查。",
+    "已通过静态展开、参考模型及 Icarus RTL 动态仿真；未完成综合/时序或 CDC 签核。"
+  ],
+  "verification": {
+    "simulation": "passed",
+    "lint": "not_run",
+    "cdc": "not_run",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run",
+    "last_checked": "2026-10-21",
+    "notes": "pyslang 12.0.0 参数展开通过；Python 独立参考模型通过；Icarus Verilog/vvp 已实际执行自检 RTL testbench 并通过，范围见 README。未完成 lint、formal、综合、CDC 或 STA 签核。"
+  },
+  "source_id": "handshake_sync",
+  "status": "constrained",
+  "features": [
+    "单项在途的四相 req/ack 握手",
+    "req/ack 两级同步并标记 ASYNC_REG",
+    "目的端 valid 与数据同时寄存",
+    "完整返回空闲后才接受下一项"
+  ],
+  "design_patterns": [
+    "Clock-domain crossing"
+  ],
+  "problem_index": [
+    "Reset release and cross-domain synchronization",
+    "stuck transaction"
+  ],
+  "review": {
+    "date": "2026-10-21",
+    "method": "RTL 源码审查 + pyslang 参数展开 + 独立参考模型 + Icarus RTL 自检仿真",
+    "rtl_changed": true,
+    "rtl_simulation": "passed"
+  }
+}

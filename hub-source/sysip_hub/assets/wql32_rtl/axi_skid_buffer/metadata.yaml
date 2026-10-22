@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "wql32_axi_skid_buffer",
+  "display_name": "AXI Ready/Valid Skid Buffer",
+  "version": "0.1",
+  "kind": "rtl_component",
+  "category": "axi",
+  "description": "两级 ready/valid skid buffer，输入 ready 只依赖寄存的占用状态，用于切断下游 ready 到上游 ready 的组合路径。",
+  "tags": ["axi", "ready-valid", "skid-buffer", "register-slice", "backpressure"],
+  "protocols": ["AXI4", "AXI4-Stream", "ready-valid"],
+  "features": ["two-entry", "registered-ready-path", "same-cycle-pop-push", "registered-data"],
+  "limitations": ["固定增加一级寄存器延迟；不提供 fall-through 输出。", "满状态释放空间时，上游 ready 在下一周期恢复。", "需要在上层分别实例化 AXI 的独立通道。"],
+  "design_patterns": ["elastic-buffer", "decoupled-ready-valid"],
+  "problem_index": ["ready-valid timing", "backpressure"],
+  "source_id": "wql32_axi_skid_buffer"
+}

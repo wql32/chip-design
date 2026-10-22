@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "name": "wql32_free_ptr_mng",
+  "display_name": "空闲指针管理器 (free_ptr_mng.v)",
+  "version": "local-fix-20261021",
+  "kind": "rtl_component",
+  "category": "storage",
+  "description": "用于管理可分配/释放资源索引的空闲指针组件。",
+  "tags": [
+    "free-list",
+    "pointer",
+    "resource-management",
+    "allocation"
+  ],
+  "protocols": [
+    "rtl"
+  ],
+  "limitations": [
+    "o_ptr_num 为 bitmap 加预取缓存的总空闲数，旧集成需核对。",
+    "忽略越界/重复释放；仅接受边沿前已分配的指针释放。",
+    "复位及池耗尽后的恢复需预取延迟，无释放直通；未综合或 STA。"
+  ],
+  "verification": {
+    "simulation": "passed",
+    "lint": "not_run",
+    "cdc": "not_applicable",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run",
+    "last_checked": "2026-10-21",
+    "notes": "pyslang 12.0.0 实际 RTL/自检 bench 参数展开通过；Icarus Verilog/vvp 实际运行对应参数回归并通过，具体范围见 README；未做综合、formal 或时序签核。"
+  },
+  "source_id": "free_ptr_mng",
+  "status": "constrained",
+  "features": [
+    "指针 0 完整支持",
+    "两项预取缓存",
+    "真实分配 fire 更新",
+    "总空闲计数与非法释放保护"
+  ],
+  "design_patterns": [
+    "Resource pool"
+  ],
+  "problem_index": [
+    "duplicate free",
+    "resource exhaustion"
+  ],
+  "review": {
+    "date": "2026-10-21",
+    "method": "RTL 源码审查 + pyslang 参数展开 + Icarus 自检 RTL 仿真",
+    "rtl_changed": true,
+    "rtl_simulation": "passed"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "name": "pcie_axi_bridge_sample",
+  "display_name": "PCIe Memory to AXI Bridge (Generic Sample)",
+  "version": "0.1.0",
+  "kind": "bridge",
+  "category": "bridges",
+  "description": "Generic, non-proprietary design card for mapping PCIe memory transactions to AXI4 transactions.",
+  "tags": ["pcie", "axi4", "bridge", "ordering", "backpressure"],
+  "protocols": {
+    "input": ["PCIe"],
+    "output": ["AXI4"]
+  },
+  "features": ["memory_read", "memory_write", "outstanding_tracking", "error_mapping"],
+  "limitations": [
+    "This is a design knowledge sample, not a production RTL implementation.",
+    "Atomic operations and proprietary completion policies are not modeled."
+  ],
+  "dependencies": [{"name": "async_fifo_sample", "version_constraint": ">=1.0.0", "relation": "required"}],
+  "verification": {
+    "simulation": "not_run",
+    "lint": "not_run",
+    "cdc": "not_run",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run"
+  },
+  "mapping": [
+    {
+      "source_transaction": "pcie_memory_read",
+      "target_transaction": "axi_read",
+      "ordering": "preserve_request_order_until_tag_assignment",
+      "split_behavior": "possible_on_boundary_or_width_constraint",
+      "response_required": true,
+      "error_mapping": "axi_rresp_to_pcie_completion_status",
+      "field_mapping": [
+        {"source": "requester_id", "target": "internal_requester_id", "rule": "preserve"},
+        {"source": "tag", "target": "outstanding_id", "rule": "track_until_completion"},
+        {"source": "address", "target": "araddr", "rule": "address_space_translation"},
+        {"source": "length", "target": "arlen", "rule": "convert_to_axi_beats"}
+      ],
+      "notes": "Requires tag/outstanding tracking and completion generation."
+    },
+    {
+      "source_transaction": "pcie_memory_write",
+      "target_transaction": "axi_write",
+      "ordering": "preserve_write_visibility_rules",
+      "split_behavior": "possible_on_boundary_or_payload_constraint",
+      "response_required": false,
+      "error_mapping": "axi_bresp_to_internal_error_policy",
+      "field_mapping": [
+        {"source": "address", "target": "awaddr", "rule": "address_space_translation"},
+        {"source": "byte_enable", "target": "wstrb", "rule": "byte_lane_mapping"},
+        {"source": "payload", "target": "wdata", "rule": "width_and_alignment_check"}
+      ],
+      "notes": "Byte enables map to WSTRB; alignment rules must be explicit."
+    }
+  ],
+  "files": {"documents": ["README.md"]}
+}

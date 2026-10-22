@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "name": "wql32_axi_slice",
+  "display_name": "AXI Channel Slice（双缓冲）",
+  "version": "source",
+  "kind": "rtl_component",
+  "category": "axi",
+  "description": "AXI 总线通道切片和流水线寄存器，用于改善长路径时序。",
+  "tags": [
+    "axi",
+    "pipeline",
+    "slice",
+    "timing-closure",
+    "buffer"
+  ],
+  "protocols": [
+    "AXI4"
+  ],
+  "limitations": [
+    "需分别评估 AW/W/B 和 AR/R 通道的独立 backpressure。"
+  ],
+  "verification": {
+    "simulation": "not_run",
+    "lint": "not_run",
+    "cdc": "not_applicable",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run"
+  },
+  "source_id": "axi_slice",
+  "status": "constrained",
+  "features": [],
+  "design_patterns": [],
+  "problem_index": []
+}

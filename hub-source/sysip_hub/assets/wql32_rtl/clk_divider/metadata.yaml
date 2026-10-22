@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "name": "wql32_clk_divider",
+  "display_name": "时钟分频器",
+  "version": "local-fix-20261021",
+  "kind": "rtl_component",
+  "category": "cdc",
+  "description": "参数化时钟分频/节拍生成组件。",
+  "tags": [
+    "clock",
+    "divider",
+    "timing"
+  ],
+  "protocols": [
+    "clock"
+  ],
+  "limitations": [
+    "偶数模式因子 >= 2，奇数模式因子 >= 3；非法配置输出零。",
+    "奇数模式按正沿采样使能，并完成对应负沿半周期；异步复位可截短脉冲。",
+    "真实时钟应用需 generated-clock/STA/CTS/脉宽检查，数字仿真不是时钟签核。"
+  ],
+  "verification": {
+    "simulation": "passed",
+    "lint": "not_run",
+    "cdc": "not_applicable",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run",
+    "last_checked": "2026-10-21",
+    "notes": "pyslang 12.0.0 实际 RTL/自检 bench 参数展开通过；Icarus Verilog/vvp 实际运行对应参数回归并通过，具体范围见 README；未做综合、formal 或时序签核。"
+  },
+  "source_id": "clk_divider",
+  "status": "constrained",
+  "features": [
+    "独立正负沿波形寄存器",
+    "偶数与奇数整数分频",
+    "采样使能暂停恢复",
+    "非法配置确定零输出"
+  ],
+  "design_patterns": [
+    "Clock divider"
+  ],
+  "problem_index": [
+    "multiple drivers",
+    "generated-clock implementation"
+  ],
+  "review": {
+    "date": "2026-10-21",
+    "method": "RTL 源码审查 + pyslang 参数展开 + Icarus 自检 RTL 仿真",
+    "rtl_changed": true,
+    "rtl_simulation": "passed"
+  }
+}

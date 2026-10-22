@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "wql32_axi_burst_splitter",
+  "display_name": "AXI Burst Splitter",
+  "version": "0.1",
+  "kind": "rtl_component",
+  "category": "axi",
+  "description": "将线性传输命令拆分为不超过最大 beat 数且不跨越地址边界的子 burst，适合 DMA 和 PCIe/AXI 地址转换路径。",
+  "tags": ["axi", "burst", "dma", "4kb-boundary", "address-generator"],
+  "protocols": ["AXI4"],
+  "features": ["max-burst-limit", "boundary-split", "linear-transfer", "invalid-request-error"],
+  "limitations": ["输入 in_beats 表示实际 beat 数，不是 AXI AxLEN 编码值。", "仅支持按 beat 对齐的 INCR 传输命令。", "BOUNDARY_BYTES 必须是 2 的幂。", "组件只拆分命令，不生成 AW/W 通道。"],
+  "design_patterns": ["burst-boundary-splitting", "command-data-path-separation"],
+  "problem_index": ["4KB boundary", "burst length", "unaligned transfer"],
+  "source_id": "wql32_axi_burst_splitter"
+}

@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "name": "wql32_ff_cam",
+  "display_name": "FF 内容寻址存储器 (ff_cam.v)",
+  "version": "local-fix-20261021",
+  "kind": "rtl_component",
+  "category": "storage",
+  "description": "基于触发器的 CAM，支持读、写、清除和内容搜索。",
+  "tags": [
+    "cam",
+    "content-addressable",
+    "search",
+    "valid"
+  ],
+  "protocols": [
+    "rtl"
+  ],
+  "limitations": [
+    "无 match-valid：无命中和地址 0 命中不可区分。",
+    "重复 key 取最低地址；同 entry 写优先于清除。",
+    "FLOP_IN/FLOP_OUT 仅取 0/1，地址位宽须覆盖深度；未综合或 STA。"
+  ],
+  "verification": {
+    "simulation": "passed",
+    "lint": "not_run",
+    "cdc": "not_applicable",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run",
+    "last_checked": "2026-10-21",
+    "notes": "pyslang 12.0.0 实际 RTL/自检 bench 参数展开通过；Icarus Verilog/vvp 实际运行对应参数回归并通过，具体范围见 README；未做综合、formal 或时序签核。"
+  },
+  "source_id": "ff_cam",
+  "status": "constrained",
+  "features": [
+    "带有效位的寄存器 CAM",
+    "独立读写与清除",
+    "最低索引多命中选择",
+    "输入输出完整可选流水"
+  ],
+  "design_patterns": [
+    "CAM lookup"
+  ],
+  "problem_index": [
+    "duplicate match priority",
+    "missing match-valid"
+  ],
+  "review": {
+    "date": "2026-10-21",
+    "method": "RTL 源码审查 + pyslang 参数展开 + Icarus 自检 RTL 仿真",
+    "rtl_changed": true,
+    "rtl_simulation": "passed"
+  }
+}

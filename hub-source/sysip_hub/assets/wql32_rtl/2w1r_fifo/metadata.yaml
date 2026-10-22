@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "name": "wql32_2w1r_fifo",
+  "display_name": "双写单读 FIFO (2w1r_fifo.v)",
+  "version": "local-fix-20261021",
+  "kind": "rtl_component",
+  "category": "fifo",
+  "description": "支持两个写入端口和一个读取端口的参数化 FIFO。",
+  "tags": [
+    "fifo",
+    "multi-write",
+    "single-read",
+    "arbitration"
+  ],
+  "protocols": [
+    "FIFO enable"
+  ],
+  "limitations": [
+    "FIFO_WIDTH >= 1、FIFO_DEPTH >= 1；双写按整批接受或拒绝。",
+    "两个写端无单独 accept；空间不足时调用者需重试整批。",
+    "满且读只释放一个名额；空读不旁路；未进行综合或 STA。"
+  ],
+  "verification": {
+    "simulation": "passed",
+    "lint": "not_run",
+    "cdc": "not_applicable",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run",
+    "last_checked": "2026-10-21",
+    "notes": "pyslang 12.0.0 实际 RTL/自检 bench 参数展开通过；Icarus Verilog/vvp 实际运行对应参数回归并通过，具体范围见 README；未做综合、formal 或时序签核。"
+  },
+  "source_id": "2w1r_fifo",
+  "status": "constrained",
+  "features": [
+    "双写端口 0 优先入队",
+    "端口 1 独立写不留空洞",
+    "整批容量检查与拒绝",
+    "非 2 的幂深度显式回绕"
+  ],
+  "design_patterns": [
+    "FIFO buffering"
+  ],
+  "problem_index": [
+    "FIFO overflow and underflow",
+    "multi-write acceptance"
+  ],
+  "verification_history": [
+    {
+      "version": "source",
+      "reason": "修复版不继承旧源码的手工验证状态",
+      "verification": {
+        "simulation": "passed",
+        "lint": "passed",
+        "cdc": "not_applicable",
+        "formal": "passed",
+        "synthesis": "passed",
+        "performance": "passed",
+        "last_checked": "2026/8/17"
+      }
+    }
+  ],
+  "review": {
+    "date": "2026-10-21",
+    "method": "RTL 源码审查 + pyslang 参数展开 + Icarus 自检 RTL 仿真",
+    "rtl_changed": true,
+    "rtl_simulation": "passed"
+  }
+}

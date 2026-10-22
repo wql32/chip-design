@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "name": "cxl_axi_bridge_sample",
+  "display_name": "CXL.mem to AXI Bridge (Generic Sample)",
+  "version": "0.1.0",
+  "kind": "bridge",
+  "category": "bridges",
+  "description": "Generic design card for organizing CXL.mem to AXI transaction conversion decisions.",
+  "tags": ["cxl", "cxl.mem", "axi4", "bridge", "backpressure", "error"],
+  "protocols": {
+    "input": ["CXL.mem"],
+    "output": ["AXI4"]
+  },
+  "features": ["request_conversion", "response_conversion", "backpressure", "error_propagation"],
+  "limitations": [
+    "Coherency and implementation-specific memory ordering are intentionally left as review fields.",
+    "This is a generic knowledge sample, not a protocol compliance checker."
+  ],
+  "dependencies": [{"name": "async_fifo_sample", "version_constraint": ">=1.0.0", "relation": "required"}],
+  "verification": {
+    "simulation": "not_run",
+    "lint": "not_run",
+    "cdc": "not_run",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run"
+  },
+  "mapping": [
+    {
+      "source_transaction": "cxl_mem_request",
+      "target_transaction": "axi_read_or_write",
+      "ordering": "record_coherency_and_visibility_policy",
+      "split_behavior": "implementation_defined",
+      "response_required": true,
+      "error_mapping": "cxl_error_or_poison_to_axi_response_policy",
+      "field_mapping": [
+        {"source": "address", "target": "araddr_or_awaddr", "rule": "memory_window_translation"},
+        {"source": "opcode", "target": "axi_read_or_write", "rule": "request_type_decode"},
+        {"source": "poison", "target": "error_context", "rule": "preserve_and_propagate"}
+      ],
+      "notes": "Capture coherency, poison, retry and backpressure decisions in the design review."
+    }
+  ],
+  "files": {"documents": ["README.md"]}
+}

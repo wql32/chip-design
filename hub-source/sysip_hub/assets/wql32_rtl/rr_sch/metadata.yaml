@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "name": "wql32_rr_sch",
+  "display_name": "轮询调度器 (rr_sch.v)",
+  "version": "local-fix-20261021",
+  "kind": "rtl_component",
+  "category": "arbiter",
+  "description": "面向多请求源的轮询调度器，支持请求推进和公平服务。",
+  "tags": [
+    "round-robin",
+    "scheduler",
+    "fairness",
+    "request"
+  ],
+  "protocols": [
+    "rtl"
+  ],
+  "limitations": [
+    "REQ_NUM >= 1，支持非 2 的幂；i_sch_en 表示本周期实际接受一次服务。",
+    "o_gnt_vld 保持旧向量接口，但不是每端口有效 bitmap。",
+    "没有独立 ready 或 pending grant；需要保持授权时必须增加外部逻辑。",
+    "已通过静态展开、参考模型及 Icarus RTL 动态仿真；未完成综合/时序或 CDC 签核。"
+  ],
+  "verification": {
+    "simulation": "passed",
+    "lint": "not_run",
+    "cdc": "not_applicable",
+    "formal": "not_run",
+    "synthesis": "not_run",
+    "performance": "not_run",
+    "last_checked": "2026-10-21",
+    "notes": "pyslang 12.0.0 参数展开通过；Python 独立参考模型通过；Icarus Verilog/vvp 已实际执行自检 RTL testbench 并通过，范围见 README。未完成 lint、formal、综合、CDC 或 STA 签核。"
+  },
+  "source_id": "rr_sch",
+  "status": "constrained",
+  "features": [
+    "last-grant mask 与回绕优先选择",
+    "仅在 i_sch_en 且存在请求时推进轮询",
+    "暂停时 grant/valid 均为零",
+    "保留向量 o_gnt_vld，只有 bit 0 为标量有效位"
+  ],
+  "design_patterns": [
+    "Round-robin arbitration"
+  ],
+  "problem_index": [
+    "Fairness, starvation and grant timing"
+  ],
+  "review": {
+    "date": "2026-10-21",
+    "method": "RTL 源码审查 + pyslang 参数展开 + 独立参考模型 + Icarus RTL 自检仿真",
+    "rtl_changed": true,
+    "rtl_simulation": "passed"
+  }
+}

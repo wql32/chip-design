@@ -1,0 +1,31 @@
+# Runtime data is rebuilt from metadata; never commit machine-local state.
+__pycache__/
+*.py[cod]
+*.db
+*.db-*
+*.sqlite*
+*.log
+.system_ip_hub/
+.system_ip_hub*/
+.system-ip-hub*/
+.rtl_tools/
+.rtl_sim_*/
+.deploy_repo/
+.codex/
+.aws/
+.ssh/
+.env
+.env.*
+*.pem
+*.key
+credentials.json
+credentials.yaml
+credentials.yml
+secrets.json
+secrets.yaml
+secrets.yml
+node_modules/
+tests/fixtures/
+sysip_hub/assets/imported/
+sysip_hub/assets/wql32_rtl/_source_repo/
+# Adding another public asset requires review of source_manifest.json.
